@@ -1,0 +1,277 @@
+﻿using Newtonsoft.Json;
+using Bang.Components;
+using Bang.Entities;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+
+namespace Bang.StateMachines
+{
+    /// <summary>
+    /// This is a basic state machine for an entity.
+    /// It is sort-of anti-pattern of ECS at this point. This is a trade-off
+    /// between adding content and using ECS at the core of the game.
+    /// </summary>
+    public abstract class StateMachine
+    {
+        /// <summary>
+        /// This is the only property of the state machine we will actually persist.
+        /// This will keep track of the last state of the state machine.
+        /// </summary>
+        [JsonProperty]
+        private string? _cachedPersistedState;
+
+        /// <summary>
+        /// World of the state machine.
+        /// Initialized in <see cref="Initialize(World, Entity)"/>.
+        /// </summary>
+        protected World World = null!;
+
+        /// <summary>
+        /// Entity of the state machine.
+        /// Initialized in <see cref="Initialize(World, Entity)"/>.
+        /// </summary>
+        protected Entity Entity = null!;
+
+        /// <summary>
+        /// Name of the active state. Used for debug.
+        /// </summary>
+        public string Name { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// Called when the state changes.
+        /// Should only be called by the state machine component, see <see cref="StateMachineComponent{T}"/>.
+        /// </summary>
+        internal event Action? OnModified;
+
+        /// <summary>
+        /// Current state, represented by <see cref="Name"/>.
+        /// Tracked if we ever need to reset to the start of the state.
+        /// </summary>
+        private Func<IEnumerator<Wait>>? CurrentState { get; set; }
+
+        /// <summary>
+        /// The routine the entity is currently executing.
+        /// </summary>
+        private IEnumerator<Wait>? Routine { get; set; }
+
+        /// <summary>
+        /// Track any wait time before calling the next Tick.
+        /// </summary>
+        private float? _waitTime = null;
+
+        /// <summary>
+        /// Track any amount of frames before calling the next Tick.
+        /// </summary>
+        private int? _waitFrames = null;
+
+        /// <summary>
+        /// Routine which we might be currently waiting on, before resuming to <see cref="Routine"/>.
+        /// </summary>
+        private readonly Stack<IEnumerator<Wait>> _routinesOnWait = new();
+
+        /// <summary>
+        /// Track the message we are waiting for.
+        /// </summary>
+        private int? _waitForMessage = null;
+
+        /// <summary>
+        /// Tracks whether a message which was waited has been received.
+        /// </summary>
+        private bool _isMessageReceived = false;
+
+        /// <summary>
+        /// Whether this was the first time a tick was executed.
+        /// Used to call <see cref="OnStart"/>.
+        /// </summary>
+        private bool _isFirstTick = true;
+
+        /// <summary>
+        /// Initialize the state machine. 
+        /// Should only be called by the entity itself when it is registered in the world.
+        /// </summary>
+        [MemberNotNull(nameof(World))]
+        [MemberNotNull(nameof(Entity))]
+        internal virtual void Initialize(World world, Entity e) 
+        {
+            Debug.Assert(Routine is not null, "Have you called State() before starting this state machine?");
+
+            (World, Entity) = (world, e);
+
+            // If the default state is not the same as the one we persisted, track it again, if we can!
+            if (_cachedPersistedState is not null && Name != _cachedPersistedState)
+            {
+                MethodInfo? method = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                    .FirstOrDefault(m => m.Name == _cachedPersistedState);
+                if (method is not null)
+                {
+                    State((Func<IEnumerator<Wait>>)Delegate.CreateDelegate(typeof(Func<IEnumerator<Wait>>), this, method));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Initialize the state machine. Called before the first <see cref="Tick(float)"/> call.
+        /// </summary>
+        protected virtual void OnStart() { }
+
+        /// <summary>
+        /// Tick an update.
+        /// Should only be called by the state machine component, see <see cref="StateMachineComponent{T}"/>.
+        /// </summary>
+        internal bool Tick(float dt)
+        {
+            Debug.Assert(World is not null && Entity is not null, "Why are we ticking before starting first?");
+
+            if (_waitTime is not null)
+            {
+                _waitTime -= dt;
+
+                if (_waitTime > 0)
+                {
+                    return true;
+                }
+
+                _waitTime = null;
+            }
+
+            if (_waitFrames is not null)
+            {
+                if (--_waitFrames > 0)
+                {
+                    return true;
+                }
+
+                _waitFrames = null;
+            }
+
+            if (_waitForMessage is not null)
+            {
+                if (!_isMessageReceived)
+                {
+                    return true;
+                }
+
+                _waitForMessage = null;
+                _isMessageReceived = false;
+            }
+
+            Wait r = Tick();
+            switch (r.Kind)
+            {
+                case WaitKind.Stop:
+                    Finish();
+                    return false;
+
+                case WaitKind.Ms:
+                    _waitTime = r.Value!.Value;
+                    return true;
+
+                case WaitKind.Frames:
+                    _waitFrames = r.Value!.Value;
+                    return true;
+
+                case WaitKind.Message:
+                    Entity.OnMessage += OnMessageSent;
+
+                    _waitForMessage = World.ComponentsLookup.Id(r.Component!);
+                    return true;
+
+                case WaitKind.Routine:
+                    _routinesOnWait.Push(r.Routine!);
+                    return true;
+            }
+
+            return true;
+        }
+
+        private Wait Tick()
+        {
+            Debug.Assert(Routine is not null, "Have you called State() before ticking this state machine?");
+
+            if (_isFirstTick)
+            {
+                OnStart();
+                _isFirstTick = false;
+            }
+
+            // If there is a wait routine, go for that instead.
+            while (_routinesOnWait.Count != 0)
+            {
+                if (_routinesOnWait.Peek().MoveNext())
+                {
+                    return _routinesOnWait.Peek().Current;
+                }
+                else
+                {
+                    _routinesOnWait.Pop();
+                }
+            }
+
+            if (!Routine.MoveNext())
+            {
+                return Wait.Stop;
+            }
+
+            return Routine.Current;
+        }
+
+        internal virtual void Finish()
+        {
+            Routine?.Dispose();
+
+            Routine = null;
+            CurrentState = null;
+
+            Entity?.RemoveComponent<IStateMachineComponent>();
+        }
+
+        /// <summary>
+        /// This resets the current state of the state machine back to the beggining of that same state.
+        /// </summary>
+        protected void Reset()
+        {
+            Routine = CurrentState?.Invoke();
+        }
+
+        /// <summary>
+        /// Redirects the state machine to a new <paramref name="routine"/>.
+        /// </summary>
+        /// <param name="routine">Target routine (new state).</param>
+        protected virtual Wait GoTo(Func<IEnumerator<Wait>> routine)
+        {
+            State(routine);
+            return Tick();
+        }
+
+        /// <summary>
+        /// Set the current state of the state machine with <paramref name="routine"/>.
+        /// </summary>
+        protected void State(Func<IEnumerator<Wait>> routine)
+        {
+            CurrentState = routine;
+            Routine = routine.Invoke();
+
+            Name = routine.Method.Name;
+            _cachedPersistedState = Name;
+
+            OnModified?.Invoke();
+        }
+
+        private void OnMessageSent(Entity e, int index, IMessage message)
+        {
+            if (_waitForMessage is null)
+            {
+                return;
+            }
+
+            if (index != _waitForMessage.Value)
+            {
+                return;
+            }
+
+            _isMessageReceived = true;
+            Entity.OnMessage -= OnMessageSent;
+        }
+    }
+}
