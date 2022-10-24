@@ -3,7 +3,7 @@
 namespace Bang.Interactions
 {
     /// <summary>
-    /// An interaction is any logic which will be ex
+    /// An interaction is any logic which will be immediately sent to another entity.
     /// </summary>
     public interface Interaction
     {
