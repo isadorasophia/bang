@@ -109,21 +109,7 @@ namespace Bang.Entities
                 (c as IModifiableComponent)?.Subscribe(() => OnComponentModified?.Invoke(this, key));
                 (c as IStateMachineComponent)?.Initialize(_world, this);
 
-                if (_availableComponents.Length <= key)
-                {
-                    // We might hit the scenario when a component that was not previously taken into account is added.
-                    // This may happen for components not tracked by a generator, usually when there is a project that
-                    // adds extra components. This shouldn't happen in the shipped engine, for example.
-
-                    // Double the lookup size.
-                    bool[] newLookup = new bool[_availableComponents.Length * 2];
-                    Array.Copy(_availableComponents, newLookup, _availableComponents.Length);
-
-                    _availableComponents = newLookup;
-                }
-
-                _availableComponents[key] = true;
-                _components[key] = c;
+                AddComponentInternal(c, key);
             }
 
 #if DEBUG
@@ -390,6 +376,29 @@ namespace Bang.Entities
         }
 
         /// <summary>
+        /// This simply adds a component to our lookup table. This won't do anything fancy other than
+        /// booking it, if it happens to exceed the components length.
+        /// </summary>
+        private void AddComponentInternal<T>(T c, int index) where T : IComponent
+        {
+            if (_availableComponents.Length <= index)
+            {
+                // We might hit the scenario when a component that was not previously taken into account is added.
+                // This may happen for components not tracked by a generator, usually when there is a project that
+                // adds extra components. This shouldn't happen in the shipped engine, for example.
+
+                // Double the lookup size.
+                bool[] newLookup = new bool[_availableComponents.Length * 2];
+                Array.Copy(_availableComponents, newLookup, _availableComponents.Length);
+
+                _availableComponents = newLookup;
+            }
+
+            _components[index] = c;
+            _availableComponents[index] = true;
+        }
+
+        /// <summary>
         /// Add a component to the entity.
         /// Returns true if the element existed and was replaced.
         /// </summary>
@@ -407,9 +416,7 @@ namespace Bang.Entities
                 return false;
             }
 
-            _components[index] = c;
-            _availableComponents[index] = true;
-            
+            AddComponentInternal(c, index);
             NotifyAndSubscribeOnComponentAdded(index, c);
 
             return true;

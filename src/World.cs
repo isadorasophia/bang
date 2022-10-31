@@ -627,7 +627,7 @@ namespace Bang
             T? component = TryGetUnique<T>();
             if (component is null)
             {
-                throw new InvalidOperationException("How do we not have this component within our world?");
+                throw new InvalidOperationException($"How do we not have a '{typeof(T).Name}' component within our world?");
             }
 
             return component.Value;
