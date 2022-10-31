@@ -63,7 +63,8 @@ namespace Bang.Entities
         /// <summary>
         /// Keeps track of all the components that are currently present.
         /// </summary>
-        private readonly bool[] _availableComponents;
+        // TODO: Investigate trade-off between using this and a hash set.
+        private bool[] _availableComponents;
 
         // TODO: I guess this can be an array. Eventually.
         private IDictionary<int, IComponent> _components;
@@ -107,6 +108,19 @@ namespace Bang.Entities
                 
                 (c as IModifiableComponent)?.Subscribe(() => OnComponentModified?.Invoke(this, key));
                 (c as IStateMachineComponent)?.Initialize(_world, this);
+
+                if (_availableComponents.Length <= key)
+                {
+                    // We might hit the scenario when a component that was not previously taken into account is added.
+                    // This may happen for components not tracked by a generator, usually when there is a project that
+                    // adds extra components. This shouldn't happen in the shipped engine, for example.
+
+                    // Double the lookup size.
+                    bool[] newLookup = new bool[_availableComponents.Length * 2];
+                    Array.Copy(_availableComponents, newLookup, _availableComponents.Length);
+
+                    _availableComponents = newLookup;
+                }
 
                 _availableComponents[key] = true;
                 _components[key] = c;
@@ -360,7 +374,7 @@ namespace Bang.Entities
         /// <summary>
         /// Checks whether an entity has a component.
         /// </summary>
-        public bool HasComponent(int index) => _availableComponents[index];
+        public bool HasComponent(int index) => index < _availableComponents.Length && _availableComponents[index];
         
         /// <summary>
         /// Checks whether an entity has a data attached to -- component or message.

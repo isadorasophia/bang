@@ -1,4 +1,6 @@
 ﻿using Bang.Components;
+using Bang.Interactions;
+using Bang.StateMachines;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
@@ -25,6 +27,18 @@ namespace Bang
         public abstract ImmutableHashSet<int> RelativeComponents { get; }
 
         /// <summary>
+        /// Tracks components and messages without a generator. This query will have a lower performance.
+        /// </summary>
+        private readonly Dictionary<Type, int> _untrackedIndices = new();
+
+        /// <summary>
+        /// Tracks relative components without a generator. This query will have a lower performance.
+        /// </summary>
+        private readonly HashSet<int> _untrackedRelativeComponents = new();
+
+        private int? _nextUntrackedIndex;
+
+        /// <summary>
         /// Get the id for <paramref name="t"/> component type.
         /// </summary>
         /// <param name="t">Type.</param>
@@ -33,12 +47,24 @@ namespace Bang
             Debug.Assert(typeof(IComponent).IsAssignableFrom(t) || typeof(IMessage).IsAssignableFrom(t),
                 "Why are we receiving a type that is not an IComponent?");
 
-            if (typeof(IMessage).IsAssignableFrom(t))
+            int index;
+
+            if (typeof(IMessage).IsAssignableFrom(t) && MessagesIndex.TryGetValue(t, out index))
             {
-                return MessagesIndex[t];
+                return index;
             }
 
-            return ComponentsIndex[t];
+            if (ComponentsIndex.TryGetValue(t, out index))
+            {
+                return index;
+            }
+
+            if (_untrackedIndices.TryGetValue(t, out index))
+            {
+                return index;
+            }
+
+            return AddUntrackedIndexForComponentOrMessage(t);
         }
 
         /// <summary>
@@ -48,7 +74,40 @@ namespace Bang
         {
             return RelativeComponents.Contains(id);
         }
-        
-        internal int TotalIndices => ComponentsIndex.Count + MessagesIndex.Count;
+
+        internal int TotalIndices => ComponentsIndex.Count + MessagesIndex.Count + _untrackedIndices.Count;
+
+        private int AddUntrackedIndexForComponentOrMessage(Type t)
+        {
+            int? id = null;
+
+            if (!t.IsInterface)
+            {
+                if (typeof(IStateMachineComponent).IsAssignableFrom(t))
+                {
+                    id = Id(typeof(IStateMachineComponent));
+                }
+                else if (typeof(IInteractiveComponent).IsAssignableFrom(t))
+                {
+                    id = Id(typeof(IInteractiveComponent));
+                }
+            }
+
+            if (id is null)
+            {
+                _nextUntrackedIndex ??= ComponentsIndex.Count + MessagesIndex.Count;
+
+                id = _nextUntrackedIndex++;
+            }
+
+            _untrackedIndices.Add(t, id.Value);
+
+            if (typeof(IParentRelativeComponent).IsAssignableFrom(t))
+            {
+                _untrackedRelativeComponents.Add(id.Value);
+            }
+
+            return id.Value;
+        }
     }
 }
