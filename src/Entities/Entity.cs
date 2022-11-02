@@ -210,7 +210,7 @@ namespace Bang.Entities
         /// <typeparam name="T">Type that inherits <see cref="IComponent"/>.</typeparam>
         public T GetComponent<T>(int index) where T : IComponent
         {
-            Debug.Assert(HasComponent(index), $"Why are we getting a component of type '{typeof(T).Name}' that does not exist?");
+             Debug.Assert(HasComponent(index), $"The entity doesn't have a component of type '{typeof(T).Name}', maybe you should 'TryGetComponent'?");
              return (T)_components[index];
         }
 

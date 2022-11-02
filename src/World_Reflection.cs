@@ -14,6 +14,9 @@ namespace Bang
 
             var isLookup = (Type t) => !t.IsInterface && !t.IsAbstract && lookup.IsAssignableFrom(t);
 
+            // We might find more than one lookup implementation, when inheriting projects with a generator.
+            List<Type> candidateLookupImplementations = new();
+
             Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (Assembly s in allAssemblies)
             {
@@ -21,9 +24,36 @@ namespace Bang
                 {
                     if (isLookup(t))
                     {
-                        return (ComponentsLookup)Activator.CreateInstance(t)!;
+                        candidateLookupImplementations.Add(t);
                     }
                 }
+            }
+
+            Type? target = null;
+            if (candidateLookupImplementations.Count == 1)
+            {
+                // Easy, just return the first implementation.
+                target = candidateLookupImplementations[0];
+            }
+            else
+            {
+                // This should only be done once and we will have at *very maximum* three implementations.
+                // Check whoever implements whom.
+                foreach (Type t in candidateLookupImplementations)
+                {
+                    foreach (Type tt in candidateLookupImplementations)
+                    {
+                        if (t != tt && t.IsAssignableFrom(tt))
+                        {
+                            target = tt;
+                        }
+                    }
+                }
+            }
+
+            if (target is not null)
+            {
+                return (ComponentsLookup)Activator.CreateInstance(target)!;
             }
 
             throw new InvalidOperationException("A generator is required to be run before running the game!");
