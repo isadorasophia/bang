@@ -145,11 +145,7 @@ namespace Bang.Entities
         /// <summary>
         /// Whether this entity has a component of type T.
         /// </summary>
-        public bool HasComponent<T>() where T : IComponent
-        {
-            int index = GetComponentIndex<T>();
-            return _availableComponents[index];
-        }
+        public bool HasComponent<T>() where T : IComponent => HasComponent(GetComponentIndex<T>());
 
         /// <summary>
         /// Try to get a component of type T. If none, returns false and null.
