@@ -415,6 +415,20 @@ namespace Bang
         public ImmutableArray<Entity> GetAllEntities() => _entities.Values.ToImmutableArray();
 
         /// <summary>
+        /// Whether a system is active within the world.
+        /// </summary>
+        public bool IsSystemActive(Type t)
+        {
+            if (!_typeToSystems.TryGetValue(t, out int id))
+            {
+                // Most likely the system is simply not available.
+                return false;
+            }
+
+            return _systems[id].IsActive;
+        }
+
+        /// <summary>
         /// Activate a system within our world.
         /// </summary>
         public bool ActivateSystem<T>()
