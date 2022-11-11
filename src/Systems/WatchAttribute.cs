@@ -26,7 +26,7 @@ namespace Bang.Systems
             // Verify that all the attribute types are IComponents and a struct
             foreach (Type t in types)
             {
-                Debug.Assert(t.IsValueType || t == typeof(IStateMachineComponent), 
+                Debug.Assert(t.IsValueType || t == typeof(IStateMachineComponent) || t.IsInterface, 
                     "Why are we adding a watcher attribute for a non-struct? This won't be notified when the value changes.");
             }
 #endif

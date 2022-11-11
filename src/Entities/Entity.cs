@@ -122,8 +122,10 @@ namespace Bang.Entities
         /// </summary>
         private void CheckForRequiredComponents()
         {
-            var componentTypes = _components.Where(kv => _availableComponents[kv.Key]).Select(kv => kv.Value.GetType()).ToHashSet();
-            foreach (Type t in componentTypes)
+            Dictionary<int, Type> components = _components.Where(kv => _availableComponents[kv.Key])
+                .ToDictionary(kv => kv.Key, kv => kv.Value.GetType());
+            
+            foreach ((int id, Type t) in components)
             {
                 RequiresAttribute? requires = t.GetCustomAttributes(typeof(RequiresAttribute), inherit: true)
                     .FirstOrDefault() as RequiresAttribute;
@@ -132,10 +134,12 @@ namespace Bang.Entities
                 {
                     foreach (Type requiredType in requires.Types)
                     {
+                        int requiredId = _lookup.Id(requiredType);
+                        
                         Debug.Assert(typeof(IComponent).IsAssignableFrom(requiredType), 
                             "Why is a component requiring a type that is not a component?");
 
-                        Debug.Assert(componentTypes.Contains(requiredType),
+                        Debug.Assert(components.ContainsKey(requiredId),
                             $"Missing {requiredType.Name} required by {t.Name} in entity declaration!");
                     }
                 }
