@@ -8,7 +8,10 @@ namespace Bang
     /// </summary>
     public partial class World
     {
-        private ComponentsLookup FindLookupImplementation()
+        /// <summary>
+        /// Look for an implementation for the lookup table of components.
+        /// </summary>
+        public static ComponentsLookup FindLookupImplementation()
         {
             Type lookup = typeof(ComponentsLookup);
 
