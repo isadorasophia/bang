@@ -414,6 +414,8 @@ namespace Bang
         /// </summary>
         public ImmutableArray<Entity> GetAllEntities() => _entities.Values.ToImmutableArray();
 
+        public int EntityCount => _entities.Count;
+
         /// <summary>
         /// Whether a system is active within the world.
         /// </summary>
