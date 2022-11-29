@@ -178,6 +178,26 @@ namespace Bang.Entities
         }
 
         /// <summary>
+        /// Try to fetch a child with a <paramref name="name"/> identifier
+        /// </summary>
+        /// <param name="name">The name of the child.</param>
+        /// <returns>Child entity, if any.</returns>
+        public void RemoveChild(string name)
+        {
+            if (_childrenPerName is null)
+            {
+                return;
+            }
+
+            if (!_childrenPerName.TryGetValue(name, out int child))
+            {
+                return;
+            }
+
+            RemoveChild(child);
+        }
+
+        /// <summary>
         /// Remove a child from the entity.
         /// </summary>
         public void RemoveChild(int id)
