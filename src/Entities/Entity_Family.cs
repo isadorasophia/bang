@@ -182,19 +182,14 @@ namespace Bang.Entities
         /// </summary>
         /// <param name="name">The name of the child.</param>
         /// <returns>Child entity, if any.</returns>
-        public void RemoveChild(string name)
+        public bool HasChild(string name)
         {
             if (_childrenPerName is null)
             {
-                return;
+                return false;
             }
 
-            if (!_childrenPerName.TryGetValue(name, out int child))
-            {
-                return;
-            }
-
-            RemoveChild(child);
+            return _childrenPerName.ContainsKey(name);
         }
 
         /// <summary>
