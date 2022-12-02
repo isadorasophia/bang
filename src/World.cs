@@ -99,6 +99,11 @@ namespace Bang
         /// Set of systems which will be paused. See <see cref="IsPauseSystem(ISystem)"/> for more information.
         /// </summary>
         private readonly ImmutableHashSet<int> _pauseSystems;
+        
+        /// <summary>
+        /// Set of systems which will only be played once a pause occur.
+        /// </summary>
+        private readonly ImmutableHashSet<int> _playOnPauseSystems;
 
         /// <summary>
         /// List of systems which will be resumed after a pause.
@@ -179,6 +184,7 @@ namespace Bang
             var watchBuilder = ImmutableDictionary.CreateBuilder<int, (ComponentWatcher Watcher, SortedList<int, IReactiveSystem> Systems)>();
             var messageBuilder = ImmutableDictionary.CreateBuilder<int, (MessageWatcher Watcher, SortedList<int, IMessagerSystem> Systems)>();
             var pauseSystems = ImmutableHashSet.CreateBuilder<int>();
+            var playOnPauseSystems = ImmutableHashSet.CreateBuilder<int>();
 
             var idToSystems = ImmutableDictionary.CreateBuilder<int, ISystem>();
 
@@ -237,7 +243,12 @@ namespace Bang
                     messageWatcher = messager.Id;
                 }
 
-                if (IsPauseSystem(s))
+                if (IsPlayOnPauseSystem(s))
+                {
+                    isActive = false;
+                    playOnPauseSystems.Add(i);
+                }
+                else if (IsPauseSystem(s))
                 {
                     pauseSystems.Add(i);
                 }
@@ -253,6 +264,7 @@ namespace Bang
             _idToSystem = idToSystems.ToImmutable();
             _typeToSystems = idToSystems.ToImmutableDictionary(sv => sv.Value.GetType(), s => s.Key);
             _pauseSystems = pauseSystems.ToImmutable();
+            _playOnPauseSystems = playOnPauseSystems.ToImmutable();
 
             _cachedStartupSystems = new(_systems.Where(kv => kv.Value.IsActive && _idToSystem[kv.Key] is IStartupSystem)
                 .ToDictionary(kv => kv.Value.Order, kv => ((IStartupSystem)_idToSystem[kv.Key], kv.Value.ContextId)));
@@ -484,6 +496,14 @@ namespace Bang
         {
             IsPaused = true;
 
+            // Start by activating all systems that wait for a pause.
+            foreach (int id in _playOnPauseSystems)
+            {
+                ActivateSystem(id);
+            }
+            
+            _systemsToResume.Clear();
+
             foreach (int id in _pauseSystems)
             {
                 if (_systems[id].IsActive)
@@ -500,13 +520,22 @@ namespace Bang
         public virtual void Resume()
         {
             IsPaused = false;
-
+            
             foreach (int id in _systemsToResume)
             {
                 ActivateSystem(id);
             }
 
             _systemsToResume.Clear();
+
+            foreach (int id in _playOnPauseSystems)
+            {
+                if (_systems[id].IsActive)
+                {
+                    _systemsToResume.Add(id);
+                    DeactivateSystem(id);
+                }
+            }
         }
 
         /// <summary>

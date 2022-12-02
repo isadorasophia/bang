@@ -89,5 +89,14 @@ namespace Bang
 
             return true;
         }
+
+        /// <summary>
+        /// Returns whether a system is only expect to play when the game is paused.
+        /// This is useful when defining systems that still track the game stack, even if paused.
+        /// </summary>
+        private static bool IsPlayOnPauseSystem(ISystem s)
+        {
+            return Attribute.IsDefined(s.GetType(), typeof(OnPauseAttribute));
+        }
     }
 }
