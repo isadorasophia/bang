@@ -54,7 +54,7 @@ namespace Bang.StateMachines
         public static Wait ForMessage<T>() where T : IMessage => new(typeof(T));
 
         /// <summary>
-        /// Wait until message of type <typeparamref name="T"/> is fired from <paramref name="e"/>.
+        /// Wait until message of type <typeparamref name="T"/> is fired from <paramref name="target"/>.
         /// </summary>
         public static Wait ForMessage<T>(Entity target) where T : IMessage => new(typeof(T), target);
 
