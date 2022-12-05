@@ -172,8 +172,10 @@ namespace Bang.StateMachines
                     return true;
 
                 case WaitKind.Message:
+                    Entity target = r.Target ?? Entity;
                     int messageId = World.ComponentsLookup.Id(r.Component!);
-                    if (Entity.HasMessage(messageId))
+
+                    if (target.HasMessage(messageId))
                     {
                         // The entity might already have the message within the frame.
                         // If that is the case, skip the wait and resume in the next frame.
@@ -181,7 +183,7 @@ namespace Bang.StateMachines
                         return true;
                     }
 
-                    Entity.OnMessage += OnMessageSent;
+                    target.OnMessage += OnMessageSent;
                     _waitForMessage = messageId;
 
                     return true;

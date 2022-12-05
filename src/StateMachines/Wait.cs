@@ -1,4 +1,5 @@
 ﻿using Bang.Components;
+using Bang.Entities;
 
 namespace Bang.StateMachines
 {
@@ -22,6 +23,11 @@ namespace Bang.StateMachines
         /// </summary>
         public Type? Component;
 
+        /// <summary>
+        /// Used for <see cref="WaitKind.Message"/> when waiting on another entity that is not the owner of the state machine.
+        /// </summary>
+        public Entity? Target;
+        
         /// <summary>
         /// Used for <see cref="WaitKind.Routine"/>.
         /// </summary>
@@ -48,6 +54,11 @@ namespace Bang.StateMachines
         public static Wait ForMessage<T>() where T : IMessage => new(typeof(T));
 
         /// <summary>
+        /// Wait until message of type <typeparamref name="T"/> is fired from <paramref name="e"/>.
+        /// </summary>
+        public static Wait ForMessage<T>(Entity target) where T : IMessage => new(typeof(T), target);
+
+        /// <summary>
         /// Wait until <paramref name="frames"/> have occurred.
         /// </summary>
         public static Wait ForFrames(int frames) => new(WaitKind.Frames, frames);
@@ -65,6 +76,7 @@ namespace Bang.StateMachines
         private Wait() => Kind = WaitKind.Stop;
         private Wait(WaitKind kind, int value) => (Kind, Value) = (kind, value);
         private Wait(Type messageType) => (Kind, Component) = (WaitKind.Message, messageType);
+        private Wait(Type messageType, Entity target) => (Kind, Component, Target) = (WaitKind.Message, messageType, target);
         private Wait(IEnumerator<Wait> routine) => (Kind, Routine) = (WaitKind.Routine, routine);
     }
 }
