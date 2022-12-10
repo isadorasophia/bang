@@ -190,7 +190,9 @@ namespace Bang.StateMachines
 
                 case WaitKind.Routine:
                     _routinesOnWait.Push(r.Routine!);
-                    return true;
+
+                    // When we wait for a routine, immediately run it first.
+                    return Tick(dt);
             }
 
             return true;
