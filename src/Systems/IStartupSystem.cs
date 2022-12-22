@@ -10,6 +10,6 @@ namespace Bang.Systems
         /// <summary>
         /// This is called before any <see cref="IUpdateSystem.Update(Context)"/> call.
         /// </summary>
-        public abstract ValueTask Start(Context context);
+        public abstract void Start(Context context);
     }
 }

@@ -11,6 +11,6 @@ namespace Bang.Systems
         /// Update calls which will be called in fixed intervals.
         /// </summary>
         /// <param name="context">Context which will filter the entities.</param>
-        public abstract ValueTask FixedUpdate(Context context);
+        public abstract void FixedUpdate(Context context);
     }
 }

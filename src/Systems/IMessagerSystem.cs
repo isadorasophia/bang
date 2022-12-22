@@ -11,6 +11,6 @@ namespace Bang.Systems
         /// <summary>
         /// Called once a message is fired from <paramref name="entity"/>.
         /// </summary>
-        public abstract ValueTask OnMessage(World world, Entity entity, IMessage message);
+        public abstract void OnMessage(World world, Entity entity, IMessage message);
     }
 }

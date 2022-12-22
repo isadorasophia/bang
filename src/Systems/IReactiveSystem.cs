@@ -13,19 +13,19 @@ namespace Bang.Systems
         /// components.
         /// This is not called if the entity died.
         /// </summary>
-        public abstract ValueTask OnAdded(World world, ImmutableArray<Entity> entities);
+        public abstract void OnAdded(World world, ImmutableArray<Entity> entities);
 
         /// <summary>
         /// This is called at the end of the frame for all entities which removed one of the target
         /// components.
         /// </summary>
-        public abstract ValueTask OnRemoved(World world, ImmutableArray<Entity> entities);
+        public abstract void OnRemoved(World world, ImmutableArray<Entity> entities);
 
         /// <summary>
         /// This is called at the end of the frame for all entities which modified one of the target
         /// components.
         /// This is not called if the entity died.
         /// </summary>
-        public abstract ValueTask OnModified(World world, ImmutableArray<Entity> entities);
+        public abstract void OnModified(World world, ImmutableArray<Entity> entities);
     }
 }

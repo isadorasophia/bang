@@ -558,7 +558,7 @@ namespace Bang
                 _cachedStartupSystems.Add(id, (startupSystem, context));
 
                 // System has never started before. Start them here!
-                _ = startupSystem.Start(Contexts[context]);
+                startupSystem.Start(Contexts[context]);
             }
 
             if (system is IUpdateSystem updateSystem) _cachedExecuteSystems.Add(id, (updateSystem, context));
@@ -772,14 +772,14 @@ namespace Bang
         /// Call start on all systems.
         /// This is called before any updates and will notify any reactive systems by the end of it.
         /// </summary>
-        public async ValueTask Start()
+        public void Start()
         {
             foreach (var (_, (system, contextId)) in _cachedStartupSystems)
             {
-                await system.Start(Contexts[contextId]);
+                system.Start(Contexts[contextId]);
             }
 
-            await NotifyReactiveSystems();
+            NotifyReactiveSystems();
         }
 
         /// <summary>
@@ -788,16 +788,16 @@ namespace Bang
         /// they were watching.
         /// Finally, it destroys all pending entities and clear all messages.
         /// </summary>
-        public async ValueTask Update()
+        public void Update()
         {
             // TODO: Do not make a copy every frame.
             foreach (var (_, (system, contextId)) in _cachedExecuteSystems.ToImmutableArray())
             {
                 // TODO: We want to run systems which do not cross components in parallel.
-                await system.Update(Contexts[contextId]);
+                system.Update(Contexts[contextId]);
             }
 
-            await NotifyReactiveSystems();
+            NotifyReactiveSystems();
             DestroyPendingEntities();
             
             // Clear the messages after the update so we can persist messages sent during Start().
@@ -808,20 +808,20 @@ namespace Bang
         /// Calls update on all <see cref="IFixedUpdateSystem"/> systems.
         /// This will be called on fixed intervals.
         /// </summary>
-        public async ValueTask FixedUpdate()
+        public void FixedUpdate()
         {
             // TODO: Do not make a copy every frame.
             foreach (var (_, (system, contextId)) in _cachedFixedExecuteSystems.ToImmutableArray())
             {
                 // TODO: We want to run systems which do not cross components in parallel.
-                await system.FixedUpdate(Contexts[contextId]);
+                system.FixedUpdate(Contexts[contextId]);
             }
         }
 
         /// <summary>
         /// Notify all reactive systems of any change that happened during the update.
         /// </summary>
-        private async ValueTask NotifyReactiveSystems()
+        private void NotifyReactiveSystems()
         {
             ImmutableArray<int> watchersTriggered;
 
@@ -901,15 +901,15 @@ namespace Bang
                     switch (kind)
                     {
                         case WatcherNotificationKind.Added:
-                            await system.OnAdded(this, entitiesInput);
+                            system.OnAdded(this, entitiesInput);
                             break;
 
                         case WatcherNotificationKind.Removed:
-                            await system.OnRemoved(this, entitiesInput);
+                            system.OnRemoved(this, entitiesInput);
                             break;
 
                         case WatcherNotificationKind.Modified:
-                            await system.OnModified(this, entitiesInput);
+                            system.OnModified(this, entitiesInput);
                             break;
                     }
                 }
@@ -918,10 +918,10 @@ namespace Bang
             // If the reactive systems triggered other operations, trigger that again.
             if (AnyPendingWatchers)
             {
-                await NotifyReactiveSystems();
+                NotifyReactiveSystems();
             }
         }
-
+        
         /// <summary>
         /// This will clear any messages received by the entities within a frame.
         /// </summary>

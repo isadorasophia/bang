@@ -10,6 +10,6 @@ namespace Bang.Systems
         /// <summary>
         /// Update method. Called once each frame.
         /// </summary>
-        public abstract ValueTask Update(Context context);
+        public abstract void Update(Context context);
     }
 }
