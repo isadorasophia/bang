@@ -820,7 +820,7 @@ namespace Bang
                     InitializeDiagnosticsCounters();
                     
                     _stopwatch.Stop();
-                    UpdateCounters[systemId].Update(_stopwatch.Elapsed.Milliseconds, Contexts[contextId].Entities.Length);
+                    UpdateCounters[systemId].Update(_stopwatch.Elapsed.TotalMicroseconds, Contexts[contextId].Entities.Length);
                 }
             }
 
@@ -854,7 +854,7 @@ namespace Bang
                     InitializeDiagnosticsCounters();
 
                     _stopwatch.Stop();
-                    FixedUpdateCounters[systemId].Update(_stopwatch.Elapsed.Milliseconds, Contexts[contextId].Entities.Length);
+                    FixedUpdateCounters[systemId].Update(_stopwatch.Elapsed.TotalMicroseconds, Contexts[contextId].Entities.Length);
                 }
             }
         }
@@ -968,7 +968,7 @@ namespace Bang
                     _stopwatch.Stop();
                     
                     ReactiveCounters[systemId].Update(
-                        _stopwatch.Elapsed.Milliseconds, totalEntities: notificationsAndSystem.Notifications.Sum(n => n.Value.Count));
+                        _stopwatch.Elapsed.TotalMicroseconds, totalEntities: notificationsAndSystem.Notifications.Sum(n => n.Value.Count));
                 }
             }
 
