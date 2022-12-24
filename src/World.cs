@@ -4,6 +4,7 @@ using Bang.Components;
 using Bang.Entities;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using Bang.Diagnostics;
 
 namespace Bang
 {
@@ -870,6 +871,15 @@ namespace Bang
             {
                 if (_watchersTriggered is null)
                 {
+                    if (DIAGNOSTICS_MODE)
+                    {
+                        // Make sure we update each reactive system with our nothing-ness.
+                        foreach ((int systemId, SmoothCounter counter) in ReactiveCounters)
+                        {
+                            ReactiveCounters[systemId].Update(0, 0);
+                        }
+                    }
+
                     // Nothing to notified, just go away.
                     return;
                 }
@@ -922,6 +932,10 @@ namespace Bang
                 }
             }
 
+            // This is used when DIAGNOSTICS_MODE is set to update reactive systems that were
+            // not triggered.
+            HashSet<int> triggeredSystems = new();
+
             // Now, iterate over each watcher and actually notify the systems based on their pending notifications.
             // This must be done *afterwards* since the reactive systems may add further notifications on their implementation.
             foreach (var (systemId, notificationsAndSystem) in systemsToNotify)
@@ -969,6 +983,19 @@ namespace Bang
                     
                     ReactiveCounters[systemId].Update(
                         _stopwatch.Elapsed.TotalMicroseconds, totalEntities: notificationsAndSystem.Notifications.Sum(n => n.Value.Count));
+
+                    triggeredSystems.Add(systemId);
+                }
+            }
+
+            if (DIAGNOSTICS_MODE)
+            {
+                foreach ((int systemId, SmoothCounter counter) in ReactiveCounters)
+                {
+                    if (!triggeredSystems.Contains(systemId))
+                    {
+                        ReactiveCounters[systemId].Update(0, 0);
+                    }
                 }
             }
 

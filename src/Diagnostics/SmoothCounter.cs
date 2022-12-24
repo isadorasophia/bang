@@ -31,8 +31,8 @@
         /// Maximum value over the sample size.
         /// </summary>
         public double MaximumTime => _longestTime;
-
-        public SmoothCounter(int size = 1000) => (_sampleSize, _previousTime, _previousEntityCount) = (size, new double[size], new int[size]);
+        
+        public SmoothCounter(int size = 500) => (_sampleSize, _previousTime, _previousEntityCount) = (size, new double[size], new int[size]);
 
         public void Clear()
         {
