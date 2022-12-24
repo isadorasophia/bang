@@ -14,6 +14,11 @@ namespace Bang
     /// </summary>
     public partial class World
     {
+        /// <summary>
+        /// Use this to set whether diagnostics should be pulled from the world run.
+        /// </summary>
+        public static bool DIAGNOSTICS_MODE = true;
+        
         private record struct SystemInfo
         {
             public readonly int ContextId { get; init; }
@@ -86,9 +91,10 @@ namespace Bang
         private readonly IDictionary<int, SystemInfo> _systems;
 
         /// <summary>
+        /// Used when fetching systems based on its unique identifier.
         /// Maps: System order id -> System instance.
         /// </summary>
-        private readonly ImmutableDictionary<int, ISystem> _idToSystem;
+        public readonly ImmutableDictionary<int, ISystem> IdToSystem;
 
         /// <summary>
         /// Maps: System type -> System id.
@@ -175,10 +181,6 @@ namespace Bang
                 throw new ArgumentException("Cannot create a world without any systems.");
             }
 
-#if DEBUG
-            CheckSystemsRequirements(systems);
-#endif
-
             ComponentsLookup = FindLookupImplementation();
 
             var watchBuilder = ImmutableDictionary.CreateBuilder<int, (ComponentWatcher Watcher, SortedList<int, IReactiveSystem> Systems)>();
@@ -261,22 +263,28 @@ namespace Bang
             _messagers = messageBuilder.ToImmutable();
 
             // Track the systems.
-            _idToSystem = idToSystems.ToImmutable();
+            IdToSystem = idToSystems.ToImmutable();
             _typeToSystems = idToSystems.ToImmutableDictionary(sv => sv.Value.GetType(), s => s.Key);
             _pauseSystems = pauseSystems.ToImmutable();
             _playOnPauseSystems = playOnPauseSystems.ToImmutable();
 
-            _cachedStartupSystems = new(_systems.Where(kv => kv.Value.IsActive && _idToSystem[kv.Key] is IStartupSystem)
-                .ToDictionary(kv => kv.Value.Order, kv => ((IStartupSystem)_idToSystem[kv.Key], kv.Value.ContextId)));
+            _cachedStartupSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IStartupSystem)
+                .ToDictionary(kv => kv.Value.Order, kv => ((IStartupSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
 
-            _cachedFixedExecuteSystems = new(_systems.Where(kv => kv.Value.IsActive && _idToSystem[kv.Key] is IFixedUpdateSystem)
-                .ToDictionary(kv => kv.Value.Order, kv => ((IFixedUpdateSystem)_idToSystem[kv.Key], kv.Value.ContextId)));
+            _cachedFixedExecuteSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IFixedUpdateSystem)
+                .ToDictionary(kv => kv.Value.Order, kv => ((IFixedUpdateSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
 
-            _cachedExecuteSystems = new(_systems.Where(kv => kv.Value.IsActive && _idToSystem[kv.Key] is IUpdateSystem)
-                .ToDictionary(kv => kv.Value.Order, kv => ((IUpdateSystem)_idToSystem[kv.Key], kv.Value.ContextId)));
+            _cachedExecuteSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IUpdateSystem)
+                .ToDictionary(kv => kv.Value.Order, kv => ((IUpdateSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
 
-            _cachedRenderSystems = new(_systems.Where(kv => kv.Value.IsActive && _idToSystem[kv.Key] is IRenderSystem)
-                .ToDictionary(kv => kv.Value.Order, kv => ((IRenderSystem)_idToSystem[kv.Key], kv.Value.ContextId)));
+            _cachedRenderSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IRenderSystem)
+                .ToDictionary(kv => kv.Value.Order, kv => ((IRenderSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
+
+            if (DIAGNOSTICS_MODE)
+            {
+                CheckSystemsRequirements(systems);
+                InitializeDiagnosticsCounters();
+            }
         }
 
         /// <summary>
@@ -552,7 +560,7 @@ namespace Bang
 
             int context = _systems[id].ContextId;
 
-            ISystem system = _idToSystem[id];
+            ISystem system = IdToSystem[id];
             if (system is IStartupSystem startupSystem && !_cachedStartupSystems.ContainsKey(id))
             {
                 _cachedStartupSystems.Add(id, (startupSystem, context));
@@ -593,11 +601,16 @@ namespace Bang
                 return false;
             }
 
+            if (DIAGNOSTICS_MODE)
+            {
+                UpdateDiagnosticsOnDeactiveSystem(id);
+            }
+
             _systems[id] = _systems[id] with { IsActive = false };
 
             // We do not remove it from the list of startup systems, since it was already initialized.
 
-            ISystem system = _idToSystem[id];
+            ISystem system = IdToSystem[id];
             if (system is IUpdateSystem) _cachedExecuteSystems.Remove(id);
             if (system is IFixedUpdateSystem) _cachedFixedExecuteSystems.Remove(id);
             if (system is IRenderSystem) _cachedRenderSystems.Remove(id);
@@ -639,7 +652,7 @@ namespace Bang
         {
             foreach (var (s, info) in _systems)
             {
-                if (IsSystemOfType(_idToSystem[s], skip)) continue;
+                if (IsSystemOfType(IdToSystem[s], skip)) continue;
 
                 DeactivateSystem(info.Order);
             }
@@ -791,10 +804,24 @@ namespace Bang
         public void Update()
         {
             // TODO: Do not make a copy every frame.
-            foreach (var (_, (system, contextId)) in _cachedExecuteSystems.ToImmutableArray())
+            foreach (var (systemId, (system, contextId)) in _cachedExecuteSystems.ToImmutableArray())
             {
+                if (DIAGNOSTICS_MODE)
+                {
+                    _stopwatch.Reset();
+                    _stopwatch.Start();
+                }
+                
                 // TODO: We want to run systems which do not cross components in parallel.
                 system.Update(Contexts[contextId]);
+                
+                if (DIAGNOSTICS_MODE)
+                {
+                    InitializeDiagnosticsCounters();
+                    
+                    _stopwatch.Stop();
+                    UpdateCounters[systemId].Update(_stopwatch.Elapsed.Milliseconds, Contexts[contextId].Entities.Length);
+                }
             }
 
             NotifyReactiveSystems();
@@ -811,10 +838,24 @@ namespace Bang
         public void FixedUpdate()
         {
             // TODO: Do not make a copy every frame.
-            foreach (var (_, (system, contextId)) in _cachedFixedExecuteSystems.ToImmutableArray())
+            foreach (var (systemId, (system, contextId)) in _cachedFixedExecuteSystems.ToImmutableArray())
             {
+                if (DIAGNOSTICS_MODE)
+                {
+                    _stopwatch.Reset();
+                    _stopwatch.Start();
+                }
+                
                 // TODO: We want to run systems which do not cross components in parallel.
                 system.FixedUpdate(Contexts[contextId]);
+
+                if (DIAGNOSTICS_MODE)
+                {
+                    InitializeDiagnosticsCounters();
+
+                    _stopwatch.Stop();
+                    FixedUpdateCounters[systemId].Update(_stopwatch.Elapsed.Milliseconds, Contexts[contextId].Entities.Length);
+                }
             }
         }
 
@@ -885,6 +926,12 @@ namespace Bang
             // This must be done *afterwards* since the reactive systems may add further notifications on their implementation.
             foreach (var (systemId, notificationsAndSystem) in systemsToNotify)
             {
+                if (DIAGNOSTICS_MODE)
+                {
+                    _stopwatch.Reset();
+                    _stopwatch.Start();
+                }
+                
                 IReactiveSystem system = notificationsAndSystem.System;
 
                 foreach (var (kind, entities) in notificationsAndSystem.Notifications)
@@ -912,6 +959,16 @@ namespace Bang
                             system.OnModified(this, entitiesInput);
                             break;
                     }
+                }
+
+                if (DIAGNOSTICS_MODE)
+                {
+                    InitializeDiagnosticsCounters();
+                    
+                    _stopwatch.Stop();
+                    
+                    ReactiveCounters[systemId].Update(
+                        _stopwatch.Elapsed.Milliseconds, totalEntities: notificationsAndSystem.Notifications.Sum(n => n.Value.Count));
                 }
             }
 

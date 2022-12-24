@@ -111,10 +111,11 @@ namespace Bang.Entities
 
                 AddComponentInternal(c, key);
             }
-
-#if DEBUG
-            CheckForRequiredComponents();
-#endif
+            
+            if (World.DIAGNOSTICS_MODE)
+            {
+                CheckForRequiredComponents();
+            }
         }
 
         /// <summary>

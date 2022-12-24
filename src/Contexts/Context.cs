@@ -62,6 +62,11 @@ namespace Bang.Contexts
         internal override int Id => _id;
 
         /// <summary>
+        /// Returns whether this context does not have any filter and grab all entities instead.
+        /// </summary>
+        private bool IsNoFilter => _targetComponentsIndex.ContainsKey(ContextAccessorFilter.None);
+
+        /// <summary>
         /// Entities that are currently active in the context.
         /// </summary>
         public override ImmutableArray<Entity> Entities
@@ -155,7 +160,7 @@ namespace Bang.Contexts
             {
                 builder.Add((filter, filter.Types.Select(t => lookup(t)).ToImmutableArray()));
             }
-
+            
             return builder.ToImmutableArray();
         }
 
@@ -170,7 +175,14 @@ namespace Bang.Contexts
 
             foreach (var (filter, targets) in filters)
             {
-                if (targets.IsDefaultOrEmpty || filter.Filter is ContextAccessorFilter.None)
+                // Keep track of empty contexts.
+                if (filter.Filter is ContextAccessorFilter.None)
+                {
+                    builder[filter.Filter] = ImmutableArray<int>.Empty;
+                    continue;
+                }
+
+                if (targets.IsDefaultOrEmpty)
                 {
                     // No-op, this is so we can watch for the accessor kind.
                     continue;
@@ -237,6 +249,12 @@ namespace Bang.Contexts
         /// </summary>
         internal override void FilterEntity(Entity entity)
         {
+            if (IsNoFilter)
+            {
+                // No entities are caught by this context.
+                return;
+            }
+
             entity.OnComponentAdded += OnEntityComponentAdded;
             entity.OnComponentRemoved += OnEntityComponentRemoved;
 
