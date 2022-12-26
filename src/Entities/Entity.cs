@@ -153,6 +153,11 @@ namespace Bang.Entities
         public bool HasComponent<T>() where T : IComponent => HasComponent(GetComponentIndex<T>());
 
         /// <summary>
+        /// Whether this entity has a component of type <paramref name="t"/>.
+        /// </summary>
+        public bool HasComponent(Type t) => HasComponent(GetComponentIndex(t));
+
+        /// <summary>
         /// Try to get a component of type T. If none, returns false and null.
         /// </summary>
         /// <typeparam name="T">Type that inherits <see cref="IComponent"/>.</typeparam>
