@@ -18,6 +18,10 @@ namespace Bang.Entities
 
         /// <summary>
         /// Whether entity has a message of type <typeparamref name="T"/>.
+        /// This should be avoided since it highly depends on the order of the systems
+        /// being fired and can lead to several bugs.
+        /// For example, if we check for that on the state machine, it will depend on the order
+        /// of the entities in the world.
         /// </summary>
         public bool HasMessage<T>() where T : IMessage
         {
@@ -26,6 +30,10 @@ namespace Bang.Entities
 
         /// <summary>
         /// Whether entity has a message of index <paramref name="index"/>.
+        /// This should be avoided since it highly depends on the order of the systems
+        /// being fired and can lead to several bugs.
+        /// For example, if we check for that on the state machine, it will depend on the order
+        /// of the entities in the world.
         /// </summary>
         public bool HasMessage(int index) => _messages.Contains(index);
 
