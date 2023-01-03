@@ -302,10 +302,11 @@ namespace Bang.Entities
         /// </summary>
         /// <param name="c">Component.</param>
         /// <param name="t">Target component type.</param>
-        public void ReplaceComponent(IComponent c, Type t)
+        /// <param name="forceReplace">Whether the component will be forcefully replaced.</param>
+        public void ReplaceComponent(IComponent c, Type t, bool forceReplace = false)
         {
             Debug.Assert(typeof(IComponent).IsAssignableFrom(t));
-            ReplaceComponent(c, GetComponentIndex(t));
+            ReplaceComponent(c, GetComponentIndex(t), forceReplace);
         }
 
         /// <summary>
@@ -432,7 +433,7 @@ namespace Bang.Entities
         /// Replace a component from the entity.
         /// Returns true if the element existed and was replaced.
         /// </summary>
-        public bool ReplaceComponent<T>(T c, int index) where T : IComponent
+        public bool ReplaceComponent<T>(T c, int index, bool forceReplace = false) where T : IComponent
         {
             if (_isDestroyed)
             {
@@ -446,7 +447,7 @@ namespace Bang.Entities
                 return false;
             }
 
-            if (c.Equals(_components[index]))
+            if (!forceReplace && c.Equals(_components[index]))
             {
                 // Don't bother replacing if both components have the same value.
                 return false;
