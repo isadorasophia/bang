@@ -39,6 +39,11 @@ namespace Bang.StateMachines
         public bool Tick(float seconds) => _routine.Tick(seconds * 1000);
 
         /// <summary>
+        /// Called right before the component gets destroyed.
+        /// </summary>
+        public void OnDestroyed() => _routine.OnDestroyed();
+
+        /// <summary>
         /// Stop listening to notifications on this component.
         /// </summary>
         public void Unsubscribe(Action notification) => _routine.OnModified -= notification;

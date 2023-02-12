@@ -22,5 +22,10 @@ namespace Bang.StateMachines
         /// Tick a yield operation in the state machine. The next tick will be called according to the returned <see cref="WaitKind"/>.
         /// </summary>
         public bool Tick(float dt);
+
+        /// <summary>
+        /// Called right before the component gets destroyed.
+        /// </summary>
+        public void OnDestroyed();
     }
 }

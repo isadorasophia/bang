@@ -231,6 +231,8 @@ namespace Bang.StateMachines
 
         internal virtual void Finish()
         {
+            OnDestroyed();
+
             Routine?.Dispose();
 
             Routine = null;
@@ -238,6 +240,11 @@ namespace Bang.StateMachines
 
             Entity?.RemoveComponent<IStateMachineComponent>();
         }
+
+        /// <summary>
+        /// Clean up right before the state machine gets cleaned up.
+        /// </summary>
+        public virtual void OnDestroyed() { }
 
         /// <summary>
         /// This resets the current state of the state machine back to the beggining of that same state.
