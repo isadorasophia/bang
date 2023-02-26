@@ -261,6 +261,14 @@ namespace Bang.StateMachines
         protected virtual Wait GoTo(Func<IEnumerator<Wait>> routine)
         {
             State(routine);
+
+            // Also resets any pending wait state.
+            // This is important if this happened to be called while interrupting an
+            // ongoing state machine.
+            _waitTime = null;
+            _waitFrames = null;
+            _waitForMessage = null;
+
             return Tick();
         }
 
@@ -280,6 +288,8 @@ namespace Bang.StateMachines
 
         private void OnMessageSent(Entity e, int index, IMessage message)
         {
+            OnMessage(message);
+
             if (_waitForMessage is null)
             {
                 return;
@@ -293,5 +303,11 @@ namespace Bang.StateMachines
             _isMessageReceived = true;
             Entity.OnMessage -= OnMessageSent;
         }
+
+        /// <summary>
+        /// Implemented by state machine implementations that want to listen to message
+        /// notifications from outer systems.
+        /// </summary>
+        protected virtual void OnMessage(IMessage message) { }
     }
 }
