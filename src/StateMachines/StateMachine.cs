@@ -108,6 +108,8 @@ namespace Bang.StateMachines
                     State((Func<IEnumerator<Wait>>)Delegate.CreateDelegate(typeof(Func<IEnumerator<Wait>>), this, method));
                 }
             }
+
+            e.OnMessage += OnMessageSent;
         }
 
         /// <summary>
@@ -183,7 +185,6 @@ namespace Bang.StateMachines
                         return true;
                     }
 
-                    target.OnMessage += OnMessageSent;
                     _waitForMessage = messageId;
 
                     return true;
@@ -243,8 +244,12 @@ namespace Bang.StateMachines
 
         /// <summary>
         /// Clean up right before the state machine gets cleaned up.
+        /// Callers must call the base implementation.
         /// </summary>
-        public virtual void OnDestroyed() { }
+        public virtual void OnDestroyed() 
+        {
+            Entity.OnMessage -= OnMessageSent;
+        }
 
         /// <summary>
         /// This resets the current state of the state machine back to the beggining of that same state.
@@ -301,7 +306,6 @@ namespace Bang.StateMachines
             }
 
             _isMessageReceived = true;
-            Entity.OnMessage -= OnMessageSent;
         }
 
         /// <summary>
