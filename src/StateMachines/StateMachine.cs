@@ -76,6 +76,11 @@ namespace Bang.StateMachines
         private int? _waitForMessage = null;
 
         /// <summary>
+        /// Target entity for <see cref="_waitForMessage"/>.
+        /// </summary>
+        private Entity? _waitForMessageTarget = null;
+
+        /// <summary>
         /// Tracks whether a message which was waited has been received.
         /// </summary>
         private bool _isMessageReceived = false;
@@ -187,6 +192,13 @@ namespace Bang.StateMachines
 
                     _waitForMessage = messageId;
 
+                    // Do extra setup on custom targets.
+                    if (r.Target is not null)
+                    {
+                        _waitForMessageTarget = r.Target;
+                        target.OnMessage += OnMessageSent;
+                    }
+
                     return true;
 
                 case WaitKind.Routine:
@@ -293,9 +305,13 @@ namespace Bang.StateMachines
 
         private void OnMessageSent(Entity e, int index, IMessage message)
         {
-            OnMessage(message);
+            if (e.EntityId == Entity.EntityId)
+            {
+                OnMessage(message);
+            }
 
-            if (_waitForMessage is null)
+            if (_waitForMessage is null || 
+                (_waitForMessageTarget is not null && e.EntityId != _waitForMessageTarget.EntityId))
             {
                 return;
             }
@@ -306,6 +322,12 @@ namespace Bang.StateMachines
             }
 
             _isMessageReceived = true;
+
+            if (_waitForMessageTarget is not null)
+            {
+                _waitForMessageTarget.OnMessage -= OnMessageSent;
+                _waitForMessageTarget = null;
+            }
         }
 
         /// <summary>
