@@ -193,6 +193,20 @@ namespace Bang.Entities
         }
 
         /// <summary>
+        /// Try to fetch a child with a <paramref name="id"/> entity identifier.
+        /// </summary>
+        /// <param name="entityId">The entity id of the child.</param>
+        public bool HasChild(int entityId)
+        {
+            if (_children is null)
+            {
+                return false;
+            }
+
+            return _children.ContainsKey(entityId);
+        }
+
+        /// <summary>
         /// Remove a child from the entity.
         /// </summary>
         public void RemoveChild(int id)
