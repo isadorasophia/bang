@@ -209,6 +209,25 @@ namespace Bang.Entities
         /// <summary>
         /// Remove a child from the entity.
         /// </summary>
+        public bool RemoveChild(string name)
+        {
+            if (_childrenPerName is null)
+            {
+                return false;
+            }
+
+            if (_childrenPerName.TryGetValue(name, out int id))
+            {
+                RemoveChild(id);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove a child from the entity.
+        /// </summary>
         public void RemoveChild(int id)
         {
             Debug.Assert(_world is not null);
