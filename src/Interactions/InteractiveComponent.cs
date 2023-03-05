@@ -25,7 +25,7 @@ namespace Bang.Interactions
         /// <summary>
         /// This calls the inner interaction component.
         /// </summary>
-        public void Interact(World world, Entity interactor, Entity interacted)
+        public void Interact(World world, Entity interactor, Entity? interacted)
             => _interaction.Interact(world, interactor, interacted);
 
         /// <summary>

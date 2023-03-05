@@ -193,7 +193,7 @@ namespace Bang.Entities
         }
 
         /// <summary>
-        /// Try to fetch a child with a <paramref name="id"/> entity identifier.
+        /// Try to fetch a child with a <paramref name="entityId"/> entity identifier.
         /// </summary>
         /// <param name="entityId">The entity id of the child.</param>
         public bool HasChild(int entityId)

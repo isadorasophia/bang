@@ -12,6 +12,6 @@ namespace Bang.Interactions
         /// This is the logic which will be immediately called once the <paramref name="interactor"/> interacts with the
         /// <paramref name="interacted"/>.
         /// </summary>
-        public void Interact(World world, Entity interactor, Entity interacted);
+        public void Interact(World world, Entity interactor, Entity? interacted);
     }
 }

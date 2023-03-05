@@ -10,6 +10,6 @@ namespace Bang.Interactions
         /// <summary>
         /// Contract immediately performed once <paramref name="interactor"/> interacts with <paramref name="interacted"/>.
         /// </summary>
-        public abstract void Interact(World world, Entity interactor, Entity interacted);
+        public abstract void Interact(World world, Entity interactor, Entity? interacted);
     }
 }
