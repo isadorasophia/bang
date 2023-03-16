@@ -213,7 +213,13 @@ namespace Bang.StateMachines
 
         private Wait Tick()
         {
-            Debug.Assert(Routine is not null, "Have you called State() before ticking this state machine?");
+            if (Routine is null)
+            {
+                Debug.Assert(Routine is not null, "Have you called State() before ticking this state machine?");
+
+                // Instead of embarrassingly crashing, send a stop wait message.
+                return Wait.Stop;
+            }
 
             if (_isFirstTick)
             {
