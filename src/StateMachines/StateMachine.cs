@@ -283,8 +283,13 @@ namespace Bang.StateMachines
         /// <param name="routine">Target routine (new state).</param>
         protected virtual Wait GoTo(Func<IEnumerator<Wait>> routine)
         {
-            State(routine);
+            SwitchState(routine);
 
+            return Tick();
+        }
+
+        protected void SwitchState(Func<IEnumerator<Wait>> routine)
+        {
             // Also resets any pending wait state.
             // This is important if this happened to be called while interrupting an
             // ongoing state machine.
@@ -292,7 +297,7 @@ namespace Bang.StateMachines
             _waitFrames = null;
             _waitForMessage = null;
 
-            return Tick();
+            State(routine);
         }
 
         /// <summary>
