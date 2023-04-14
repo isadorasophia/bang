@@ -173,7 +173,8 @@ namespace Bang.Entities
 
             Entity child = _world.GetEntity(id);
 
-            child.OnEntityDestroyed += RemoveChild;
+            // child calls Unparent() once its destroyed.
+            // child.OnEntityDestroyed += RemoveChild;
             child.Reparent(this);
         }
 
