@@ -404,7 +404,15 @@ namespace Bang
         /// </summary>
         private void RemoveEntity(int id)
         {
-           Debug.Assert(_entities.ContainsKey(id), "Why are we removing an entity that has never been added?");
+            if (_deactivatedEntities.ContainsKey(id))
+            {
+                _deactivatedEntities[id]?.Dispose();
+                _entities.Remove(id);
+
+                return;
+            }
+
+            Debug.Assert(_entities.ContainsKey(id), "Why are we removing an entity that has never been added?");
 
             _entities[id]?.Dispose();
             _entities.Remove(id);
