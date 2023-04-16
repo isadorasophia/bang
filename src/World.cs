@@ -451,6 +451,12 @@ namespace Bang
         /// </summary>
         public Entity GetEntity(int id)
         {
+            if (_deactivatedEntities.TryGetValue(id, out Entity? entity) && entity is not null)
+            {
+                // We consider looking up deactivated entities for this call.
+                return entity;
+            }
+
             Debug.Assert(_entities.ContainsKey(id), $"Expected to have entity with id: {id}.");
 
             return _entities[id];
@@ -463,6 +469,11 @@ namespace Bang
         public Entity? TryGetEntity(int id)
         {
             if (_entities.TryGetValue(id, out Entity? entity) && entity is not null)
+            {
+                return entity;
+            }
+
+            if (_deactivatedEntities.TryGetValue(id, out entity) && entity is not null)
             {
                 return entity;
             }
