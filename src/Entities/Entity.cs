@@ -35,6 +35,18 @@ namespace Bang.Entities
         public event Action<int>? OnEntityDestroyed;
 
         /// <summary>
+        /// This will be fired when the entity gets activated, so it gets filtered
+        /// back in the context listeners.
+        /// </summary>
+        public event Action<Entity>? OnEntityActivated;
+
+        /// <summary>
+        /// This will be fired when the entity gets deactivated, so it is filtered out
+        /// from its context listeners.
+        /// </summary>
+        public event Action<Entity>? OnEntityDeactivated;
+
+        /// <summary>
         /// Notifies listeners when a particular component has been modified.
         /// </summary>
         private readonly Dictionary<int, Action<int, IComponent>?> _trackedComponentsModified = new();
@@ -54,12 +66,15 @@ namespace Bang.Entities
         private readonly int _id;
 
         private bool _isDestroyed = false;
+        private bool _isDeactivated = false;
 
         /// <summary>
         /// Returns whether this entity has been destroyed (and probably recicled) or not.
         /// </summary>
         public bool IsDestroyed => _isDestroyed;
-        
+
+        public bool IsDeactivated => _isDeactivated;
+
         /// <summary>
         /// Keeps track of all the components that are currently present.
         /// </summary>
@@ -602,6 +617,33 @@ namespace Bang.Entities
             OnEntityDestroyed = null;
 
             GC.SuppressFinalize(this);
+        }
+
+        internal void Activate()
+        {
+            if (!_isDeactivated)
+            {
+                // Already active.
+                return;
+            }
+
+            _isDeactivated = false;
+
+            OnEntityActivated?.Invoke(this);
+            OnEntityActivated = null;
+        }
+
+        internal void Deactivate()
+        {
+            if (_isDeactivated)
+            {
+                // Already deactivated.
+                return;
+            }
+
+            _isDeactivated = true;
+
+            OnEntityDeactivated?.Invoke(this);
         }
 
         /// <summary>

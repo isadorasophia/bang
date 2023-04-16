@@ -150,6 +150,11 @@ namespace Bang
         private readonly Dictionary<int, Entity> _entities = new();
 
         /// <summary>
+        /// Entities which have been temporarily deactivated in the world.
+        /// </summary>
+        private readonly Dictionary<int, Entity> _deactivatedEntities = new();
+
+        /// <summary>
         /// Entities that we will destroy within the world.
         /// </summary>
         private readonly HashSet<int> _pendingDestroyEntities = new();
@@ -403,6 +408,42 @@ namespace Bang
 
             _entities[id]?.Dispose();
             _entities.Remove(id);
+        }
+
+        /// <summary>
+        /// Activates an entity in the world.
+        /// </summary>
+        public bool ActivateEntity(int id)
+        {
+            if (_deactivatedEntities.TryGetValue(id, out Entity? e))
+            {
+                _entities.Add(id, e);
+                _deactivatedEntities.Remove(id);
+
+                e.Activate();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Deactivate an entity in the world.
+        /// </summary>
+        public bool DeactivateEntity(int id)
+        {
+            if (_entities.TryGetValue(id, out Entity? e))
+            {
+                _deactivatedEntities.Add(id, e);
+                _entities.Remove(id);
+
+                e.Deactivate();
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

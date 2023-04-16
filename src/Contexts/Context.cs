@@ -280,6 +280,8 @@ namespace Bang.Contexts
                     entity.OnComponentAdded += OnComponentAddedForEntityInContext;
                 }
 
+                entity.OnEntityDeactivated += OnEntityDeactivated;
+
                 _cachedEntities = null;
             }
         }
@@ -289,6 +291,11 @@ namespace Bang.Contexts
         /// </summary>
         private bool DoesEntityMatch(Entity e)
         {
+            if (e.IsDeactivated)
+            {
+                return false;
+            }
+
             if (_targetComponentsIndex.ContainsKey(ContextAccessorFilter.NoneOf))
             {
                 foreach (var c in _targetComponentsIndex[ContextAccessorFilter.NoneOf])
@@ -354,6 +361,26 @@ namespace Bang.Contexts
             OnEntityModified(e, index);
         }
 
+        internal void OnEntityActivated(Entity e)
+        {
+            if (!_entities.ContainsKey(e.EntityId))
+            {
+                _entities.Add(e.EntityId, e);
+                _cachedEntities = null;
+            }
+        }
+
+        internal void OnEntityDeactivated(Entity e)
+        {
+            if (_entities.ContainsKey(e.EntityId))
+            {
+                _entities.Remove(e.EntityId);
+                _cachedEntities = null;
+
+                e.OnEntityActivated += OnEntityActivated;
+            }
+        }
+
         private void OnEntityModified(Entity e, int index)
         {
             bool isFiltered = DoesEntityMatch(e);
@@ -380,6 +407,8 @@ namespace Bang.Contexts
 
             e.OnMessage += OnMessageSentForEntityInContext;
 
+            e.OnEntityDeactivated += OnEntityDeactivated;
+
             // Notify immediately of the new added component.
             OnComponentAddedForEntityInContext?.Invoke(e, index);
 
@@ -396,6 +425,8 @@ namespace Bang.Contexts
             e.OnComponentModified -= OnComponentModifiedForEntityInContext;
 
             e.OnMessage -= OnMessageSentForEntityInContext;
+
+            e.OnEntityDeactivated -= OnEntityDeactivated;
 
             // Notify immediately of the removed component.
             OnComponentRemovedForEntityInContext?.Invoke(e, index, causedByDestroy);
