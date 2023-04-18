@@ -252,11 +252,6 @@ namespace Bang.StateMachines
         {
             OnDestroyed();
 
-            Routine?.Dispose();
-
-            Routine = null;
-            CurrentState = null;
-
             Entity?.RemoveComponent<IStateMachineComponent>();
         }
 
@@ -267,6 +262,11 @@ namespace Bang.StateMachines
         public virtual void OnDestroyed() 
         {
             Entity.OnMessage -= OnMessageSent;
+
+            Routine?.Dispose();
+
+            Routine = null;
+            CurrentState = null;
         }
 
         /// <summary>

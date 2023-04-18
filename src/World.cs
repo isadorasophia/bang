@@ -13,7 +13,7 @@ namespace Bang
     /// A world has the knowledge of all the entities and all the systems that exist within the game.
     /// This handles dispatching information and handling disposal of entities.
     /// </summary>
-    public partial class World
+    public partial class World : IDisposable
     {
         /// <summary>
         /// Use this to set whether diagnostics should be pulled from the world run.
@@ -53,6 +53,8 @@ namespace Bang
         /// We will keep the systems here even after they were deactivated.
         /// </summary>
         private readonly SortedList<int, (IStartupSystem System, int ContextId)> _cachedStartupSystems;
+        private readonly SortedList<int, (IExitSystem System, int ContextId)> _cachedExitSystems;
+
         private readonly SortedList<int, (IFixedUpdateSystem System, int ContextId)> _cachedFixedExecuteSystems;
         private readonly SortedList<int, (IUpdateSystem System, int ContextId)> _cachedExecuteSystems;
 
@@ -276,6 +278,9 @@ namespace Bang
 
             _cachedStartupSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IStartupSystem)
                 .ToDictionary(kv => kv.Value.Order, kv => ((IStartupSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
+
+            _cachedExitSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IExitSystem)
+                .ToDictionary(kv => kv.Value.Order, kv => ((IExitSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
 
             _cachedFixedExecuteSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IFixedUpdateSystem)
                 .ToDictionary(kv => kv.Value.Order, kv => ((IFixedUpdateSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
@@ -857,6 +862,18 @@ namespace Bang
         }
 
         /// <summary>
+        /// Call to end all systems.
+        /// This is called right before shutting down or switching scenes.
+        /// </summary>
+        public void Exit()
+        {
+            foreach (var (_, (system, contextId)) in _cachedExitSystems)
+            {
+                system.Exit(Contexts[contextId]);
+            }
+        }
+
+        /// <summary>
         /// Calls update on all <see cref="IUpdateSystem"/> systems.
         /// At the end of update, it will notify all reactive systems of any changes made to entities
         /// they were watching.
@@ -1164,6 +1181,14 @@ namespace Bang
             }
 
             return default;
+        }
+
+        public void Dispose()
+        {
+            Exit();
+
+            _entities.Clear();
+            _deactivatedEntities.Clear();
         }
     }
 }
