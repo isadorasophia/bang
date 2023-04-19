@@ -280,6 +280,7 @@ namespace Bang.Contexts
                     entity.OnComponentAdded += OnComponentAddedForEntityInContext;
                 }
 
+                entity.OnEntityActivated += OnEntityActivated;
                 entity.OnEntityDeactivated += OnEntityDeactivated;
 
                 _cachedEntities = null;
@@ -376,8 +377,6 @@ namespace Bang.Contexts
             {
                 _entities.Remove(e.EntityId);
                 _cachedEntities = null;
-
-                e.OnEntityActivated += OnEntityActivated;
             }
         }
 
@@ -407,6 +406,7 @@ namespace Bang.Contexts
 
             e.OnMessage += OnMessageSentForEntityInContext;
 
+            e.OnEntityActivated += OnEntityActivated;
             e.OnEntityDeactivated += OnEntityDeactivated;
 
             // Notify immediately of the new added component.
@@ -426,6 +426,7 @@ namespace Bang.Contexts
 
             e.OnMessage -= OnMessageSentForEntityInContext;
 
+            e.OnEntityActivated -= OnEntityActivated;
             e.OnEntityDeactivated -= OnEntityDeactivated;
 
             // Notify immediately of the removed component.

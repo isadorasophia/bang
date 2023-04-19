@@ -619,7 +619,9 @@ namespace Bang.Entities
             GC.SuppressFinalize(this);
         }
 
-        internal void Activate()
+        private void Activate(Entity _) => Activate();
+
+        public void Activate()
         {
             if (!_isDeactivated)
             {
@@ -628,12 +630,14 @@ namespace Bang.Entities
             }
 
             _isDeactivated = false;
+            _world.ActivateEntity(EntityId);
 
             OnEntityActivated?.Invoke(this);
-            OnEntityActivated = null;
         }
 
-        internal void Deactivate()
+        private void Deactivate(Entity _) => Deactivate();
+
+        public void Deactivate()
         {
             if (_isDeactivated)
             {
@@ -642,6 +646,7 @@ namespace Bang.Entities
             }
 
             _isDeactivated = true;
+            _world.DeactivateEntity(EntityId);
 
             OnEntityDeactivated?.Invoke(this);
         }

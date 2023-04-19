@@ -425,16 +425,16 @@ namespace Bang
 
         /// <summary>
         /// Activates an entity in the world.
+        /// Only called by an <see cref="Entity"/>.
         /// </summary>
-        public bool ActivateEntity(int id)
+        internal bool ActivateEntity(int id)
         {
             if (_deactivatedEntities.TryGetValue(id, out Entity? e))
             {
                 _entities.Add(id, e);
                 _deactivatedEntities.Remove(id);
 
-                e.Activate();
-
+                Debug.Assert(!e.IsDeactivated, $"Entity {id} should have been activated when calling this.");
                 return true;
             }
 
@@ -443,16 +443,16 @@ namespace Bang
 
         /// <summary>
         /// Deactivate an entity in the world.
+        /// Only called by an <see cref="Entity"/>.
         /// </summary>
-        public bool DeactivateEntity(int id)
+        internal bool DeactivateEntity(int id)
         {
             if (_entities.TryGetValue(id, out Entity? e))
             {
                 _deactivatedEntities.Add(id, e);
                 _entities.Remove(id);
 
-                e.Deactivate();
-
+                Debug.Assert(e.IsDeactivated, $"Entity {id} should have been deactivated when calling this.");
                 return true;
             }
 
