@@ -105,8 +105,6 @@ namespace Bang.Contexts
             }
 
             QueueEntityNotification(WatcherNotificationKind.Added, e);
-
-            e.OnComponentModified += OnEntityComponentReplaced;
         }
 
         private void OnEntityComponentRemoved(Entity e, int index, bool causedByDestroy)
@@ -123,8 +121,6 @@ namespace Bang.Contexts
             }
 
             QueueEntityNotification(WatcherNotificationKind.Removed, e);
-
-            e.OnComponentModified -= OnEntityComponentReplaced;
         }
 
         private void OnEntityComponentReplaced(Entity e, int index)
