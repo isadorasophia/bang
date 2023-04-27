@@ -1,7 +1,6 @@
 ﻿using Bang.Entities;
 using Bang.Util;
-using System.Collections.Immutable;
-using System.Diagnostics;
+using System;
 
 namespace Bang.Contexts
 {
@@ -95,6 +94,9 @@ namespace Bang.Contexts
             context.OnComponentAddedForEntityInContext += OnEntityComponentAdded;
             context.OnComponentRemovedForEntityInContext += OnEntityComponentRemoved;
             context.OnComponentModifiedForEntityInContext += OnEntityComponentReplaced;
+
+            context.OnActivateEntityInContext += OnEntityActivated;
+            context.OnDeactivateEntityInContext += OnEntityDeactivated;
         }
 
         private void OnEntityComponentAdded(Entity e, int index)
@@ -131,6 +133,16 @@ namespace Bang.Contexts
             }
 
             QueueEntityNotification(WatcherNotificationKind.Modified, e);
+        }
+
+        private void OnEntityActivated(Entity e)
+        {
+            QueueEntityNotification(WatcherNotificationKind.Enabled, e);
+        }
+
+        private void OnEntityDeactivated(Entity e)
+        {
+            QueueEntityNotification(WatcherNotificationKind.Disabled, e);
         }
 
         internal void OnFinish()

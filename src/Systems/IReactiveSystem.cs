@@ -27,5 +27,16 @@ namespace Bang.Systems
         /// This is not called if the entity died.
         /// </summary>
         public abstract void OnModified(World world, ImmutableArray<Entity> entities);
+
+        /// <summary>
+        /// [Optional] This is called when an entity gets enabled.
+        /// </summary>
+        public virtual void OnActivated(World world, ImmutableArray<Entity> entities) { }
+
+        /// <summary>
+        /// [Optional] This is called when an entity gets disabled. Called if an entity was
+        /// previously disabled.
+        /// </summary>
+        public virtual void OnDeactivated(World world, ImmutableArray<Entity> entities) { }
     }
 }

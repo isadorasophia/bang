@@ -1049,6 +1049,14 @@ namespace Bang
                         case WatcherNotificationKind.Modified:
                             system.OnModified(this, entitiesInput);
                             break;
+
+                        case WatcherNotificationKind.Enabled:
+                            system.OnActivated(this, entitiesInput);
+                            break;
+
+                        case WatcherNotificationKind.Disabled:
+                            system.OnDeactivated(this, entitiesInput);
+                            break;
                     }
                 }
 

@@ -53,6 +53,16 @@ namespace Bang.Contexts
         internal event Action<Entity, int>? OnComponentModifiedForEntityInContext;
 
         /// <summary>
+        /// This will be fired when an entity (which was previously disabled) gets enabled.
+        /// </summary>
+        internal event Action<Entity>? OnActivateEntityInContext;
+
+        /// <summary>
+        /// This will be fired when an entity (which was previously enabled) gets disabled.
+        /// </summary>
+        internal event Action<Entity>? OnDeactivateEntityInContext;
+
+        /// <summary>
         /// This will be fired when a message gets added in an entity present in the system.
         /// </summary>
         internal event Action<Entity, int, IMessage>? OnMessageSentForEntityInContext;
@@ -368,6 +378,8 @@ namespace Bang.Contexts
             {
                 _entities.Add(e.EntityId, e);
                 _cachedEntities = null;
+
+                OnActivateEntityInContext?.Invoke(e);
             }
         }
 
@@ -377,6 +389,8 @@ namespace Bang.Contexts
             {
                 _entities.Remove(e.EntityId);
                 _cachedEntities = null;
+
+                OnDeactivateEntityInContext?.Invoke(e);
             }
         }
 
