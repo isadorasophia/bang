@@ -240,7 +240,7 @@ namespace Bang.StateMachines
                 }
             }
 
-            if (!Routine.MoveNext())
+            if (Routine is null || !Routine.MoveNext())
             {
                 return Wait.Stop;
             }
