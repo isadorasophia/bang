@@ -240,12 +240,12 @@ namespace Bang.StateMachines
                 }
             }
 
-            if (Routine is null || !Routine.MoveNext())
+            if (!Routine.MoveNext())
             {
                 return Wait.Stop;
             }
 
-            return Routine.Current;
+            return Routine?.Current ?? Wait.Stop;
         }
 
         internal virtual void Finish()
