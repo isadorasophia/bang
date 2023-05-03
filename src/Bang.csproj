@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
+
+    <AssemblyName>Bang</AssemblyName>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
