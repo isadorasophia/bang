@@ -10,7 +10,7 @@
 
     <GenerateDocumentationFile Condition="'$(Configuration)' == 'Debug'">true</GenerateDocumentationFile>
     
-    <PackageId>Bang</PackageId>
+    <PackageId>Murder.Bang</PackageId>
     <Version>0.1-alpha</Version>
     <Authors>Isadora</Authors>
     <Company>Murder Engine</Company>
@@ -41,3 +41,4 @@
   </ItemGroup>
 
 </Project>
+  
