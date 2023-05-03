@@ -7,11 +7,36 @@
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
-    
-    <GenerateDocumentationFile Condition="'$(Configuration)' == 'Debug'">true</GenerateDocumentationFile>
-  </PropertyGroup>
 
+    <GenerateDocumentationFile Condition="'$(Configuration)' == 'Debug'">true</GenerateDocumentationFile>
+    
+    <PackageId>Bang</PackageId>
+    <Version>0.1-alpha</Version>
+    <Authors>Isadora</Authors>
+    <Company>Murder Engine</Company>
+
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeContentInPack>true</IncludeContentInPack>
+
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  
   <ItemGroup>
+    <None Include="..\LICENSE" Pack="true" PackagePath="" Visible="false"/>
+    <None Include="..\README.md" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
