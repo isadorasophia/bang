@@ -14,13 +14,12 @@
     <GenerateDocumentationFile Condition="'$(Configuration)' == 'Debug'">true</GenerateDocumentationFile>
     
     <PackageId>Murder.Bang</PackageId>
-    <Version>0.1-alpha</Version>
+    <Version>0.0.1-alpha</Version>
     <Authors>Isadora</Authors>
     <Company>Murder Engine</Company>
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <IncludeContentInPack>true</IncludeContentInPack>
+    <PackageDescription>An ECS framework.</PackageDescription>
 
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
