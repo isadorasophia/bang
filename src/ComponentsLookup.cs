@@ -3,6 +3,7 @@ using Bang.Interactions;
 using Bang.StateMachines;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bang
 {

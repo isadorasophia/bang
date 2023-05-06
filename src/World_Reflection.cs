@@ -1,4 +1,5 @@
 ﻿using Bang.Systems;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Bang
@@ -11,6 +12,10 @@ namespace Bang
         /// <summary>
         /// Look for an implementation for the lookup table of components.
         /// </summary>
+        [UnconditionalSuppressMessage(
+            "AssemblyLoadTrimming", 
+            "IL2026:RequiresUnreferencedCode",
+            Justification = "The lookup components types will be preserved and can be used on this check.")]
         public static ComponentsLookup FindLookupImplementation()
         {
             Type lookup = typeof(ComponentsLookup);
@@ -56,7 +61,9 @@ namespace Bang
 
             if (target is not null)
             {
+#pragma warning disable IL2072 // Figure out how this affects trimming.
                 return (ComponentsLookup)Activator.CreateInstance(target)!;
+#pragma warning restore IL2072
             }
 
             throw new InvalidOperationException("A generator is required to be run before running the game!");

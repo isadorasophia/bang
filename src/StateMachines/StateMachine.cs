@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Bang.Components;
+﻿using Bang.Components;
 using Bang.Entities;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -18,7 +17,7 @@ namespace Bang.StateMachines
         /// This is the only property of the state machine we will actually persist.
         /// This will keep track of the last state of the state machine.
         /// </summary>
-        [JsonProperty]
+        [Persist]
         private string? _cachedPersistedState;
 
         /// <summary>
