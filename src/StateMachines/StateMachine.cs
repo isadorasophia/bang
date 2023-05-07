@@ -305,6 +305,8 @@ namespace Bang.StateMachines
         /// </summary>
         protected void State(Func<IEnumerator<Wait>> routine)
         {
+            Routine?.Dispose();
+
             CurrentState = routine;
             Routine = routine.Invoke();
 
