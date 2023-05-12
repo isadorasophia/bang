@@ -802,8 +802,18 @@ namespace Bang
 
             Context context = Contexts[contextId];
 
-            Debug.Assert(context.Entities.Length <= 1, "Why are there more than one entity with an unique component?");
-            return context.Entities.FirstOrDefault();
+            // We expect more than one entity if the remaining ones have been destroyed
+#if DEBUG
+            int nonDestroyedCount = 0;
+            if (context.Entities.Length > 1)
+            {
+                nonDestroyedCount = context.Entities.Where(e => !e.IsDestroyed).Count();
+                Debug.Assert(nonDestroyedCount == 1, "Why are there more than one entity with an unique component?");
+            }
+#endif
+
+            Entity? e = context.Entities.LastOrDefault();
+            return e is null || e.IsDestroyed ? null : e;
         }
 
         /// <summary>
