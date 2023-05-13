@@ -288,6 +288,16 @@ namespace Bang.StateMachines
             return Tick();
         }
 
+        /// <summary>
+        /// Redirects the state machine to a new <paramref name="routine"/> without doing
+        /// a tick.
+        /// </summary>
+        /// <param name="routine">Target routine (new state).</param>
+        protected virtual void Transition(Func<IEnumerator<Wait>> routine)
+        {
+            SwitchState(routine);
+        }
+
         protected void SwitchState(Func<IEnumerator<Wait>> routine)
         {
             // Also resets any pending wait state.
