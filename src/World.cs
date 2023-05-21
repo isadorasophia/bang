@@ -366,7 +366,7 @@ namespace Bang
             {
                 // Look for the next id available.
                 id = _nextEntityId++;
-                while (_entities.ContainsKey(id.Value))
+                while (_entities.ContainsKey(id.Value) || _deactivatedEntities.ContainsKey(id.Value))
                 {
                     id = _nextEntityId++;
                 }
