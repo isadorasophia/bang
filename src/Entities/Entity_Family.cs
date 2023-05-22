@@ -77,6 +77,18 @@ namespace Bang.Entities
         }
 
         /// <summary>
+        /// Try to fetch a child with a <paramref name="id"/> identifier
+        /// </summary>
+        /// <returns>Child entity, if any.</returns>
+        public Entity? TryFetchChild(int id)
+        {
+            Debug.Assert(_children is not null && _children.ContainsKey(id),
+                "Why are we fetching a child entity that is not a child?");
+
+            return _world?.TryGetEntity(id);
+        }
+
+        /// <summary>
         /// Try to fetch the parent entity.
         /// </summary>
         /// <returns>Parent entity. If none, returns null.</returns>
