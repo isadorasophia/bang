@@ -92,6 +92,11 @@ namespace Bang.StateMachines
         private bool _isFirstTick = true;
 
         /// <summary>
+        /// Whether the state machine active state should be persisted on serialization.
+        /// </summary>
+        protected virtual bool PersistStateOnSave => true;
+
+        /// <summary>
         /// Initialize the state machine. 
         /// Should only be called by the entity itself when it is registered in the world.
         /// </summary>
@@ -104,7 +109,7 @@ namespace Bang.StateMachines
             (World, Entity) = (world, e);
 
             // If the default state is not the same as the one we persisted, track it again, if we can!
-            if (_cachedPersistedState is not null && Name != _cachedPersistedState)
+            if (_cachedPersistedState is not null && Name != _cachedPersistedState && PersistStateOnSave)
             {
                 MethodInfo? method = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
                     .FirstOrDefault(m => m.Name == _cachedPersistedState);

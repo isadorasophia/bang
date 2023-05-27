@@ -498,7 +498,14 @@ namespace Bang
         /// This should be used very cautiously! I hope you know what you are doing.
         /// It fetches all the entities within the world and return them.
         /// </summary>
-        public ImmutableArray<Entity> GetAllEntities() => _entities.Values.ToImmutableArray();
+        public ImmutableArray<Entity> GetAllEntities()
+        {
+            var entities = _entities.Values;
+            var deactivatedEntities = _deactivatedEntities.Values;
+
+            IEnumerable<Entity> allEntities = entities.Concat(deactivatedEntities);
+            return allEntities.ToImmutableArray();
+        }
 
         public int EntityCount => _entities.Count;
 
