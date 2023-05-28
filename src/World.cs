@@ -1212,8 +1212,20 @@ namespace Bang
         {
             Exit();
 
+            foreach (Entity e in _entities.Values)
+            {
+                e.Dispose();
+            }
+
             _entities.Clear();
             _deactivatedEntities.Clear();
+
+            foreach (Context c in Contexts.Values)
+            {
+                c.Dispose();
+            }
+
+            Contexts.Clear();
         }
     }
 }

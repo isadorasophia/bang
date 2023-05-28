@@ -614,7 +614,10 @@ namespace Bang.Entities
             OnComponentAdded = null;
             OnComponentModified = null;
             OnComponentRemoved = null;
+
             OnEntityDestroyed = null;
+            OnEntityActivated = null;
+            OnEntityDeactivated = null;
 
             GC.SuppressFinalize(this);
         }

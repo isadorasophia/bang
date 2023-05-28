@@ -10,7 +10,7 @@ namespace Bang.Contexts
     /// <summary>
     /// Context is the pool of entities accessed by each system that defined it.
     /// </summary>
-    public class Context : Observer
+    public class Context : Observer, IDisposable
     {
         /// <summary>
         /// List of entities which will be fed to the system of this context.
@@ -447,6 +447,19 @@ namespace Bang.Contexts
             OnComponentRemovedForEntityInContext?.Invoke(e, index, causedByDestroy);
 
             _cachedEntities = null;
+        }
+
+        public void Dispose()
+        {
+            OnComponentAddedForEntityInContext = null;
+            OnComponentModifiedForEntityInContext = null;
+            OnComponentRemovedForEntityInContext = null;
+
+            OnActivateEntityInContext = null;
+            OnDeactivateEntityInContext = null;
+            OnMessageSentForEntityInContext = null;
+
+            _entities.Clear();
         }
     }
 }
