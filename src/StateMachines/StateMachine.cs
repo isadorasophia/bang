@@ -257,7 +257,11 @@ namespace Bang.StateMachines
         {
             OnDestroyed();
 
-            Entity?.RemoveComponent<IStateMachineComponent>();
+            if (Entity.TryGetComponent(out IStateMachineComponent? c) && c.GetType().GenericTypeArguments.Length > 0 &&
+                c.GetType().GenericTypeArguments[0] == GetType() && c.State == Name)
+            {
+                Entity?.RemoveComponent<IStateMachineComponent>();
+            }
         }
 
         /// <summary>
@@ -272,6 +276,8 @@ namespace Bang.StateMachines
 
             Routine = null;
             CurrentState = null;
+
+            Name = string.Empty;
         }
 
         /// <summary>
