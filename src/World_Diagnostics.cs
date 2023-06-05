@@ -33,7 +33,7 @@ namespace Bang
         /// See <see cref="IdToSystem"/> on how to fetch the actual system.
         /// </summary>
         public readonly Dictionary<int, SmoothCounter> ReactiveCounters = new();
-        
+
         /// <summary>
         /// Initialize the performance counters according to the systems present in the world.
         /// </summary>
