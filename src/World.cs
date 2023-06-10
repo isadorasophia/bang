@@ -906,16 +906,16 @@ namespace Bang
                     _stopwatch.Reset();
                     _stopwatch.Start();
                 }
-                
-                // TODO: We want to run systems which do not cross components in parallel.
-                system.Update(Contexts[contextId]);
+
+                Context context = Contexts[contextId];
+                system.Update(context);
                 
                 if (DIAGNOSTICS_MODE)
                 {
                     InitializeDiagnosticsCounters();
                     
                     _stopwatch.Stop();
-                    UpdateCounters[systemId].Update(_stopwatch.Elapsed.TotalMicroseconds, Contexts[contextId].Entities.Length);
+                    UpdateCounters[systemId].Update(_stopwatch.Elapsed.TotalMicroseconds, context.Entities.Length);
                 }
             }
 
