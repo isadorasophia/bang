@@ -95,7 +95,7 @@ namespace Bang.Entities
         internal ImmutableArray<int> ComponentsIndices => _components
             .Where(kv => _availableComponents[kv.Key]).Select(kv => kv.Key).ToImmutableArray();
 
-        internal Entity(World world, int id, IEnumerable<IComponent> components)
+        internal Entity(World world, int id, IComponent[] components)
         {
             _id = id;
 
@@ -111,7 +111,7 @@ namespace Bang.Entities
         /// Set an entity so it belongs to the world.
         /// </summary>
         [MemberNotNull(nameof(_components))]
-        internal void InitializeComponents(IEnumerable<IComponent> components)
+        internal void InitializeComponents(IComponent[] components)
         {
             _components = new Dictionary<int, IComponent>();
 
@@ -586,6 +586,67 @@ namespace Bang.Entities
             _isDestroyed = true;
             
             OnEntityDestroyed?.Invoke(EntityId);
+        }
+
+        /// <summary>
+        /// Replace all the components of the entity. This is useful when you want to reuse
+        /// the same entity id with new components.
+        /// </summary>
+        /// <param name="components">
+        /// Components that will be placed in this entity.
+        /// </param>
+        /// <param name="children">
+        /// Children in the world that will now have this entity as a parent.
+        /// </param>
+        /// <param name="wipe">
+        /// Whether we want to wipe all trace of the current entity, including *destroying its children*.
+        /// </param>
+        public void Replace(IComponent[] components, List<(int, string)> children, bool wipe)
+        {
+            HashSet<int> replacedComponents = new();
+            foreach (IComponent c in components)
+            {
+                int index = GetComponentIndex(c.GetType());
+                replacedComponents.Add(index);
+
+                if (HasComponent(index))
+                {
+                    ReplaceComponent(c, index, forceReplace: true);
+                }
+                else
+                {
+                    AddComponent(c, index);
+                }
+            }
+
+            if (wipe)
+            {
+                foreach (int index in _components.Keys)
+                {
+                    if (!replacedComponents.Contains(index))
+                    {
+                        RemoveComponent(index);
+                    }
+                }
+            }
+
+            if (wipe && _children is not null)
+            {
+                int[] previousChildren = _children.Keys.ToArray();
+                foreach (int c in previousChildren)
+                {
+                    // Crush and destroy the child dreams.
+                    RemoveChild(c);
+
+                    Entity e = _world.GetEntity(c);
+                    e.Destroy();
+                }
+            }
+
+            foreach ((int id, string name) in children)
+            {
+                AddChild(id, name);
+            }
         }
 
         /// <summary>

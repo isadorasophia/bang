@@ -309,21 +309,13 @@ namespace Bang
         /// Add a single entity to the world (e.g. collection of <paramref name="components"/>). 
         /// This will map the instance to the world.
         /// </summary>
-        public Entity AddEntity(params IComponent[] components) => 
-            AddEntity(default, components.ToImmutableArray());
-
-        /// <summary>
-        /// Add a single entity to the world (e.g. collection of <paramref name="components"/>). 
-        /// This will map the instance to the world.
-        /// </summary>
-        public Entity AddEntity(IEnumerable<IComponent> components) => 
-            AddEntity(default, components);
+        public Entity AddEntity(params IComponent[] components) => AddEntity(default, components);
 
         /// <summary>
         /// Add a single entity to the world (e.g. collection of <paramref name="components"/>). 
         /// This will map the instance to the world and add an entity with an existing id.
         /// </summary>
-        public Entity AddEntity(int? id, IEnumerable<IComponent> components)
+        public Entity AddEntity(int? id, IComponent[] components)
         {
             Entity e = new(this, CheckEntityId(id), components);
 
