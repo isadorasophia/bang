@@ -74,6 +74,7 @@ namespace Bang.Entities
         public bool IsDestroyed => _isDestroyed;
 
         public bool IsDeactivated => _isDeactivated;
+        public bool IsActive => !_isDeactivated && !_isDestroyed;
 
         /// <summary>
         /// Keeps track of all the components that are currently present.
