@@ -1034,7 +1034,10 @@ namespace Bang
                 
                 IReactiveSystem system = notificationsAndSystem.System;
 
-                foreach (var (kind, entities) in notificationsAndSystem.Notifications)
+                // Make sure we make this in order. Some components are added *and* removed in the same frame.
+                // If this is the case, make sure we first call remove and *then* add.
+                var orderedNotifications = notificationsAndSystem.Notifications.OrderByDescending(kv => (int)kv.Key);
+                foreach (var (kind, entities) in orderedNotifications)
                 {
                     if (entities.Count == 0)
                     {
