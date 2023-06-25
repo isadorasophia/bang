@@ -37,7 +37,7 @@ jobs:
           release_name="bang-$tag-${{ matrix.target }}"
 
           # Build everything
-          dotnet publish --runtime "${{ matrix.target }}" -c Release -o "$release_name"
+          dotnet publish --runtime "${{ matrix.target }}" -c Release -o "$release_name" --no-self-contained
 
           # Pack files
           if [ "${{ matrix.target }}" == "win-x64" ]; then
