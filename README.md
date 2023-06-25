@@ -8,6 +8,9 @@
 Welcome to Bang! - an Entity Component System framework in C#.
 </p>
 
+[![Release](https://github.com/isadorasophia/bang/actions/workflows/bang.yaml/badge.svg)](https://github.com/isadorasophia/bang/actions/workflows/ci.yaml)
+[![LICENSE](https://img.shields.io/github/license/isadorasophia/bang.svg)](LICENSE)
+
 ### How does it work?
 This is not, in any way, an engine, but rather a framework that you can use in whatever engine you're comfortable with. I currently use this with **Murder engine**, which is not available (yet!), built on top of MonoGame.
 
