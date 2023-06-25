@@ -75,6 +75,6 @@ jobs:
       - name: Pack and push
         run: |
             dotnet pack -c Release
-            dotnet nuget push ./src/Bang/bin/Release/Bang.*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${NUGET_TOKEN}
+            dotnet nuget push ./src/bin/Release/Bang.*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${NUGET_TOKEN}
         env:
           NUGET_TOKEN: ${{secrets.NUGET_TOKEN}}
