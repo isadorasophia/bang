@@ -18,5 +18,14 @@ This is not, in any way, an engine, but rather a framework that you can use in w
 
 Check our [wiki](https://github.com/isadorasophia/bang/wiki) if you want more details.
 
+### How to use it?
+We are on nuget! So you can either use this repository as a submodule or simply add:
+
+```csproj
+<PackageReference Include="Murder.Bang" Version="0.0.2-alpha" />
+```
+
+Whatever makes you happier. The nuget package should have symbols and source embedded available with Source Link.
+
 ### Real-life examples
 [Neo City Express](https://github.com/isadorasophia/neocityexpress) was a Ludum Dare game (made in 72h ⏰) built on top of **Murder** and **Bang**. I highly recommend checking it out, especially if you're good with learning from examples.
