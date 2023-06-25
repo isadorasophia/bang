@@ -5,11 +5,13 @@
 <h1 align="center">A real ECS framework!</h1>
 
 <p align="center">
-Welcome to Bang! - an Entity Component System framework in C#.
+<a href="https://github.com/isadorasophia/bang/actions/workflows/ci.yaml"><img src="https://github.com/isadorasophia/bang/actions/workflows/ci.yaml/badge.svg" alt="Publish release"></a>
+<a href="LICENSE"><img src="https://img.shields.io/github/license/isadorasophia/bang.svg" alt="License"></a>
 </p>
 
-[![Release](https://github.com/isadorasophia/bang/actions/workflows/bang.yaml/badge.svg)](https://github.com/isadorasophia/bang/actions/workflows/ci.yaml)
-[![LICENSE](https://img.shields.io/github/license/isadorasophia/bang.svg)](LICENSE)
+<p align="center">
+Welcome to Bang! - an Entity Component System framework in C#.
+</p>
 
 ### How does it work?
 This is not, in any way, an engine, but rather a framework that you can use in whatever engine you're comfortable with. I currently use this with **Murder engine**, which is not available (yet!), built on top of MonoGame.
