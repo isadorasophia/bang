@@ -622,12 +622,23 @@ namespace Bang.Entities
 
             if (wipe)
             {
-                foreach (int index in _components.Keys)
+                ICollection<int> keys = _components.Keys;
+                foreach (int index in keys)
                 {
-                    if (!replacedComponents.Contains(index))
+                    if (replacedComponents.Contains(index))
                     {
-                        RemoveComponent(index);
+                        continue;
                     }
+
+                    // TODO: Cache and optimize components that must be kept during r?
+                    // As of today, a replace should happen so now and then that I will keep it like that for now.
+                    if (HasComponent(index) && _components[index] is IComponent c &&
+                        Attribute.IsDefined(c.GetType(), typeof(KeepOnReplaceAttribute)))
+                    {
+                        continue;
+                    }
+
+                    RemoveComponent(index);
                 }
             }
 
