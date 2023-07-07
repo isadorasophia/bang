@@ -1,5 +1,5 @@
 <p align="center">
-<img src="media/logo-1x-2.png" alt="Murder logo">
+<img src="media/logo-3x-2.png" alt="Murder logo">
 </p>
 
 <h1 align="center">A real ECS framework!</h1>
