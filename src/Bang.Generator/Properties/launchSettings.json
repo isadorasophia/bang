@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Generator": {
+      "commandName": "Project",
+      "commandLineArgs": "-buildWithBinaries D:\\dev\\road\\murder\\src\\Murder D:\\dev\\road\\murder\\src\\Murder\\bin\\Debug\\net7.0\\ Murder"
+    }
+  }
+}
