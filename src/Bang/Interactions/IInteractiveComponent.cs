@@ -4,7 +4,7 @@ using Bang.Entities;
 namespace Bang.Interactions
 {
     /// <summary>
-    /// This is a component which will interact with another entity.
+    /// Component that will interact with another entity.
     /// </summary>
     public interface IInteractiveComponent : IComponent
     {

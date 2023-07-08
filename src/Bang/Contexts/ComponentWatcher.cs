@@ -27,7 +27,7 @@ namespace Bang.Contexts
         private Dictionary<WatcherNotificationKind, Dictionary<int, Entity>>? _entitiesToNotify;
 
         /// <summary>
-        /// Get the entities which will be notified.
+        /// Get the entities that will be notified.
         /// This will immediately clear the notification list.
         /// </summary>
         public Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> PopNotifications()

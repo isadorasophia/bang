@@ -9,20 +9,20 @@ namespace Bang.Systems
     public interface IReactiveSystem : ISystem
     {
         /// <summary>
-        /// This is called at the end of the frame for all entities which were added one of the target
+        /// This is called at the end of the frame for all entities that were added one of the target.
         /// components.
         /// This is not called if the entity died.
         /// </summary>
         public abstract void OnAdded(World world, ImmutableArray<Entity> entities);
 
         /// <summary>
-        /// This is called at the end of the frame for all entities which removed one of the target
+        /// This is called at the end of the frame for all entities that removed one of the target.
         /// components.
         /// </summary>
         public abstract void OnRemoved(World world, ImmutableArray<Entity> entities);
 
         /// <summary>
-        /// This is called at the end of the frame for all entities which modified one of the target
+        /// This is called at the end of the frame for all entities that modified one of the target.
         /// components.
         /// This is not called if the entity died.
         /// </summary>

@@ -8,40 +8,40 @@ namespace Bang.Entities
 {
     /// <summary>
     /// An entity is a collection of components within the world.
-    /// This supports hierarchy (parent, children) 
+    /// This supports hierarchy (parent, children).
     /// </summary>
     public partial class Entity : IDisposable
     {
         /// <summary>
-        /// This will be fired whenever a new component has been added.
+        /// Fired whenever a new component is added.
         /// </summary>
         public event Action<Entity, int>? OnComponentAdded;
 
         /// <summary>
-        /// This will be fired whenever a new component has been removed.
+        /// Fired whenever a new component is removed.
         /// This will send the entity, the component id that was just removed and
         /// whether this was caused by a destroy.
         /// </summary>
         public event Action<Entity, int, bool>? OnComponentRemoved;
 
         /// <summary>
-        /// This will be fired whenever any component has been replaced.
+        /// Fired whenever any component is replaced.
         /// </summary>
         public event Action<Entity, int>? OnComponentModified;
 
         /// <summary>
-        /// This will be fired when the entity gets destroyed.
+        /// Fired when the entity gets destroyed.
         /// </summary>
         public event Action<int>? OnEntityDestroyed;
 
         /// <summary>
-        /// This will be fired when the entity gets activated, so it gets filtered
+        /// Fired when the entity gets activated, so it gets filtered
         /// back in the context listeners.
         /// </summary>
         public event Action<Entity>? OnEntityActivated;
 
         /// <summary>
-        /// This will be fired when the entity gets deactivated, so it is filtered out
+        /// Fired when the entity gets deactivated, so it is filtered out
         /// from its context listeners.
         /// </summary>
         public event Action<Entity>? OnEntityDeactivated;
@@ -54,7 +54,7 @@ namespace Bang.Entities
         /// <summary>
         /// Entity unique identifier.
         /// </summary>
-        public int EntityId => _id;
+        public int EntityId { get; }
 
         /// <summary>
         /// Components lookup. Unique per world that the entity was created.
@@ -63,18 +63,20 @@ namespace Bang.Entities
 
         private readonly ComponentsLookup _lookup;
 
-        private readonly int _id;
-
-        private bool _isDestroyed = false;
-        private bool _isDeactivated = false;
+        /// <summary>
+        /// Whether this entity has been destroyed (and probably recycled) or not.
+        /// </summary>
+        public bool IsDestroyed { get; private set; }
 
         /// <summary>
-        /// Returns whether this entity has been destroyed (and probably recicled) or not.
+        /// Whether this entity has been deactivated or not.
         /// </summary>
-        public bool IsDestroyed => _isDestroyed;
+        public bool IsDeactivated { get; private set; }
 
-        public bool IsDeactivated => _isDeactivated;
-        public bool IsActive => !_isDeactivated && !_isDestroyed;
+        /// <summary>
+        /// Whether this entity is active or not.
+        /// </summary>
+        public bool IsActive => !IsDeactivated && !IsDestroyed;
 
         /// <summary>
         /// Keeps track of all the components that are currently present.
@@ -98,7 +100,7 @@ namespace Bang.Entities
 
         internal Entity(World world, int id, IComponent[] components)
         {
-            _id = id;
+            EntityId = id;
 
             _world = world;
             _lookup = world.ComponentsLookup;
@@ -142,7 +144,7 @@ namespace Bang.Entities
             Dictionary<int, Type> components = _components.Where(kv => _availableComponents[kv.Key])
                 .ToDictionary(kv => kv.Key, kv => kv.Value.GetType());
             
-            foreach ((int id, Type t) in components)
+            foreach ((int _, Type t) in components)
             {
                 RequiresAttribute? requires = t.GetCustomAttributes(typeof(RequiresAttribute), inherit: true)
                     .FirstOrDefault() as RequiresAttribute;
@@ -427,7 +429,7 @@ namespace Bang.Entities
         /// </summary>
         public bool AddComponent<T>(T c, int index) where T : IComponent
         {
-            if (_isDestroyed)
+            if (IsDestroyed)
             {
                 // TODO: Assert? The entity has been destroyed, so it's a no-op.
                 return false;
@@ -451,7 +453,7 @@ namespace Bang.Entities
         /// </summary>
         public bool ReplaceComponent<T>(T c, int index, bool forceReplace = false) where T : IComponent
         {
-            if (_isDestroyed)
+            if (IsDestroyed)
             {
                 // TODO: Assert? The entity has been destroyed, so it's a no-op.
                 return false;
@@ -584,7 +586,7 @@ namespace Bang.Entities
                 NotifyRemovalOnDestroy(index);
             }
 
-            _isDestroyed = true;
+            IsDestroyed = true;
             
             OnEntityDestroyed?.Invoke(EntityId);
         }
@@ -697,15 +699,18 @@ namespace Bang.Entities
 
         private void Activate(Entity _) => Activate();
 
+        /// <summary>
+        /// Marks an entity as active if it isn't already.
+        /// </summary>
         public void Activate()
         {
-            if (!_isDeactivated)
+            if (!IsDeactivated)
             {
                 // Already active.
                 return;
             }
 
-            _isDeactivated = false;
+            IsDeactivated = false;
             _world.ActivateEntity(EntityId);
 
             OnEntityActivated?.Invoke(this);
@@ -713,15 +718,18 @@ namespace Bang.Entities
 
         private void Deactivate(Entity _) => Deactivate();
 
+        /// <summary>
+        /// Marks an entity as deactivated if it isn't already.
+        /// </summary>
         public void Deactivate()
         {
-            if (_isDeactivated)
+            if (IsDeactivated)
             {
                 // Already deactivated.
                 return;
             }
 
-            _isDeactivated = true;
+            IsDeactivated = true;
             _world.DeactivateEntity(EntityId);
 
             OnEntityDeactivated?.Invoke(this);
@@ -732,7 +740,7 @@ namespace Bang.Entities
         /// </summary>
         private bool NotifyRemovalOnDestroy(int index)
         {
-            if (_isDestroyed)
+            if (IsDestroyed)
             {
                 // Entity was already destroyed, so we already notified any listeners.
                 return false;

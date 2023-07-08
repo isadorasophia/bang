@@ -13,7 +13,7 @@ namespace Bang.Contexts
     public class Context : Observer, IDisposable
     {
         /// <summary>
-        /// List of entities which will be fed to the system of this context.
+        /// List of entities that will be fed to the system of this context.
         /// </summary>
         private readonly Dictionary<int, Entity> _entities = new();
 
@@ -449,6 +449,7 @@ namespace Bang.Contexts
             _cachedEntities = null;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             OnComponentAddedForEntityInContext = null;

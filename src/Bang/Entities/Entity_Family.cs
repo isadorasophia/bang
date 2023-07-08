@@ -4,10 +4,7 @@ using System.Diagnostics;
 
 namespace Bang.Entities
 {
-    /// <summary>
-    /// This file has all the content for entities supporting children
-    /// and parents - a family!
-    /// </summary>
+    // This file has all the content for entities supporting children and parents - a family!
     public partial class Entity
     {
         private Entity? _parent;
@@ -94,7 +91,7 @@ namespace Bang.Entities
         /// <returns>Parent entity. If none, returns null.</returns>
         public Entity? TryFetchParent()
         {
-            if (_world is null || Parent is null || _isDestroyed)
+            if (_world is null || Parent is null || IsDestroyed)
             {
                 return null;
             }

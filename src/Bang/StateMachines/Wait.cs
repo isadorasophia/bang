@@ -4,7 +4,7 @@ using Bang.Entities;
 namespace Bang.StateMachines
 {
     /// <summary>
-    /// This is a message fired to communicate the current state of the state machine.
+    /// A message fired to communicate the current state of the state machine.
     /// </summary>
     public record Wait
     {

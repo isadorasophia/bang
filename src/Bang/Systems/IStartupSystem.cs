@@ -3,7 +3,7 @@
 namespace Bang.Systems
 {
     /// <summary>
-    /// A startup system is only called once the world starts.
+    /// A system only called once when the world starts.
     /// </summary>
     public interface IStartupSystem : ISystem
     {

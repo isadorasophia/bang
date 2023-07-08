@@ -6,7 +6,7 @@
         /// Algorithm taken from: https://stackoverflow.com/a/3405330.
         /// This is a reasonable algorithm for array of values between -1000 and 1000. We can replace this afterwards if there is a need.
         /// </summary>
-        /// <param name="values">Values which will be applied the hash algorithm.</param>
+        /// <param name="values">Values that will be applied the hash algorithm.</param>
         public static int GetHashCodeImpl(this IEnumerable<int> values)
         {
             int result = 0;

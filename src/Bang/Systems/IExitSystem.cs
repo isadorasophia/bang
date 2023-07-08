@@ -3,7 +3,7 @@
 namespace Bang.Systems
 {
     /// <summary>
-    /// This is the system called when the world is shutting down.
+    /// A system called when the world is shutting down.
     /// </summary>
     public interface IExitSystem : ISystem
     {
