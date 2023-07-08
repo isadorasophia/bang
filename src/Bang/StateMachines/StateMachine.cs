@@ -203,6 +203,10 @@ namespace Bang.StateMachines
                         _waitForMessageTarget = r.Target;
                         target.OnMessage += OnMessageSent;
                     }
+                    else
+                    {
+                        _waitForMessageTarget = null;
+                    }
 
                     return true;
 
