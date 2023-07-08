@@ -5,6 +5,8 @@ VisualStudioVersion = 17.4.32916.344
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang", "src\Bang\Bang.csproj", "{EF2AA57C-DEE8-4CEA-ADA7-BE8283D01418}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang.Analyzers", "src\Bang.Analyzers\Bang.Analyzers.csproj", "{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{EF2AA57C-DEE8-4CEA-ADA7-BE8283D01418}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF2AA57C-DEE8-4CEA-ADA7-BE8283D01418}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF2AA57C-DEE8-4CEA-ADA7-BE8283D01418}.Release|Any CPU.Build.0 = Release|Any CPU
+		{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
