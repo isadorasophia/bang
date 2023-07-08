@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang", "src\Bang\Bang.cspro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang.Analyzers", "src\Bang.Analyzers\Bang.Analyzers.csproj", "{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang.Analyzers.Tests", "src\Bang.Analyzers.Tests\Bang.Analyzers.Tests.csproj", "{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{813C8D38-94F0-43AD-B6C7-83D005E6CE3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
