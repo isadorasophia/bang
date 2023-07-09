@@ -692,6 +692,9 @@ namespace Bang.Entities
             OnEntityActivated = null;
             OnEntityDeactivated = null;
 
+            OnMessage = null;
+            _trackedComponentsModified.Clear();
+
             GC.SuppressFinalize(this);
         }
 

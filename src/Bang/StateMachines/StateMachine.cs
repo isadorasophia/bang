@@ -280,6 +280,7 @@ namespace Bang.StateMachines
 
             Routine = null;
             CurrentState = null;
+            OnModified = null;
 
             Name = string.Empty;
         }
