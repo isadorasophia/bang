@@ -77,6 +77,12 @@ namespace Bang.Entities
         public bool IsActive => !_isDeactivated && !_isDestroyed;
 
         /// <summary>
+        /// Maybe we want to expand this into various reasons an entity was deactivated?
+        /// For now, track whether it was deactivated due to the parent.
+        /// </summary>
+        private bool _wasDeactivatedFromParent = false;
+
+        /// <summary>
         /// Keeps track of all the components that are currently present.
         /// </summary>
         // TODO: Investigate trade-off between using this and a hash set.
@@ -698,7 +704,15 @@ namespace Bang.Entities
             GC.SuppressFinalize(this);
         }
 
-        private void Activate(Entity _) => Activate();
+        private void ActivateFromParent(Entity _)
+        {
+            if (!_wasDeactivatedFromParent)
+            {
+                return;
+            }
+
+            Activate();
+        }
 
         public void Activate()
         {
@@ -709,12 +723,23 @@ namespace Bang.Entities
             }
 
             _isDeactivated = false;
+            _wasDeactivatedFromParent = false;
+
             _world.ActivateEntity(EntityId);
 
             OnEntityActivated?.Invoke(this);
         }
 
-        private void Deactivate(Entity _) => Deactivate();
+        private void DeactivateFromParent(Entity _)
+        {
+            if (_isDeactivated)
+            {
+                return;
+            }
+
+            _wasDeactivatedFromParent = true;
+            Deactivate();
+        }
 
         public void Deactivate()
         {
