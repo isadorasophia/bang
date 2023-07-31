@@ -43,7 +43,7 @@ namespace BangAnalyzerTestNamespace;
 class ClassComponent: IComponent { }";
 
 		var expected = Verify.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 7, 6, 21);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -63,10 +63,10 @@ class BaseClass : IComponent { }";
 		var expected = new[]
 		{
 			Verify.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithSeverity(DiagnosticSeverity.Error)
 				.WithSpan(6, 7, 6, 22),
 			Verify.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithSeverity(DiagnosticSeverity.Error)
 				.WithSpan(7, 7, 7, 16)
 		};
 
@@ -86,7 +86,7 @@ interface INestedComponent : IComponent { }";
 
 		var expected = Verify
 			.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 7, 6, 21);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -103,7 +103,7 @@ namespace BangAnalyzerTestNamespace;
 record class ClassComponent: IComponent;";
 
 		var expected = Verify.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 14, 6, 28);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -123,10 +123,10 @@ record class BaseRecord : IComponent { }";
 		var expected = new[]
 		{
 			Verify.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithSeverity(DiagnosticSeverity.Error)
 				.WithSpan(6, 14, 6, 29),
 			Verify.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-				.WithSeverity(DiagnosticSeverity.Warning)
+				.WithSeverity(DiagnosticSeverity.Error)
 				.WithSpan(7, 14, 7, 24)
 		};
 
@@ -146,7 +146,7 @@ interface INestedComponent : IComponent { }";
 
 		var expected = Verify
 			.Diagnostic(ComponentAnalyzer.ClassesCannotBeComponents)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 14, 6, 34);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -165,7 +165,7 @@ interface INestedComponent : IComponent { }";
 
 		var expected = Verify
 			.Diagnostic(ComponentAnalyzer.StructsMustBeReadonly)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 8, 6, 28);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -184,7 +184,7 @@ interface INestedComponent : IComponent { }";
 
 		var expected = Verify
 			.Diagnostic(ComponentAnalyzer.StructsMustBeReadonly)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 15, 6, 35);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -202,7 +202,7 @@ struct Component: IComponent { }";
 
 		var expected = Verify
 			.Diagnostic(ComponentAnalyzer.StructsMustBeReadonly)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 8, 6, 17);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -220,7 +220,7 @@ record struct Component : Bang.Components.IComponent;";
 
 		var expected = Verify
 			.Diagnostic(ComponentAnalyzer.StructsMustBeReadonly)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(6, 15, 6, 24);
 
 		await Verify.VerifyAnalyzerAsync(source, expected);

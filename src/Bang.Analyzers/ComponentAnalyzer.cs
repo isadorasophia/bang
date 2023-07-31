@@ -15,7 +15,7 @@ public sealed class ComponentAnalyzer : DiagnosticAnalyzer
         title: nameof(ComponentAnalyzer) + "." + nameof(ClassesCannotBeComponents),
         messageFormat: Diagnostics.Components.ClassesCannotBeComponents.Message,
         category: "Usage",
-        defaultSeverity: DiagnosticSeverity.Warning,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All Bang Components should be declared as readonly structs."
     );
@@ -25,7 +25,7 @@ public sealed class ComponentAnalyzer : DiagnosticAnalyzer
         title: nameof(ComponentAnalyzer) + "." + nameof(StructsMustBeReadonly),
         messageFormat: Diagnostics.Components.StructsMustBeReadonly.Message,
         category: "Usage",
-        defaultSeverity: DiagnosticSeverity.Warning,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "All Bang Components should be declared as readonly structs."
     );

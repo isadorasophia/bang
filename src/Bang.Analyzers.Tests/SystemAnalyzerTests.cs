@@ -66,7 +66,7 @@ public class IncorrectMessagerSystem : IMessagerSystem
 }";
 
 		var expected = Verify.Diagnostic(SystemAnalyzer.MessagerAttribute)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(9, 1, 12, 2);
 		
 		await Verify.VerifyAnalyzerAsync(source, expected);
@@ -92,7 +92,7 @@ public class IncorrectReactiveSystem : IReactiveSystem
 }";
 
 		var expected = Verify.Diagnostic(SystemAnalyzer.WatchAttribute)
-			.WithSeverity(DiagnosticSeverity.Warning)
+			.WithSeverity(DiagnosticSeverity.Error)
 			.WithSpan(10, 1, 15, 2);
 		
 		await Verify.VerifyAnalyzerAsync(source, expected);

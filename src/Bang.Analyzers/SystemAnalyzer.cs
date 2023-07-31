@@ -14,7 +14,7 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         title: nameof(ComponentAnalyzer) + "." + nameof(MessagerAttribute),
         messageFormat: Diagnostics.Systems.MessagerAttribute.Message,
         category: "Usage",
-        defaultSeverity: DiagnosticSeverity.Warning,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Implementations of IMessagerSystem need to be annotated with MessagerAttribute."
     );
@@ -24,7 +24,7 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         title: nameof(ComponentAnalyzer) + "." + nameof(WatchAttribute),
         messageFormat: Diagnostics.Systems.WatchAttribute.Message,
         category: "Usage",
-        defaultSeverity: DiagnosticSeverity.Warning,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Implementations of IReactiveSystem need to be annotated with WatchAttribute."
     );
