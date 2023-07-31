@@ -9,6 +9,16 @@ namespace Bang.Analyzers;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class SystemAnalyzer : DiagnosticAnalyzer
 {
+    public static readonly DiagnosticDescriptor FilterAttribute = new(
+        id: Diagnostics.Systems.MessagerAttribute.Id,
+        title: nameof(ComponentAnalyzer) + "." + nameof(FilterAttribute),
+        messageFormat: Diagnostics.Systems.MessagerAttribute.Message,
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Implementations of IMessagerSystem need to be annotated with MessagerAttribute."
+    );
+
     public static readonly DiagnosticDescriptor MessagerAttribute = new(
         id: Diagnostics.Systems.MessagerAttribute.Id,
         title: nameof(ComponentAnalyzer) + "." + nameof(MessagerAttribute),
@@ -40,7 +50,7 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             SyntaxKind.RecordDeclaration,
             SyntaxKind.RecordStructDeclaration
         );
-        
+
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
         context.RegisterSyntaxNodeAction(Analyze, syntaxKind);
@@ -54,53 +64,66 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             return;
 
         // Bail if the node we are checking is not a type declaration.
-        if (context.ContainingSymbol is not INamedTypeSymbol typeSymbol) 
+        if (context.ContainingSymbol is not INamedTypeSymbol typeSymbol)
             return;
 
         // Bail if the current type declaration is not a system.
         var isSystem = typeSymbol.ImplementsInterface(bangSystemInterface);
         if (!isSystem)
             return;
-        
+
+        var attributes = typeSymbol.GetAttributes();
+        var filterAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.FilterAttribute");
+        ReportDiagnosticIfLackingAttribute(
+            context: context,
+            diagnosticDescriptor: FilterAttribute,
+            attributes: attributes,
+            attributeToCheck: filterAttribute
+        );
+
         var bangMessagerSystem = context.Compilation.GetTypeByMetadataName("Bang.Systems.IMessagerSystem");
         if (bangMessagerSystem is not null && typeSymbol.ImplementsInterface(bangMessagerSystem))
         {
-            var messagerAttribute = context.Compilation
-                .GetTypeByMetadataName("Bang.Systems.MessagerAttribute");
-            
-            var attributes = typeSymbol.GetAttributes();
-            var hasModuleAttribute = attributes.Any(
-                attr => attr.AttributeClass is not null && attr.AttributeClass.Equals(messagerAttribute, SymbolEqualityComparer.IncludeNullability));
-            
-            if (!hasModuleAttribute)
-            {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        MessagerAttribute,
-                        context.Node.GetLocation()
-                    )
-                );
-            }   
+            var messagerAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.MessagerAttribute");
+            ReportDiagnosticIfLackingAttribute(
+                context: context,
+                diagnosticDescriptor: MessagerAttribute,
+                attributes: attributes,
+                attributeToCheck: messagerAttribute
+            );
         }
 
         var bangReactiveSystem = context.Compilation.GetTypeByMetadataName("Bang.Systems.IReactiveSystem");
         if (bangReactiveSystem is not null && typeSymbol.ImplementsInterface(bangReactiveSystem))
         {
             var watchAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.WatchAttribute");
-            
-            var attributes = typeSymbol.GetAttributes();
-            var hasModuleAttribute = attributes.Any(
-                attr => attr.AttributeClass is not null && attr.AttributeClass.Equals(watchAttribute, SymbolEqualityComparer.IncludeNullability));
-            
-            if (!hasModuleAttribute)
-            {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        WatchAttribute,
-                        context.Node.GetLocation()
-                    )
-                );
-            }
+            ReportDiagnosticIfLackingAttribute(
+                context: context,
+                diagnosticDescriptor: WatchAttribute,
+                attributes: attributes,
+                attributeToCheck: watchAttribute
+            );
         }
+    }
+
+    private static void ReportDiagnosticIfLackingAttribute(
+        SyntaxNodeAnalysisContext context,
+        DiagnosticDescriptor diagnosticDescriptor,
+        ImmutableArray<AttributeData> attributes,
+        INamedTypeSymbol? attributeToCheck
+    )
+    {
+        var hasAttribute = attributes.Any(
+            attr => attr.AttributeClass is not null && attr.AttributeClass.Equals(attributeToCheck, SymbolEqualityComparer.IncludeNullability));
+
+        if (hasAttribute)
+            return;
+
+        context.ReportDiagnostic(
+            Diagnostic.Create(
+                diagnosticDescriptor,
+                context.Node.GetLocation()
+            )
+        );
     }
 }

@@ -19,15 +19,21 @@ public static class Diagnostics
 
     public static class Systems
     {
-        public static class MessagerAttribute
+        public static class FilterAttribute
         {
             public const string Id = "BANG1001";
+            public const string Message = "System requires FilterAttribute.";
+        }
+
+        public static class MessagerAttribute
+        {
+            public const string Id = "BANG1002";
             public const string Message = "System requires MessagerAttribute.";
         }
 
         public static class WatchAttribute
         {
-            public const string Id = "BANG1002";
+            public const string Id = "BANG1003";
             public const string Message = "System requires WatchAttribute.";
         }
     }
