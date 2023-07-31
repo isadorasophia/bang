@@ -1,13 +1,14 @@
 using Microsoft.CodeAnalysis;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bang.Analyzers.Tests;
 
 using Verify = BangAnalyzerVerifier<ComponentAnalyzer>;
 
+[TestClass]
 public sealed class ComponentAnalyzerTests
 {
-	[Fact(DisplayName = "Readonly structs do not trigger the analyzer.")]
+	[TestMethod(displayName: "Readonly structs do not trigger the analyzer.")]
 	public async Task ReadOnlyStructsDontTriggerTheAnalyzer()
 	{
 		const string source = @"
@@ -19,7 +20,7 @@ public readonly struct ReadonlyStructComponent : IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source);
 	}
 	
-	[Fact(DisplayName = "Readonly record structs do not trigger the analyzer.")]
+	[TestMethod(displayName: "Readonly record structs do not trigger the analyzer.")]
 	public async Task ReadOnlyRecordStructsDontTriggerTheAnalyzer()
 	{
 		const string source = @"
@@ -31,7 +32,7 @@ public readonly record struct ReadonlyStructComponent : IComponent;";
 		await Verify.VerifyAnalyzerAsync(source);
 	}
 
-	[Fact(DisplayName = "Classes cannot be components.")]
+	[TestMethod(displayName: "Classes cannot be components.")]
 	public async Task ClassesCannotBeComponents()
 	{
 		const string source = @"
@@ -48,7 +49,7 @@ class ClassComponent: IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Nested classes cannot be components.")]
+	[TestMethod(displayName: "Nested classes cannot be components.")]
 	public async Task NestedClassesCannotBeComponents()
 	{
 		const string source = @"
@@ -72,7 +73,7 @@ class BaseClass : IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Indirect implementations of IComponent on classes still trigger the analyzer.")]
+	[TestMethod(displayName: "Indirect implementations of IComponent on classes still trigger the analyzer.")]
 	public async Task IndirectImplementationOnClasses()
 	{
 		const string source = @"
@@ -91,7 +92,7 @@ interface INestedComponent : IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Record classes cannot be components.")]
+	[TestMethod(displayName: "Record classes cannot be components.")]
 	public async Task RecordClassesCannotBeComponents()
 	{
 		const string source = @"
@@ -108,7 +109,7 @@ record class ClassComponent: IComponent;";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Nested record classes cannot be components.")]
+	[TestMethod(displayName: "Nested record classes cannot be components.")]
 	public async Task NestedRecordClassesCannotBeComponents()
 	{
 		const string source = @"
@@ -132,7 +133,7 @@ record class BaseRecord : IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Indirect implementations of IComponent on record classes still trigger the analyzer.")]
+	[TestMethod(displayName: "Indirect implementations of IComponent on record classes still trigger the analyzer.")]
 	public async Task IndirectImplementationOnRecordClasses()
 	{
 		const string source = @"
@@ -151,7 +152,7 @@ interface INestedComponent : IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Indirect implementations of IComponent on structs still trigger the analyzer.")]
+	[TestMethod(displayName: "Indirect implementations of IComponent on structs still trigger the analyzer.")]
 	public async Task IndirectImplementationOnStructs()
 	{
 		const string source = @"
@@ -170,7 +171,7 @@ interface INestedComponent : IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 	
-	[Fact(DisplayName = "Indirect implementations of IComponent on record structs still trigger the analyzer.")]
+	[TestMethod(displayName: "Indirect implementations of IComponent on record structs still trigger the analyzer.")]
 	public async Task IndirectImplementationOnRecordStructs()
 	{
 		const string source = @"
@@ -189,7 +190,7 @@ interface INestedComponent : IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Structs must be declared as readonly.")]
+	[TestMethod(displayName: "Structs must be declared as readonly.")]
 	public async Task StructsMustBeReadonly()
 	{
 		const string source = @"
@@ -207,7 +208,7 @@ struct Component: IComponent { }";
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Record Structs must be declared readonly.")]
+	[TestMethod(displayName: "Record Structs must be declared readonly.")]
 	public async Task RecordStructsMustBeReadonly()
 	{
 		const string source = @"

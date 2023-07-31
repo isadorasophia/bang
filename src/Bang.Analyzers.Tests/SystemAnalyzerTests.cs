@@ -1,18 +1,14 @@
 using Microsoft.CodeAnalysis;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bang.Analyzers.Tests;
 
 using Verify = BangAnalyzerVerifier<SystemAnalyzer>;
 
+[TestClass]
 public sealed class SystemAnalyzerTests
 {
-	public static readonly IEnumerable<object[]> ValidSystemImplementations = new [] 
-	{
-		// IReactiveSystem with proper annotation
-		new object[] 
-		{ 
-			@"
+	private const string IReactiveSystemWithProperAnnotationSourceCode = @"
 using Bang;
 using Bang.Components;
 using Bang.Entities;
@@ -29,11 +25,8 @@ public class CorrectReactiveSystem : IReactiveSystem
 	public void OnAdded(World world, ImmutableArray<Entity> entities) { }
 	public void OnRemoved(World world, ImmutableArray<Entity> entities) { }
 	public void OnModified(World world, ImmutableArray<Entity> entities) { }
-}"
-		},
-		// IMessagerSystem with proper annotation
-		new object[] {
-			@"
+}";
+	private const string IMessagerSystemWithProperAnnotationSourceCode = @"
 using Bang;
 using Bang.Components;
 using Bang.Entities;
@@ -46,18 +39,17 @@ public readonly record struct CorrectMessage : IMessage;
 public class CorrectMessagerSystem : IMessagerSystem
 {
 	public void OnMessage(World world, Entity entity, IMessage message) { }
-}"
-		}
-	};
+}";
 
-	[Theory(DisplayName = "Properly annotated systems do not trigger the analyzer.")]
-	[MemberData(nameof(ValidSystemImplementations))]
+	[TestMethod(displayName: "Properly annotated systems do not trigger the analyzer.")]
+	[DataRow(IReactiveSystemWithProperAnnotationSourceCode)]
+	[DataRow(IMessagerSystemWithProperAnnotationSourceCode)]
 	public async Task ProperlyAnnotatedSystemsDoNotTriggerTheAnalyzer(string source)
 	{
 		await Verify.VerifyAnalyzerAsync(source);
 	}
 
-	[Fact(DisplayName = "Messager systems must be annotated with the Messager attribute.")]
+	[TestMethod(displayName: "Messager systems must be annotated with the Messager attribute.")]
 	public async Task NonAnnotatedMessagerSystems()
 	{
 		const string source = @"
@@ -80,7 +72,7 @@ public class IncorrectMessagerSystem : IMessagerSystem
 		await Verify.VerifyAnalyzerAsync(source, expected);
 	}
 
-	[Fact(DisplayName = "Reactive systems must be annotated with the Watch attribute.")]
+	[TestMethod(displayName: "Reactive systems must be annotated with the Watch attribute.")]
 	public async Task NonAnnotatedReactiveSystems()
 	{
 		const string source = @"
