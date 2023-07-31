@@ -4,7 +4,7 @@ using Bang.Entities;
 namespace Bang.Systems
 {
     /// <summary>
-    /// A reactive system that reacts whenever a message gets added to an entity.
+    /// A reactive system that reacts to messages getting added to an entity.
     /// </summary>
     public interface IMessagerSystem : ISystem
     {

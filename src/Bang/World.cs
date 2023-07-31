@@ -83,7 +83,7 @@ namespace Bang
         }
 
         /// <summary>
-        /// Tracks down all the entities which received a message notification within the frame.
+        /// Tracks down all the entities that received a message notification within the frame.
         /// </summary>
         private HashSet<int>? _entitiesTriggeredByMessage = null;
 
@@ -105,17 +105,17 @@ namespace Bang
         private readonly ImmutableDictionary<Type, int> _typeToSystems;
 
         /// <summary>
-        /// Set of systems which will be paused. See <see cref="IsPauseSystem(ISystem)"/> for more information.
+        /// Set of systems that will be paused. See <see cref="IsPauseSystem(ISystem)"/> for more information.
         /// </summary>
         private readonly ImmutableHashSet<int> _pauseSystems;
         
         /// <summary>
-        /// Set of systems which will only be played once a pause occur.
+        /// Set of systems that will only be played once a pause occur.
         /// </summary>
         private readonly ImmutableHashSet<int> _playOnPauseSystems;
 
         /// <summary>
-        /// List of systems which will be resumed after a pause.
+        /// List of systems that will be resumed after a pause.
         /// These are the systems which were deactivated due to <see cref="Pause"/>.
         /// </summary>
         private readonly HashSet<int> _systemsToResume = new();
@@ -345,7 +345,7 @@ namespace Bang
 
         /// <summary>
         /// This will take <paramref name="id"/> and provide an entity id
-        /// which has not been used by any other entity in the world.
+        /// that has not been used by any other entity in the world.
         /// </summary>
         internal int CheckEntityId(int? id = default)
         {
@@ -668,7 +668,7 @@ namespace Bang
 
             if (DIAGNOSTICS_MODE)
             {
-                UpdateDiagnosticsOnDeactiveSystem(id);
+                UpdateDiagnosticsOnDeactivateSystem(id);
             }
 
             _systems[id] = _systems[id] with { IsActive = false };

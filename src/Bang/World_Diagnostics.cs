@@ -5,9 +5,7 @@ using System.Diagnostics;
 
 namespace Bang
 {
-    /// <summary>
-    /// This will expose debug information used when creating a world.
-    /// </summary>
+    // This file contains the code responsible for debug information used when creating a world.
     public partial class World
     {
         private bool _initializedDiagnostics = false;
@@ -71,7 +69,7 @@ namespace Bang
             }
         }
         
-        private void UpdateDiagnosticsOnDeactiveSystem(int id) 
+        private void UpdateDiagnosticsOnDeactivateSystem(int id) 
         {
             if (UpdateCounters.TryGetValue(id, out var value)) value.Clear();
             if (FixedUpdateCounters.TryGetValue(id, out value)) value.Clear();

@@ -23,13 +23,13 @@ namespace Bang.StateMachines
 
         /// <summary>
         /// World of the state machine.
-        /// Initialized in <see cref="Initialize(World, Entity)"/>.
+        /// Initialized in <see cref="Initialize(Bang.World,Entities.Entity)"/>.
         /// </summary>
         protected World World = null!;
 
         /// <summary>
         /// Entity of the state machine.
-        /// Initialized in <see cref="Initialize(World, Entity)"/>.
+        /// Initialized in <see cref="Initialize(Bang.World, Entities.Entity)"/>.
         /// </summary>
         protected Entity Entity = null!;
 
@@ -314,6 +314,11 @@ namespace Bang.StateMachines
             SwitchState(routine);
         }
 
+        /// <summary>
+        /// Redirects the state machine to a new <paramref name="routine"/> without doing
+        /// a tick.
+        /// </summary>
+        /// <param name="routine">Target routine (new state).</param>
         protected void SwitchState(Func<IEnumerator<Wait>> routine)
         {
             // Also resets any pending wait state.

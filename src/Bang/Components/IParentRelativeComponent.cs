@@ -3,8 +3,8 @@
 namespace Bang.Components
 {
     /// <summary>
-    /// This represents a component which is relative to the parent.
-    /// This will be notified each time that the tracking component of the parent changes.
+    /// A component that is relative to the parent.
+    /// It will be notified each time the tracking component of the parent changes.
     /// </summary>
     public interface IParentRelativeComponent : IComponent
     {
@@ -19,7 +19,7 @@ namespace Bang.Components
         public bool HasParent { get; }
 
         /// <summary>
-        /// Called when a parent gets the <paramref name="parentComponent"/> modified.
+        /// Called when a parent modifies <paramref name="parentComponent"/>.
         /// </summary>
         /// <param name="parentComponent">Component of the parent.</param>
         /// <param name="childEntity">Child entity tracking the parent.</param>

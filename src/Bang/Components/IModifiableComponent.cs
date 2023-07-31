@@ -1,7 +1,7 @@
 ﻿namespace Bang.Components
 {
     /// <summary>
-    /// This is for a component that can be modified and is not an actual immutable.
+    /// A special type of component that can be modified.
     /// </summary>
     public interface IModifiableComponent : IComponent
     {
@@ -11,7 +11,7 @@
         public void Subscribe(Action notification);
 
         /// <summary>
-        /// Unsubscribe to receive notifications when the component gets modified.
+        /// Unsubscribe to stop receiving notifications when the component gets modified.
         /// </summary>
         public void Unsubscribe(Action notification);
     }

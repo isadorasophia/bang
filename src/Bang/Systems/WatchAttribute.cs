@@ -7,7 +7,7 @@ namespace Bang.Systems
 {
     /// <summary>
     /// Indicates a watcher attribute for a system.
-    /// This must be implemented by all the systems that inherits from <see cref="IReactiveSystem"/>.
+    /// This must be implemented by all the systems that inherit <see cref="IReactiveSystem"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
     public class WatchAttribute : Attribute
@@ -20,7 +20,7 @@ namespace Bang.Systems
         /// <summary>
         /// Creates a new <see cref="WatchAttribute"/> with a set of target types.
         /// </summary>
-        /// <param name="types">Component types which will fire a notification once they are modified.</param>
+        /// <param name="types">Component types that will fire a notification once they are modified.</param>
         public WatchAttribute(params Type[] types)
         {
             if (World.DIAGNOSTICS_MODE)

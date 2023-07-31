@@ -3,7 +3,7 @@
 namespace Bang.Systems
 {
     /// <summary>
-    /// This is the update system and consists of a single update call.
+    /// A system that consists of a single update call.
     /// </summary>
     public interface IUpdateSystem : ISystem
     {
