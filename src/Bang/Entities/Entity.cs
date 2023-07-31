@@ -727,7 +727,7 @@ namespace Bang.Entities
                 return;
             }
 
-            IsDeactivated = false
+            IsDeactivated = false;
             _wasDeactivatedFromParent = false;
 
             _world.ActivateEntity(EntityId);
@@ -737,7 +737,7 @@ namespace Bang.Entities
 
         private void DeactivateFromParent(Entity _)
         {
-            if (_isDeactivated)
+            if (IsDeactivated)
             {
                 return;
             }
