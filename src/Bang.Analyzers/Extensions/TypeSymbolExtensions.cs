@@ -16,5 +16,5 @@ internal static class TypeSymbolExtensions
     internal static bool ImplementsInterface(
         this ITypeSymbol symbol,
         ISymbol interfaceTypeSymbol
-    ) => symbol.AllInterfaces.Any(i => i.Equals(interfaceTypeSymbol));
+    ) => symbol.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceTypeSymbol));
 }

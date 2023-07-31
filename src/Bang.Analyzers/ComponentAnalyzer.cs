@@ -26,8 +26,8 @@ public sealed class ComponentAnalyzer : BaseComponentAnalyzer
         isEnabledByDefault: true,
         description: "All Bang Components should be declared as readonly structs."
     );
-    
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics 
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
         => ImmutableArray.Create(ClassesCannotBeComponents, ComponentsMustBeReadonly);
 
     protected override string InterfaceName => "Bang.Components.IComponent";

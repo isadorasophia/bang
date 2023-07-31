@@ -26,8 +26,8 @@ public sealed class MessageAnalyzer : BaseComponentAnalyzer
         isEnabledByDefault: true,
         description: "All Bang Messages should be declared as readonly structs."
     );
-    
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics 
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
         => ImmutableArray.Create(ClassesCannotBeMessages, MessagesMustBeReadonly);
 
 

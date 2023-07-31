@@ -21,15 +21,15 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
             SyntaxKind.RecordDeclaration,
             SyntaxKind.RecordStructDeclaration
         );
-        
+
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
         context.RegisterSyntaxNodeAction(
-            action: context => Analyze(context, InterfaceName, DoNotUseClassesDiagnostic, ReadonlyDiagnostic), 
+            action: context => Analyze(context, InterfaceName, DoNotUseClassesDiagnostic, ReadonlyDiagnostic),
             syntaxKinds: syntaxKinds
         );
     }
-    
+
     private static void Analyze(
         SyntaxNodeAnalysisContext context,
         string interfaceName,
@@ -41,11 +41,11 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
         var bangComponentInterface = context.Compilation.GetTypeByMetadataName(interfaceName);
         if (bangComponentInterface is null)
             return;
-     
+
         // Bail if the node we are checking is not a type declaration.
-        if (context.ContainingSymbol is not INamedTypeSymbol typeSymbol) 
+        if (context.ContainingSymbol is not INamedTypeSymbol typeSymbol)
             return;
-        
+
         // Bail if the current type declaration is not a component.
         var isComponent = typeSymbol.ImplementsInterface(bangComponentInterface);
         if (!isComponent)
