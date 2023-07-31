@@ -10,10 +10,10 @@ public static class Diagnostics
             public const string Message = "Classes cannot be components.";
         };
 
-        public static class StructsMustBeReadonly
+        public static class ComponentsMustBeReadonly
         {
             public const string Id = "BANG0002";
-            public const string Message = "Structs must be declared as readonly.";
+            public const string Message = "Components must be declared as readonly.";
         }
     }
 
@@ -29,6 +29,21 @@ public static class Diagnostics
         {
             public const string Id = "BANG1002";
             public const string Message = "System requires WatchAttribute.";
+        }
+    }
+
+    public static class Messages
+    {
+        public static class ClassesCannotBeMessages
+        {
+            public const string Id = "BANG4001";
+            public const string Message = "Classes cannot be messages.";
+        };
+
+        public static class MessagesMustBeReadonly
+        {
+            public const string Id = "BANG4002";
+            public const string Message = "Messages must be declared as readonly.";
         }
     }
 }
