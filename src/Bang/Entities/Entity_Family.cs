@@ -320,8 +320,8 @@ namespace Bang.Entities
 
             _parent.OnEntityDestroyed += Destroy;
 
-            _parent.OnEntityActivated += Activate;
-            _parent.OnEntityDeactivated += Deactivate;
+            _parent.OnEntityActivated += ActivateFromParent;
+            _parent.OnEntityDeactivated += DeactivateFromParent;
 
             _parent.AddChild(EntityId);
         }
