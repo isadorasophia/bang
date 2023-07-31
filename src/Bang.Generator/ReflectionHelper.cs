@@ -32,7 +32,7 @@ namespace Generator
         {
             // Order by name to guarantee consistency across different runs.
             return targetAssemblies.SelectMany(s => s.GetTypes())
-                .Where(t => typeof(Interaction).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface && !t.IsGenericType)
+                .Where(t => typeof(IInteraction).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface && !t.IsGenericType)
                 .OrderBy(t => t.Name);
         }
 
