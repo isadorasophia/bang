@@ -50,6 +50,34 @@ public static class Diagnostics
         }
     }
 
+    // TODO(heytherewill): Implement these.
+    public static class Attributes
+    {
+        public static class NonComponentsOnFilterAttribute
+        {
+            public const string Id = "BANG3001";
+            public const string Message = "Filter attribute expects only components.";
+        }
+
+        public static class NonMessagesOnMessagerFilterAttribute
+        {
+            public const string Id = "BANG3002";
+            public const string Message = "Filter attribute expects only messages.";
+        }
+
+        public static class NonMessagesMessagerAttribute
+        {
+            public const string Id = "BANG3003";
+            public const string Message = "Messager attribute expects only messages.";
+        }
+
+        public static class NonComponentsOnWatchAttribute
+        {
+            public const string Id = "BANG3004";
+            public const string Message = "Watch attribute expects only components.";
+        }
+    }
+
     public static class Messages
     {
         public static class ClassesCannotBeMessages
