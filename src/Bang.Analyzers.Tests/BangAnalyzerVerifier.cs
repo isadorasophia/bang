@@ -12,7 +12,7 @@ namespace Bang.Analyzers.Tests;
 /// Verifier that includes Bang binaries to the project.
 /// </summary>
 /// <typeparam name="TAnalyzer">Analyzer under test.</typeparam>
-public class BangAnalyzerVerifier<TAnalyzer> : AnalyzerVerifier<TAnalyzer, BangTest<TAnalyzer>, XUnitVerifier>
+public class BangAnalyzerVerifier<TAnalyzer> : AnalyzerVerifier<TAnalyzer, BangTest<TAnalyzer>, MSTestVerifier>
     where TAnalyzer : DiagnosticAnalyzer, new()
 { }
 
@@ -21,7 +21,7 @@ public class BangAnalyzerVerifier<TAnalyzer> : AnalyzerVerifier<TAnalyzer, BangT
 /// as of now and needed for Bang) and includes the Bang dlls.
 /// </summary>
 /// <typeparam name="TAnalyzer">Analyzer under test.</typeparam>
-public sealed class BangTest<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, XUnitVerifier>
+public sealed class BangTest<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, MSTestVerifier>
     where TAnalyzer : DiagnosticAnalyzer, new()
 {
     public BangTest()
