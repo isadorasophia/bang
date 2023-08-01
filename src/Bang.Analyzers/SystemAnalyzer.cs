@@ -16,7 +16,7 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Implementations of IMessagerSystem need to be annotated with MessagerAttribute."
+        description: "Implementations of ISystem need to be annotated with FilterAttribute."
     );
 
     public static readonly DiagnosticDescriptor MessagerAttribute = new(
@@ -39,8 +39,33 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         description: "Implementations of IReactiveSystem need to be annotated with WatchAttribute."
     );
 
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        => ImmutableArray.Create(MessagerAttribute, WatchAttribute);
+    public static readonly DiagnosticDescriptor NonApplicableMessagerAttribute = new(
+        id: Diagnostics.Systems.NonApplicableMessagerAttribute.Id,
+        title: nameof(ComponentAnalyzer) + "." + nameof(NonApplicableMessagerAttribute),
+        messageFormat: Diagnostics.Systems.NonApplicableMessagerAttribute.Message,
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "MessagerAttribute will be ignored since this class does not implement IMessagerSystem."
+    );
+
+    public static readonly DiagnosticDescriptor NonApplicableWatchAttribute = new(
+        id: Diagnostics.Systems.NonApplicableWatchAttribute.Id,
+        title: nameof(ComponentAnalyzer) + "." + nameof(NonApplicableWatchAttribute),
+        messageFormat: Diagnostics.Systems.NonApplicableWatchAttribute.Message,
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "WatchAttribute will be ignored since this class does not implement IReactiveSystem."
+    );
+
+    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
+        FilterAttribute,
+        MessagerAttribute,
+        WatchAttribute,
+        NonApplicableMessagerAttribute,
+        NonApplicableWatchAttribute
+    );
 
     public override void Initialize(AnalysisContext context)
     {
@@ -72,58 +97,35 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         if (!isSystem)
             return;
 
-        var attributes = typeSymbol.GetAttributes();
         var filterAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.FilterAttribute");
-        ReportDiagnosticIfLackingAttribute(
-            context: context,
-            diagnosticDescriptor: FilterAttribute,
-            attributes: attributes,
-            attributeToCheck: filterAttribute
-        );
+        context.ReportDiagnosticIfLackingAttribute(typeSymbol, filterAttribute, FilterAttribute);
 
         var bangMessagerSystem = context.Compilation.GetTypeByMetadataName("Bang.Systems.IMessagerSystem");
-        if (bangMessagerSystem is not null && typeSymbol.ImplementsInterface(bangMessagerSystem))
+        if (bangMessagerSystem is not null)
         {
             var messagerAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.MessagerAttribute");
-            ReportDiagnosticIfLackingAttribute(
-                context: context,
-                diagnosticDescriptor: MessagerAttribute,
-                attributes: attributes,
-                attributeToCheck: messagerAttribute
-            );
+            if (typeSymbol.ImplementsInterface(bangMessagerSystem))
+            {
+                context.ReportDiagnosticIfLackingAttribute(typeSymbol, messagerAttribute, MessagerAttribute);
+            }
+            else
+            {
+                context.ReportDiagnosticIfAttributeExists(typeSymbol, messagerAttribute, NonApplicableMessagerAttribute);
+            }
         }
 
         var bangReactiveSystem = context.Compilation.GetTypeByMetadataName("Bang.Systems.IReactiveSystem");
-        if (bangReactiveSystem is not null && typeSymbol.ImplementsInterface(bangReactiveSystem))
+        if (bangReactiveSystem is not null)
         {
             var watchAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.WatchAttribute");
-            ReportDiagnosticIfLackingAttribute(
-                context: context,
-                diagnosticDescriptor: WatchAttribute,
-                attributes: attributes,
-                attributeToCheck: watchAttribute
-            );
+            if (typeSymbol.ImplementsInterface(bangReactiveSystem))
+            {
+                context.ReportDiagnosticIfLackingAttribute(typeSymbol, watchAttribute, WatchAttribute);
+            }
+            else
+            {
+                context.ReportDiagnosticIfAttributeExists(typeSymbol, watchAttribute, NonApplicableWatchAttribute);
+            }
         }
-    }
-
-    private static void ReportDiagnosticIfLackingAttribute(
-        SyntaxNodeAnalysisContext context,
-        DiagnosticDescriptor diagnosticDescriptor,
-        ImmutableArray<AttributeData> attributes,
-        INamedTypeSymbol? attributeToCheck
-    )
-    {
-        var hasAttribute = attributes.Any(
-            attr => attr.AttributeClass is not null && attr.AttributeClass.Equals(attributeToCheck, SymbolEqualityComparer.IncludeNullability));
-
-        if (hasAttribute)
-            return;
-
-        context.ReportDiagnostic(
-            Diagnostic.Create(
-                diagnosticDescriptor,
-                context.Node.GetLocation()
-            )
-        );
     }
 }

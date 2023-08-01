@@ -36,6 +36,18 @@ public static class Diagnostics
             public const string Id = "BANG1003";
             public const string Message = "System requires WatchAttribute.";
         }
+
+        public static class NonApplicableMessagerAttribute
+        {
+            public const string Id = "BANG1004";
+            public const string Message = "System does not use MessagerAttribute.";
+        }
+
+        public static class NonApplicableWatchAttribute
+        {
+            public const string Id = "BANG1005";
+            public const string Message = "System does not use WatchAttribute.";
+        }
     }
 
     public static class Messages
