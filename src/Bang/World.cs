@@ -1197,7 +1197,7 @@ namespace Bang
             if (system.GetType().GetCustomAttributes(typeof(MessagerAttribute), inherit: true).FirstOrDefault()
                 is MessagerAttribute attribute)
             {
-                return new MessageWatcher(this, context.Id, attribute.Type);
+                return new MessageWatcher(this, context.Id, attribute.Types);
             }
 
             return default;

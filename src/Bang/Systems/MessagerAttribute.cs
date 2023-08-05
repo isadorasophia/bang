@@ -13,18 +13,23 @@ namespace Bang.Systems
         /// <summary>
         /// System will target all the entities that has all this set of components.
         /// </summary>
-        public Type Type { get; }
+        public Type[] Types { get; }
 
         /// <summary>
         /// Creates a new <see cref="MessagerAttribute"/>.
         /// </summary>
-        /// <param name="type">Message that will be fired to this system.</param>
-        public MessagerAttribute(Type type)
+        /// <param name="types">Messages that will be fired to this system.</param>
+        public MessagerAttribute(params Type[] types)
         {
-            Debug.Assert(type.IsValueType || type == typeof(IMessage),
-                "Why are we adding a watcher attribute for a non-struct? This won't be notified when the value changes.");
+#if DEBUG
+            foreach (Type t in types)
+            {
+                Debug.Assert(t.IsValueType || t == typeof(IMessage),
+                    "Why are we adding a watcher attribute for a non-struct? This won't be notified when the value changes.");
+            }
+#endif
 
-            Type = type;
+            Types = types;
         }
     }
 }

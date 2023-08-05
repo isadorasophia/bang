@@ -1,7 +1,9 @@
 ﻿using Bang.Components;
 using Bang.Entities;
 using Bang.Util;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Bang.Contexts
 {
@@ -13,20 +15,29 @@ namespace Bang.Contexts
         public readonly World World;
 
         internal readonly int Id;
-
-        private readonly int _targetComponent;
+        private readonly ImmutableHashSet<int> _targetMessages;
 
         /// <summary>
         /// A watcher will target a single component.
         /// </summary>
-        internal MessageWatcher(World world, int contextId, Type targetComponent)
+        internal MessageWatcher(World world, int contextId, Type[] targetMessages)
         {
             World = world;
 
-            Debug.Assert(typeof(IMessage).IsAssignableFrom(targetComponent));
+            var builder = ImmutableHashSet.CreateBuilder<int>();
+            foreach (Type t in targetMessages)
+            {
+                Debug.Assert(typeof(IMessage).IsAssignableFrom(t));
 
-            _targetComponent = world.ComponentsLookup.Id(targetComponent);
-            Id = HashExtensions.GetHashCode(contextId, _targetComponent);
+                int id = world.ComponentsLookup.Id(t);
+                builder.Add(id);
+            }
+
+            _targetMessages = builder.ToImmutableHashSet();
+
+            // Calculate the hash based on the target messages and the context id.
+            int messagesHash = HashExtensions.GetHashCodeImpl(_targetMessages);
+            Id = HashExtensions.GetHashCode(contextId, messagesHash);
         }
 
         internal void SubscribeToContext(Context context)
@@ -36,7 +47,7 @@ namespace Bang.Contexts
 
         private void OnMessageSent(Entity e, int index, IMessage message)
         {
-            if (index != _targetComponent)
+            if (!_targetMessages.Contains(index))
             {
                 return;
             }
