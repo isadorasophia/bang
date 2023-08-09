@@ -717,6 +717,17 @@ namespace Bang.Entities
         }
 
         /// <summary>
+        /// Whether this entity should be reactivated with the parent.
+        /// This is used when serializing data and we might need to revisit this soon.
+        /// </summary>
+        public bool IsActivateWithParent() => _wasDeactivatedFromParent;
+
+        /// <summary>
+        /// Force the entity to be activated and propagated according to the parent. Default is false (they are independent!)
+        /// </summary>
+        public void SetActivateWithParent() => _wasDeactivatedFromParent = true;
+
+        /// <summary>
         /// Marks an entity as active if it isn't already.
         /// </summary>
         public void Activate()
