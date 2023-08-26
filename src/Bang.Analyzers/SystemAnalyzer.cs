@@ -10,9 +10,9 @@ namespace Bang.Analyzers;
 public sealed class SystemAnalyzer : DiagnosticAnalyzer
 {
     public static readonly DiagnosticDescriptor FilterAttribute = new(
-        id: Diagnostics.Systems.MessagerAttribute.Id,
+        id: Diagnostics.Systems.FilterAttribute.Id,
         title: nameof(ComponentAnalyzer) + "." + nameof(FilterAttribute),
-        messageFormat: Diagnostics.Systems.MessagerAttribute.Message,
+        messageFormat: Diagnostics.Systems.FilterAttribute.Message,
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,

@@ -84,7 +84,7 @@ public static class Diagnostics
         {
             public const string Id = "BANG4001";
             public const string Message = "Classes cannot be messages.";
-        };
+        }
 
         public static class MessagesMustBeReadonly
         {
