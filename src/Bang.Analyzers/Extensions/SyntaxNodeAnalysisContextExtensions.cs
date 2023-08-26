@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -32,7 +31,7 @@ public static class SyntaxNodeAnalysisContextExtensions
         context.ConditionallyReportDiagnostic(diagnosticDescriptor, hasAttribute);
     }
 
-    public static void ConditionallyReportDiagnostic(
+    private static void ConditionallyReportDiagnostic(
         this SyntaxNodeAnalysisContext context,
         DiagnosticDescriptor diagnosticDescriptor,
         bool condition
