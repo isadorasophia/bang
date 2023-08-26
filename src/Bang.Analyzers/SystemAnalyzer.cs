@@ -84,7 +84,7 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
     private static void Analyze(SyntaxNodeAnalysisContext context)
     {
         // Bail if ISystem is not resolvable.
-        var bangSystemInterface = context.Compilation.GetTypeByMetadataName("Bang.Systems.ISystem");
+        var bangSystemInterface = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.SystemInterface);
         if (bangSystemInterface is null)
             return;
 
@@ -97,13 +97,13 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         if (!isSystem)
             return;
 
-        var filterAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.FilterAttribute");
+        var filterAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.FilterAttribute);
         context.ReportDiagnosticIfLackingAttribute(typeSymbol, filterAttribute, FilterAttribute);
 
-        var bangMessagerSystem = context.Compilation.GetTypeByMetadataName("Bang.Systems.IMessagerSystem");
+        var bangMessagerSystem = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.MessagerSystemInterface);
         if (bangMessagerSystem is not null)
         {
-            var messagerAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.MessagerAttribute");
+            var messagerAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.MessagerAttribute);
             if (typeSymbol.ImplementsInterface(bangMessagerSystem))
             {
                 context.ReportDiagnosticIfLackingAttribute(typeSymbol, messagerAttribute, MessagerAttribute);
@@ -114,10 +114,10 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             }
         }
 
-        var bangReactiveSystem = context.Compilation.GetTypeByMetadataName("Bang.Systems.IReactiveSystem");
+        var bangReactiveSystem = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.ReactiveSystemInterface);
         if (bangReactiveSystem is not null)
         {
-            var watchAttribute = context.Compilation.GetTypeByMetadataName("Bang.Systems.WatchAttribute");
+            var watchAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.WatchAttribute);
             if (typeSymbol.ImplementsInterface(bangReactiveSystem))
             {
                 context.ReportDiagnosticIfLackingAttribute(typeSymbol, watchAttribute, WatchAttribute);

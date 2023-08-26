@@ -31,7 +31,7 @@ public sealed class MessageAnalyzer : BaseComponentAnalyzer
         => ImmutableArray.Create(ClassesCannotBeMessages, MessagesMustBeReadonly);
 
 
-    protected override string InterfaceName => "Bang.Components.IMessage";
+    protected override string InterfaceName => TypeMetadataNames.MessageInterface;
 
     protected override DiagnosticDescriptor DoNotUseClassesDiagnostic => ClassesCannotBeMessages;
 

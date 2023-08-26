@@ -30,7 +30,7 @@ public sealed class ComponentAnalyzer : BaseComponentAnalyzer
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
         => ImmutableArray.Create(ClassesCannotBeComponents, ComponentsMustBeReadonly);
 
-    protected override string InterfaceName => "Bang.Components.IComponent";
+    protected override string InterfaceName => TypeMetadataNames.ComponentInterface;
 
     protected override DiagnosticDescriptor DoNotUseClassesDiagnostic => ClassesCannotBeComponents;
 
