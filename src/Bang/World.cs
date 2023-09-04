@@ -647,7 +647,15 @@ namespace Bang
         /// </summary>
         private bool ActivateSystem(int id, bool immediately = false)
         {
-            if (_systems[id].IsActive)
+            if (_pendingActivateSystems.TryGetValue(id, out bool active))
+            {
+                if (active)
+                {
+                    // System *will be* activated.
+                    return false;
+                }
+            }
+            else if (_systems[id].IsActive)
             {
                 return false;
             }
@@ -697,7 +705,15 @@ namespace Bang
         /// </summary>
         public bool DeactivateSystem(int id, bool immediately = false)
         {
-            if (!_systems[id].IsActive)
+            if (_pendingActivateSystems.TryGetValue(id, out bool active))
+            {
+                if (!active)
+                {
+                    // System *will be* deactivated.
+                    return false;
+                }
+            }
+            else if (!_systems[id].IsActive)
             {
                 // System was already deactivated.
                 return false;
