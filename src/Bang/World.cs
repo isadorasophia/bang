@@ -162,6 +162,11 @@ namespace Bang
         private readonly HashSet<int> _pendingDestroyEntities = new();
 
         /// <summary>
+        /// Systems which will be either activate or deactivated at the end of the frame.
+        /// </summary>
+        private readonly Dictionary<int, bool> _pendingActivateSystems = new();
+
+        /// <summary>
         /// Entity count, used for generating the next id.
         /// </summary>
         private int _nextEntityId;
@@ -397,6 +402,32 @@ namespace Bang
         }
 
         /// <summary>
+        /// Activate and deactivate all pending systems.
+        /// </summary>
+        private void ActivateOrDeactivatePendingSystems()
+        {
+            if (_pendingActivateSystems.Count == 0)
+            {
+                return;
+            }
+
+            ImmutableDictionary<int, bool> systems = _pendingActivateSystems.ToImmutableDictionary();
+            _pendingActivateSystems.Clear();
+
+            foreach ((int id, bool activate) in systems)
+            {
+                if (activate)
+                {
+                    ActivateSystem(id, immediately: true);
+                }
+                else
+                {
+                    DeactivateSystem(id, immediately: true);
+                }
+            }
+        }
+
+        /// <summary>
         /// Removes an entity with <paramref name="id"/> from the world.
         /// </summary>
         private void RemoveEntity(int id)
@@ -614,11 +645,17 @@ namespace Bang
         /// <summary>
         /// Activate a system within our world.
         /// </summary>
-        private bool ActivateSystem(int id)
+        private bool ActivateSystem(int id, bool immediately = false)
         {
             if (_systems[id].IsActive)
             {
                 return false;
+            }
+
+            if (!immediately)
+            {
+                _pendingActivateSystems[id] = true;
+                return true;
             }
 
             _systems[id] = _systems[id] with { IsActive = true };
@@ -658,12 +695,18 @@ namespace Bang
         /// <summary>
         /// Deactivate a system within our world.
         /// </summary>
-        public bool DeactivateSystem(int id)
+        public bool DeactivateSystem(int id, bool immediately = false)
         {
             if (!_systems[id].IsActive)
             {
                 // System was already deactivated.
                 return false;
+            }
+
+            if (!immediately)
+            {
+                _pendingActivateSystems[id] = false;
+                return true;
             }
 
             if (DIAGNOSTICS_MODE)
@@ -890,8 +933,7 @@ namespace Bang
         /// </summary>
         public void Update()
         {
-            // TODO: Do not make a copy every frame.
-            foreach (var (systemId, (system, contextId)) in _cachedExecuteSystems.ToImmutableArray())
+            foreach (var (systemId, (system, contextId)) in _cachedExecuteSystems)
             {
                 if (DIAGNOSTICS_MODE)
                 {
@@ -913,7 +955,8 @@ namespace Bang
 
             NotifyReactiveSystems();
             DestroyPendingEntities();
-            
+            ActivateOrDeactivatePendingSystems();
+
             // Clear the messages after the update so we can persist messages sent during Start().
             ClearMessages();
         }
@@ -924,8 +967,7 @@ namespace Bang
         /// </summary>
         public void FixedUpdate()
         {
-            // TODO: Do not make a copy every frame.
-            foreach (var (systemId, (system, contextId)) in _cachedFixedExecuteSystems.ToImmutableArray())
+            foreach (var (systemId, (system, contextId)) in _cachedFixedExecuteSystems)
             {
                 if (DIAGNOSTICS_MODE)
                 {

@@ -122,6 +122,15 @@ namespace Bang.Contexts
                 return;
             }
 
+            if (_entitiesToNotify is not null && 
+                _entitiesToNotify.TryGetValue(WatcherNotificationKind.Added, out var notificationOnAdded) &&
+                notificationOnAdded.ContainsKey(e.EntityId))
+            {
+                // This was previously added. But now it's removed! So let's clean up this list.
+                // We do this here because the order matters. If it was removed then added, we want to keep both.
+                notificationOnAdded.Remove(e.EntityId);
+            }
+
             QueueEntityNotification(WatcherNotificationKind.Removed, e);
         }
 
