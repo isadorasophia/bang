@@ -14,9 +14,9 @@ Welcome to Bang! - an Entity Component System framework in C#.
 </p>
 
 ### How does it work?
-This is not, in any way, an engine, but rather a framework that you can use in whatever engine you're comfortable with. I currently use this with **Murder engine**, which is not available (yet!), built on top of MonoGame.
+This is not, in any way, an engine, but rather a framework that you can use in whatever engine you're comfortable with. This is currently integrated with [Murder engine](https://github.com/isadorasophia/murder).
 
-Check our [wiki](https://github.com/isadorasophia/bang/wiki) if you want more details.
+Check out [wiki](https://github.com/isadorasophia/bang/wiki) for more details.
 
 ### How to use it?
 We are on nuget! So you can either use this repository as a submodule or simply add:
