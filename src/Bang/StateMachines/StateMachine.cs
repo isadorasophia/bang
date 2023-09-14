@@ -102,7 +102,7 @@ namespace Bang.StateMachines
         /// </summary>
         [MemberNotNull(nameof(World))]
         [MemberNotNull(nameof(Entity))]
-        internal virtual void Initialize(World world, Entity e) 
+        internal virtual void Initialize(World world, Entity e)
         {
             Debug.Assert(Routine is not null, "Have you called State() before starting this state machine?");
 
@@ -272,7 +272,7 @@ namespace Bang.StateMachines
         /// Clean up right before the state machine gets cleaned up.
         /// Callers must call the base implementation.
         /// </summary>
-        public virtual void OnDestroyed() 
+        public virtual void OnDestroyed()
         {
             Entity.OnMessage -= OnMessageSent;
 
@@ -354,7 +354,7 @@ namespace Bang.StateMachines
                 OnMessage(message);
             }
 
-            if (_waitForMessage is null || 
+            if (_waitForMessage is null ||
                 (_waitForMessageTarget is not null && e.EntityId != _waitForMessageTarget.EntityId))
             {
                 return;

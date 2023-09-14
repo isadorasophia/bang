@@ -36,7 +36,7 @@ namespace Bang.Contexts
         internal ImmutableHashSet<int> ReadComponents => _componentsOperationKind[ContextAccessorKind.Read];
 
         internal ImmutableHashSet<int> WriteComponents => _componentsOperationKind[ContextAccessorKind.Write];
-        
+
         /// <summary>
         /// This will be fired when a component is added to an entity present in the system.
         /// </summary>
@@ -126,7 +126,7 @@ namespace Bang.Contexts
         /// </summary>
         internal Context(World world, ContextAccessorFilter filter, params int[] components) : base(world)
         {
-            _targetComponentsIndex = 
+            _targetComponentsIndex =
                 new Dictionary<ContextAccessorFilter, ImmutableArray<int>> { { filter, components.ToImmutableArray() } }.ToImmutableDictionary();
             _componentsOperationKind = ImmutableDictionary<ContextAccessorKind, ImmutableHashSet<int>>.Empty;
 
@@ -170,7 +170,7 @@ namespace Bang.Contexts
             {
                 builder.Add((filter, filter.Types.Select(t => lookup(t)).ToImmutableArray()));
             }
-            
+
             return builder.ToImmutableArray();
         }
 
@@ -351,7 +351,7 @@ namespace Bang.Contexts
             {
                 return;
             }
-            
+
             OnEntityModified(e, index);
         }
 
@@ -365,7 +365,7 @@ namespace Bang.Contexts
                     // Destroy it immediately.
                     StopWatchingEntity(e, index, causedByDestroy: true);
                 }
-                
+
                 return;
             }
 
