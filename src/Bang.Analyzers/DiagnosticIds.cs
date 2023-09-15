@@ -54,25 +54,25 @@ public static class Diagnostics
     {
         public static class NonComponentsOnFilterAttribute
         {
-            public const string Id = "BANG3001";
+            public const string Id = "BANG2001";
             public const string Message = "Filter attribute expects only components.";
         }
 
         public static class NonMessagesOnMessagerFilterAttribute
         {
-            public const string Id = "BANG3002";
+            public const string Id = "BANG2002";
             public const string Message = "Filter attribute expects only messages.";
         }
 
         public static class NonMessagesOnMessagerAttribute
         {
-            public const string Id = "BANG3003";
+            public const string Id = "BANG2003";
             public const string Message = "Messager attribute expects only messages.";
         }
 
         public static class NonComponentsOnWatchAttribute
         {
-            public const string Id = "BANG3004";
+            public const string Id = "BANG2004";
             public const string Message = "Watch attribute expects only components.";
         }
     }
@@ -81,13 +81,13 @@ public static class Diagnostics
     {
         public static class ClassesCannotBeMessages
         {
-            public const string Id = "BANG4001";
+            public const string Id = "BANG3001";
             public const string Message = "Classes cannot be messages.";
         }
 
         public static class MessagesMustBeReadonly
         {
-            public const string Id = "BANG4002";
+            public const string Id = "BANG3002";
             public const string Message = "Messages must be declared as readonly.";
         }
     }
