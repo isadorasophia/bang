@@ -5,7 +5,7 @@
 <h1 align="center">A real ECS framework!</h1>
 
 <p align="center">
-<a href="https://github.com/isadorasophia/bang/actions/workflows/ci.yaml"><img src="https://github.com/isadorasophia/bang/actions/workflows/ci.yaml/badge.svg" alt="Publish release"></a>
+<a href="https://github.com/isadorasophia/bang/actions/workflows/release.yaml"><img src="https://github.com/isadorasophia/bang/actions/workflows/release.yaml/badge.svg" alt="Publish release"></a>
 <a href="LICENSE"><img src="https://img.shields.io/github/license/isadorasophia/bang.svg" alt="License"></a>
 </p>
 
