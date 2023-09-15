@@ -27,7 +27,7 @@ namespace Bang.StateMachines
         /// Used for <see cref="WaitKind.Message"/> when waiting on another entity that is not the owner of the state machine.
         /// </summary>
         public Entity? Target;
-        
+
         /// <summary>
         /// Used for <see cref="WaitKind.Routine"/>.
         /// </summary>

@@ -39,7 +39,7 @@ namespace Bang.Contexts
                     // We will only filter entities that have not been destroyed or are being passed over to a 
                     // remove watch system.
                     var result = _entitiesToNotify.ToDictionary(
-                        kv => kv.Key, 
+                        kv => kv.Key,
                         kv => kv.Value
                             .Select(indexAndEntity => indexAndEntity.Value)
                             .Where(e => !e.IsDestroyed || kv.Key == WatcherNotificationKind.Removed)
@@ -122,7 +122,7 @@ namespace Bang.Contexts
                 return;
             }
 
-            if (_entitiesToNotify is not null && 
+            if (_entitiesToNotify is not null &&
                 _entitiesToNotify.TryGetValue(WatcherNotificationKind.Added, out var notificationOnAdded) &&
                 notificationOnAdded.ContainsKey(e.EntityId))
             {

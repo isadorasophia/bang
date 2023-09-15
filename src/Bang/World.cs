@@ -19,7 +19,7 @@ namespace Bang
         /// Use this to set whether diagnostics should be pulled from the world run.
         /// </summary>
         public static bool DIAGNOSTICS_MODE = true;
-        
+
         private record struct SystemInfo
         {
             public readonly int ContextId { get; init; }
@@ -108,7 +108,7 @@ namespace Bang
         /// Set of systems that will be paused. See <see cref="IsPauseSystem(ISystem)"/> for more information.
         /// </summary>
         private readonly ImmutableHashSet<int> _pauseSystems;
-        
+
         /// <summary>
         /// Set of systems that will only be played once a pause occur.
         /// </summary>
@@ -170,7 +170,7 @@ namespace Bang
         /// Entity count, used for generating the next id.
         /// </summary>
         private int _nextEntityId;
-        
+
         /// <summary>
         /// Whether the world has been queried to be on pause or not.
         /// See <see cref="Pause"/>.
@@ -325,7 +325,7 @@ namespace Bang
             Entity e = new(this, CheckEntityId(id), components);
 
             AddEntity(e);
-            return e;   
+            return e;
         }
 
         /// <summary>
@@ -588,7 +588,7 @@ namespace Bang
             {
                 return false;
             }
-            
+
             return DeactivateSystem(id);
         }
 
@@ -605,7 +605,7 @@ namespace Bang
             {
                 ActivateSystem(id);
             }
-            
+
             _systemsToResume.Clear();
 
             foreach (int id in _pauseSystems)
@@ -624,7 +624,7 @@ namespace Bang
         public virtual void Resume()
         {
             IsPaused = false;
-            
+
             foreach (int id in _systemsToResume)
             {
                 ActivateSystem(id);
@@ -959,11 +959,11 @@ namespace Bang
 
                 Context context = Contexts[contextId];
                 system.Update(context);
-                
+
                 if (DIAGNOSTICS_MODE)
                 {
                     InitializeDiagnosticsCounters();
-                    
+
                     _stopwatch.Stop();
                     UpdateCounters[systemId].Update(_stopwatch.Elapsed.TotalMicroseconds, context.Entities.Length);
                 }
@@ -990,7 +990,7 @@ namespace Bang
                     _stopwatch.Reset();
                     _stopwatch.Start();
                 }
-                
+
                 // TODO: We want to run systems which do not cross components in parallel.
                 system.FixedUpdate(Contexts[contextId]);
 
@@ -1089,7 +1089,7 @@ namespace Bang
                     _stopwatch.Reset();
                     _stopwatch.Start();
                 }
-                
+
                 IReactiveSystem system = notificationsAndSystem.System;
 
                 // Make sure we make this in order. Some components are added *and* removed in the same frame.
@@ -1133,9 +1133,9 @@ namespace Bang
                 if (DIAGNOSTICS_MODE)
                 {
                     InitializeDiagnosticsCounters();
-                    
+
                     _stopwatch.Stop();
-                    
+
                     ReactiveCounters[systemId].Update(
                         _stopwatch.Elapsed.TotalMicroseconds, totalEntities: notificationsAndSystem.Notifications.Sum(n => n.Value.Count));
 
@@ -1160,7 +1160,7 @@ namespace Bang
                 NotifyReactiveSystems();
             }
         }
-        
+
         /// <summary>
         /// This will clear any messages received by the entities within a frame.
         /// </summary>

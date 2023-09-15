@@ -37,17 +37,17 @@ namespace Bang
         /// </summary>
         protected void InitializeDiagnosticsCounters()
         {
-            Debug.Assert(DIAGNOSTICS_MODE, 
+            Debug.Assert(DIAGNOSTICS_MODE,
                 "Why are we initializing diagnostics out of diagnostic mode?");
-            
+
             if (_initializedDiagnostics)
             {
                 // Already initialized.
                 return;
             }
-            
+
             _initializedDiagnostics = true;
-            
+
             foreach (var (systemId, system) in IdToSystem)
             {
                 if (system is IUpdateSystem)
@@ -68,8 +68,8 @@ namespace Bang
                 InitializeDiagnosticsForSystem(systemId, system);
             }
         }
-        
-        private void UpdateDiagnosticsOnDeactivateSystem(int id) 
+
+        private void UpdateDiagnosticsOnDeactivateSystem(int id)
         {
             if (UpdateCounters.TryGetValue(id, out var value)) value.Clear();
             if (FixedUpdateCounters.TryGetValue(id, out value)) value.Clear();
@@ -88,7 +88,7 @@ namespace Bang
         /// Implemented by custom world in order to express diagnostic information about the world.
         /// </summary>
         protected virtual void InitializeDiagnosticsForSystem(int systemId, ISystem system) { }
-        
+
         private static void CheckSystemsRequirements(IList<(ISystem system, bool isActive)> systems)
         {
             // First, list all the systems in the world according to their type, and map
@@ -97,7 +97,7 @@ namespace Bang
             for (int i = 0; i < systems.Count; i++)
             {
                 Type t = systems[i].system.GetType();
-                
+
                 Assert.Verify(!systemTypes.ContainsKey(t),
                     $"Why are we adding {t.Name} twice in the world!?");
 
@@ -112,7 +112,7 @@ namespace Bang
                     {
                         Assert.Verify(typeof(ISystem).IsAssignableFrom(requiredSystem),
                             "Why does the system requires a type that is not a system?");
-                        
+
                         if (systemTypes.TryGetValue(requiredSystem, out int order))
                         {
                             Assert.Verify(index > order,

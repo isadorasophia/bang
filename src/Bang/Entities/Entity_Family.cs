@@ -116,7 +116,7 @@ namespace Bang.Entities
 
             return null;
         }
-        
+
         /// <summary>
         /// Track whenever a component of index <paramref name="index"/> gets modified.
         /// This is used by the entity's children in order to track a component changes.
@@ -273,7 +273,7 @@ namespace Bang.Entities
 
             Entity? child = _world.TryGetEntity(id);
             child?.Unparent();
-        }  
+        }
 
         /// <summary>
         /// Set the parent of this entity.
@@ -352,7 +352,7 @@ namespace Bang.Entities
             _parent.RemoveChild(EntityId);
 
             _parent = null;
-        } 
+        }
 
         private void OnParentModified(int index, IComponent c)
         {

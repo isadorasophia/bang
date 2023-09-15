@@ -112,7 +112,7 @@ namespace Bang.Entities
             _lookup = world.ComponentsLookup;
 
             _availableComponents = new bool[_lookup.TotalIndices];
-            
+
             InitializeComponents(components);
         }
 
@@ -129,13 +129,13 @@ namespace Bang.Entities
             foreach (IComponent c in components)
             {
                 int key = _lookup.Id(c.GetType());
-                
+
                 (c as IModifiableComponent)?.Subscribe(() => OnComponentModified?.Invoke(this, key));
                 (c as IStateMachineComponent)?.Initialize(_world, this);
 
                 AddComponentInternal(c, key);
             }
-            
+
             if (World.DIAGNOSTICS_MODE)
             {
                 CheckForRequiredComponents();
@@ -149,19 +149,19 @@ namespace Bang.Entities
         {
             Dictionary<int, Type> components = _components.Where(kv => _availableComponents[kv.Key])
                 .ToDictionary(kv => kv.Key, kv => kv.Value.GetType());
-            
+
             foreach ((int _, Type t) in components)
             {
                 RequiresAttribute? requires = t.GetCustomAttributes(typeof(RequiresAttribute), inherit: true)
                     .FirstOrDefault() as RequiresAttribute;
-                
+
                 if (requires is not null)
                 {
                     foreach (Type requiredType in requires.Types)
                     {
                         int requiredId = _lookup.Id(requiredType);
-                        
-                        Debug.Assert(typeof(IComponent).IsAssignableFrom(requiredType), 
+
+                        Debug.Assert(typeof(IComponent).IsAssignableFrom(requiredType),
                             "Why is a component requiring a type that is not a component?");
 
                         Debug.Assert(components.ContainsKey(requiredId),
@@ -240,8 +240,8 @@ namespace Bang.Entities
         /// <typeparam name="T">Type that inherits <see cref="IComponent"/>.</typeparam>
         public T GetComponent<T>(int index) where T : IComponent
         {
-             Debug.Assert(HasComponent(index), $"The entity doesn't have a component of type '{typeof(T).Name}', maybe you should 'TryGetComponent'?");
-             return (T)_components[index];
+            Debug.Assert(HasComponent(index), $"The entity doesn't have a component of type '{typeof(T).Name}', maybe you should 'TryGetComponent'?");
+            return (T)_components[index];
         }
 
         /// <summary>
@@ -392,7 +392,7 @@ namespace Bang.Entities
         /// Checks whether an entity has a component.
         /// </summary>
         public bool HasComponent(int index) => index < _availableComponents.Length && _availableComponents[index];
-        
+
         /// <summary>
         /// Checks whether an entity has a data attached to -- component or message.
         /// </summary>
@@ -508,7 +508,7 @@ namespace Bang.Entities
             }
 
             (_components[index] as IModifiableComponent)?.Unsubscribe(() => OnComponentModified?.Invoke(this, index));
-            
+
             _components[index] = default!;
             _availableComponents[index] = false;
 
@@ -593,7 +593,7 @@ namespace Bang.Entities
             }
 
             IsDestroyed = true;
-            
+
             OnEntityDestroyed?.Invoke(EntityId);
         }
 
@@ -686,7 +686,7 @@ namespace Bang.Entities
         public void Dispose()
         {
             Unparent();
-            
+
             foreach (var (index, _) in _components)
             {
                 RemoveComponent(index);

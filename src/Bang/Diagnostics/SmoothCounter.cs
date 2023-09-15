@@ -14,9 +14,9 @@
 
         private int _totalEntitiesCount = 0;
         private int[] _previousEntityCount;
-        
+
         private readonly int _sampleSize;
-        
+
         /// <summary>
         /// Average of counter time value over the sample size.
         /// </summary>
@@ -31,7 +31,7 @@
         /// Maximum value over the sample size.
         /// </summary>
         public double MaximumTime => _longestTime;
-        
+
         public SmoothCounter(int size = 500) => (_sampleSize, _previousTime, _previousEntityCount) = (size, new double[size], new int[size]);
 
         public void Clear()
@@ -51,17 +51,17 @@
         {
             _index++;
 
-            if (_index == _sampleSize) 
-            { 
+            if (_index == _sampleSize)
+            {
                 _index = 0;
                 _longestTime = 0;
             }
-            
+
             if (ms > _longestTime)
             {
                 _longestTime = ms;
             }
-            
+
             _totalDeltaTime -= _previousTime[_index];
             _totalDeltaTime += ms;
 

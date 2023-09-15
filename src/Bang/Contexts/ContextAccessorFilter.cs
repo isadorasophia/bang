@@ -17,7 +17,7 @@
         /// Only entities which has all of the listed components will be fed to the system.
         /// </summary>
         AllOf = 2,
-        
+
         /// <summary>
         /// Filter entities which has any of the listed components will be fed to the system.
         /// </summary>
