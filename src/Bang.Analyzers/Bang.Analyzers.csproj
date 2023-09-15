@@ -35,8 +35,8 @@
         <!-- Files that keep track of what analyzer are/aren't included in releases. -->
         <None Remove="AnalyzerReleases.Shipped.md" />
         <None Remove="AnalyzerReleases.Unshipped.md" />
-<!--        <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />-->
-<!--        <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />-->
+        <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+        <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
     </ItemGroup>
 
     <ItemGroup>
