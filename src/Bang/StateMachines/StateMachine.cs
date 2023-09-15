@@ -286,7 +286,7 @@ namespace Bang.StateMachines
         }
 
         /// <summary>
-        /// This resets the current state of the state machine back to the beggining of that same state.
+        /// This resets the current state of the state machine back to the beginning of that same state.
         /// </summary>
         protected void Reset()
         {
