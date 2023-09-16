@@ -20,16 +20,6 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         description: "Types in Filter attribute must be IComponents."
     );
 
-    public static readonly DiagnosticDescriptor NonMessagesOnMessagerFilterAttribute = new(
-        id: Diagnostics.Attributes.NonMessagesOnMessagerFilterAttribute.Id,
-        title: nameof(AttributeAnalyzer) + "." + nameof(NonMessagesOnMessagerFilterAttribute),
-        messageFormat: Diagnostics.Attributes.NonMessagesOnMessagerFilterAttribute.Message,
-        category: "Usage",
-        defaultSeverity: DiagnosticSeverity.Error,
-        isEnabledByDefault: true,
-        description: "Types in Filter attribute for IWatchComponents must be IMessages."
-    );
-
     public static readonly DiagnosticDescriptor NonMessagesOnMessagerAttribute = new(
         id: Diagnostics.Attributes.NonMessagesOnMessagerAttribute.Id,
         title: nameof(AttributeAnalyzer) + "." + nameof(NonMessagesOnMessagerAttribute),
@@ -52,7 +42,6 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
         NonComponentsOnFilterAttribute,
-        NonMessagesOnMessagerFilterAttribute,
         NonMessagesOnMessagerAttribute,
         NonComponentsOnWatchAttribute
     );
@@ -138,32 +127,8 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         var filterAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.FilterAttribute);
         if (attributeClass.Equals(filterAttribute, SymbolEqualityComparer.IncludeNullability))
         {
-            var interfaceToResolve = TypeMetadataNames.ComponentInterface;
-            var diagnosticDescriptor = NonComponentsOnFilterAttribute;
-
-            var attributeSyntax = ((AttributeArgumentListSyntax)context.Node).Parent as AttributeSyntax;
-            var typeAnnotatedByAttribute = GetTypeAnnotatedByAttribute(attributeSyntax);
-            if (typeAnnotatedByAttribute is not null)
-            {
-                // Get symbol for the type annotated by the attribute we're analyzing
-                if (context.SemanticModel.GetDeclaredSymbol(typeAnnotatedByAttribute) is ITypeSymbol typeSymbol)
-                {
-                    // Bail if we can't resolve the messager interface
-                    var bangMessagerSystem = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.MessagerSystemInterface);
-                    if (bangMessagerSystem is not null)
-                    {
-                        if (typeSymbol.ImplementsInterface(bangMessagerSystem))
-                        {
-                            // If the type annotated implements IMessagerSystem, it should only expect messages in its filter.
-                            interfaceToResolve = TypeMetadataNames.MessageInterface;
-                            diagnosticDescriptor = NonMessagesOnMessagerFilterAttribute;
-                        }
-                    }
-                }
-            }
-
-            var interfaceToImplement = context.Compilation.GetTypeByMetadataName(interfaceToResolve);
-            return interfaceToImplement is null ? null : (interfaceToImplement, diagnosticDescriptor);
+            var interfaceToImplement = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.ComponentInterface);
+            return interfaceToImplement is null ? null : (interfaceToImplement, NonComponentsOnFilterAttribute);
         }
 
         // Checks for MessagerAttribute

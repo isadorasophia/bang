@@ -58,21 +58,15 @@ public static class Diagnostics
             public const string Message = "Filter attribute expects only components.";
         }
 
-        public static class NonMessagesOnMessagerFilterAttribute
-        {
-            public const string Id = "BANG2002";
-            public const string Message = "Filter attribute expects only messages.";
-        }
-
         public static class NonMessagesOnMessagerAttribute
         {
-            public const string Id = "BANG2003";
+            public const string Id = "BANG2002";
             public const string Message = "Messager attribute expects only messages.";
         }
 
         public static class NonComponentsOnWatchAttribute
         {
-            public const string Id = "BANG2004";
+            public const string Id = "BANG2003";
             public const string Message = "Watch attribute expects only components.";
         }
     }

@@ -27,7 +27,7 @@ public readonly record struct Component : IComponent;
 public sealed class CorrectSystem : ISystem { }
 
 [Messager(typeof(Message))]
-[Filter(ContextAccessorKind.Read, typeof(Message))]
+[Filter(ContextAccessorKind.Read, typeof(Component))]
 public sealed class CorrectMessagerSystem : IMessagerSystem
 {
     public void OnMessage(World world, Entity entity, IMessage message) { }
@@ -107,40 +107,6 @@ public sealed class ReactiveSystem : IReactiveSystem
         await Verify.VerifyAnalyzerAsync(source, expectedDiagnostics);
     }
 
-    [TestMethod(displayName: "Filter attributes with non-message types trigger one message per wrong type.")]
-    public async Task IMessagerSystemWithNonMessagesOnFilter()
-    {
-        const string source = @"
-using Bang;
-using Bang.Components;
-using Bang.Contexts;
-using Bang.Entities;
-using Bang.Systems;
-
-namespace BangAnalyzerTestNamespace;
-
-public readonly record struct Message : IMessage;
-public readonly record struct Component : IComponent;
-public readonly record struct SomeRandomType;
-
-[Messager(typeof(Message))]
-[Filter(ContextAccessorKind.Read, typeof(Message), typeof(Component), typeof(SomeRandomType))]
-public sealed class MessagerSystem : IMessagerSystem
-{
-    public void OnMessage(World world, Entity entity, IMessage message) { }
-}";
-        var expectedDiagnostics = new[]
-        {
-            Verify
-                .Diagnostic(AttributeAnalyzer.NonMessagesOnMessagerFilterAttribute)
-                .WithSpan(15, 52, 15, 69),
-            Verify
-                .Diagnostic(AttributeAnalyzer.NonMessagesOnMessagerFilterAttribute)
-                .WithSpan(15, 71, 15, 93),
-        };
-        await Verify.VerifyAnalyzerAsync(source, expectedDiagnostics);
-    }
-
     [TestMethod(displayName: "Messager attributes containing non-message types trigger one message per wrong type.")]
     public async Task IMessagerSystemWithNonMessagesOnMessagerAttribute()
     {
@@ -158,7 +124,7 @@ public readonly record struct Component : IComponent;
 public readonly record struct SomeRandomType;
 
 [Messager(typeof(Component))]
-[Filter(ContextAccessorKind.Read, typeof(Message))]
+[Filter(ContextAccessorKind.Read, typeof(Component))]
 public sealed class MessagerSystem : IMessagerSystem
 {
     public void OnMessage(World world, Entity entity, IMessage message) { }
