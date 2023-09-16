@@ -45,7 +45,7 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         title: nameof(AttributeAnalyzer) + "." + nameof(NonComponentsOnWatchAttribute),
         messageFormat: Diagnostics.Attributes.NonComponentsOnWatchAttribute.Message,
         category: "Usage",
-        defaultSeverity: DiagnosticSeverity.Warning,
+        defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "Types in Watch attribute must be IComponents."
     );
