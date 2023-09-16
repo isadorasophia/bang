@@ -200,8 +200,6 @@ public class UpdateSystem : IUpdateSystem
     [DataRow(ISystemWithoutFilterAnnotationSourceCode)]
     [DataRow(IExitSystemWithoutFilterAnnotationSourceCode)]
     [DataRow(IFixedUpdateSystemWithoutFilterAnnotationSourceCode)]
-    [DataRow(IMessagerSystemWithoutFilterAnnotationSourceCode)]
-    [DataRow(IReactiveSystemWithoutFilterAnnotationSourceCode)]
     [DataRow(IRenderSystemWithoutFilterAnnotationSourceCode)]
     [DataRow(IStartupSystemWithoutFilterAnnotationSourceCode)]
     [DataRow(IUpdateSystemWithoutFilterAnnotationSourceCode)]
@@ -217,6 +215,13 @@ public class UpdateSystem : IUpdateSystem
             .WithSpan(startLine, 1, startLine + endLine, 2);
 
         await Verify.VerifyAnalyzerAsync(source, expected);
+    }
+
+    [DataRow(IReactiveSystemWithoutFilterAnnotationSourceCode)]
+    [DataRow(IMessagerSystemWithoutFilterAnnotationSourceCode)]
+    public async Task ReactiveAndMessagerSystemsNotAnnotatedWithTheFilterAttributeDoNotTriggerTheAnalyzer(string source)
+    {
+        await Verify.VerifyAnalyzerAsync(source);
     }
 
     [TestMethod(displayName: "Messager systems must be annotated with the Messager attribute.")]
