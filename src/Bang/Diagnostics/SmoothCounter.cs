@@ -32,8 +32,15 @@
         /// </summary>
         public double MaximumTime => _longestTime;
 
+        /// <summary>
+        /// Creates a new <see cref="SmoothCounter"/>.
+        /// </summary>
+        /// <param name="size">Default batch size when averaging the last frames for the FPS.</param>
         public SmoothCounter(int size = 500) => (_sampleSize, _previousTime, _previousEntityCount) = (size, new double[size], new int[size]);
 
+        /// <summary>
+        /// Clear the counter track.
+        /// </summary>
         public void Clear()
         {
             _index = 0;
@@ -47,6 +54,11 @@
             _previousEntityCount = new int[_sampleSize];
         }
 
+        /// <summary>
+        /// Update the smooth counter for the FPS report.
+        /// </summary>
+        /// <param name="ms">Time for the operation.</param>
+        /// <param name="totalEntities">Total of entities pulled for this system.</param>
         public void Update(double ms, int totalEntities)
         {
             _index++;

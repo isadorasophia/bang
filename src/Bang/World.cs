@@ -1261,6 +1261,10 @@ namespace Bang
             return default;
         }
 
+        /// <summary>
+        /// This will first call all <see cref="IExitSystem"/> to cleanup each system. 
+        /// It will then call Dispose on each of the entities on the world and clear all the collections.
+        /// </summary>
         public void Dispose()
         {
             Exit();

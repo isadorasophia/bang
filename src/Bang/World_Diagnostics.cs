@@ -10,8 +10,14 @@ namespace Bang
     {
         private bool _initializedDiagnostics = false;
 
+        /// <summary>
+        /// This is the stopwatch used per systems when monitoring performance. Only used if <see cref="DIAGNOSTICS_MODE"/> is set.
+        /// </summary>
         protected readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
+        /// <summary>
+        /// This is the stopwatch used on all systems when monitoring performance. Only used if <see cref="DIAGNOSTICS_MODE"/> is set.
+        /// </summary>
         protected readonly Stopwatch _overallStopwatch = Stopwatch.StartNew();
 
         /// <summary>
