@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Bang.Components;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -12,7 +13,7 @@ namespace Bang.Analyzers.Tests;
 /// Verifier that includes Bang binaries to the project.
 /// </summary>
 /// <typeparam name="TAnalyzer">Analyzer under test.</typeparam>
-public class BangAnalyzerVerifier<TAnalyzer> : AnalyzerVerifier<TAnalyzer, BangTest<TAnalyzer>, MSTestVerifier>
+public class BangAnalyzerVerifier<TAnalyzer> : AnalyzerVerifier<TAnalyzer, BangAnalyzerTest<TAnalyzer>, MSTestVerifier>
     where TAnalyzer : DiagnosticAnalyzer, new()
 { }
 
@@ -21,10 +22,39 @@ public class BangAnalyzerVerifier<TAnalyzer> : AnalyzerVerifier<TAnalyzer, BangT
 /// as of now and needed for Bang) and includes the Bang dlls.
 /// </summary>
 /// <typeparam name="TAnalyzer">Analyzer under test.</typeparam>
-public sealed class BangTest<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, MSTestVerifier>
+public sealed class BangAnalyzerTest<TAnalyzer> : CSharpAnalyzerTest<TAnalyzer, MSTestVerifier>
     where TAnalyzer : DiagnosticAnalyzer, new()
 {
-    public BangTest()
+    public BangAnalyzerTest()
+    {
+        var bangReference = MetadataReference.CreateFromFile(typeof(IComponent).Assembly.Location);
+        TestState.AdditionalReferences.Add(bangReference);
+        ReferenceAssemblies = Net.Net70;
+    }
+}
+
+/// <summary>
+/// Verifier that includes Bang binaries to the project.
+/// </summary>
+/// <typeparam name="TCodeFix">CodeFixProvider under test.</typeparam>
+/// <typeparam name="TAnalyzer">Analyzer under test.</typeparam>
+public class BangCodeFixProviderVerifier<TAnalyzer, TCodeFix> :
+    CodeFixVerifier<TAnalyzer, TCodeFix, BangCodeFixTest<TAnalyzer, TCodeFix>, MSTestVerifier>
+    where TAnalyzer : DiagnosticAnalyzer, new()
+    where TCodeFix : CodeFixProvider, new()
+{ }
+
+/// <summary>
+/// Implementation of CSharpCodeFixTest that uses net7.0 (not enabled by default
+/// as of now and needed for Bang) and includes the Bang dlls.
+/// </summary>
+/// <typeparam name="TAnalyzer">Analyzer under test.</typeparam>
+/// <typeparam name="TCodeFix">CodeFixProvider under test.</typeparam>
+public sealed class BangCodeFixTest<TAnalyzer, TCodeFix> : CSharpCodeFixTest<TAnalyzer, TCodeFix, MSTestVerifier>
+    where TCodeFix : CodeFixProvider, new()
+    where TAnalyzer : DiagnosticAnalyzer, new()
+{
+    public BangCodeFixTest()
     {
         var bangReference = MetadataReference.CreateFromFile(typeof(IComponent).Assembly.Location);
         TestState.AdditionalReferences.Add(bangReference);
