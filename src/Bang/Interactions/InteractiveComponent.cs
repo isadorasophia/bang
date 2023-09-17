@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using Bang.Components;
+﻿using Bang.Components;
 using Bang.Entities;
+using Newtonsoft.Json;
 
 namespace Bang.Interactions
 {

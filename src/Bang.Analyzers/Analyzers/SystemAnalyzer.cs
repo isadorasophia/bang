@@ -1,8 +1,8 @@
-using System.Collections.Immutable;
 using Bang.Analyzers.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
 
 namespace Bang.Analyzers;
 
@@ -96,7 +96,7 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         var isSystem = typeSymbol.ImplementsInterface(bangSystemInterface);
         if (!isSystem)
             return;
-        
+
         // Abstract types don't need to be annotated and can instead delegate their filters to subclasses.
         if (typeSymbol.IsAbstract)
             return;

@@ -1,10 +1,10 @@
-﻿using Bang.Systems;
+﻿using Bang.Components;
 using Bang.Contexts;
-using Bang.Components;
+using Bang.Diagnostics;
 using Bang.Entities;
+using Bang.Systems;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using Bang.Diagnostics;
 
 namespace Bang
 {

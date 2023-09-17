@@ -13,7 +13,6 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DevelopmentDependency>true</DevelopmentDependency>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Source code analyzers for Bang</Description>
 
     <PackageId>Murder.Bang.Analyzers</PackageId>
