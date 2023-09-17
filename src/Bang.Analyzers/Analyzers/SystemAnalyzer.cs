@@ -96,6 +96,10 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         var isSystem = typeSymbol.ImplementsInterface(bangSystemInterface);
         if (!isSystem)
             return;
+        
+        // Abstract types don't need to be annotated and can instead delegate their filters to subclasses.
+        if (typeSymbol.IsAbstract)
+            return;
 
         // IReactiveSystem and IMessagerSystem don't need the filter attribute.
         var filterIsOptional = false;
