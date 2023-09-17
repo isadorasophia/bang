@@ -97,8 +97,8 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         if (!isSystem)
             return;
 
-        var filterAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.FilterAttribute);
-        context.ReportDiagnosticIfLackingAttribute(typeSymbol, filterAttribute, FilterAttribute);
+        // IReactiveSystem and IMessagerSystem don't need the filter attribute.
+        var filterIsOptional = false;
 
         var bangMessagerSystem = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.MessagerSystemInterface);
         if (bangMessagerSystem is not null)
@@ -107,6 +107,7 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             if (typeSymbol.ImplementsInterface(bangMessagerSystem))
             {
                 context.ReportDiagnosticIfLackingAttribute(typeSymbol, messagerAttribute, MessagerAttribute);
+                filterIsOptional = true;
             }
             else
             {
@@ -121,11 +122,18 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             if (typeSymbol.ImplementsInterface(bangReactiveSystem))
             {
                 context.ReportDiagnosticIfLackingAttribute(typeSymbol, watchAttribute, WatchAttribute);
+                filterIsOptional = true;
             }
             else
             {
                 context.ReportDiagnosticIfAttributeExists(typeSymbol, watchAttribute, NonApplicableWatchAttribute);
             }
         }
+
+        if (filterIsOptional)
+            return;
+
+        var filterAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.FilterAttribute);
+        context.ReportDiagnosticIfLackingAttribute(typeSymbol, filterAttribute, FilterAttribute);
     }
 }

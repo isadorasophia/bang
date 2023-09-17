@@ -10,8 +10,7 @@
 | BANG1004 | Usage    | Warning  | System does not use MessagerAttribute.    |
 | BANG1005 | Usage    | Warning  | System does not use WatchAttribute.       |
 | BANG2001 | Usage    | Error    | Filter attribute expects only components. |
-| BANG2002 | Usage    | Error    | Filter attribute expects only messages.   |
-| BANG2003 | Usage    | Error    | Messager attribute expects only messages. |
-| BANG2004 | Usage    | Error    | Watch attribute expects only components.  |
+| BANG2002 | Usage    | Error    | Messager attribute expects only messages. |
+| BANG2003 | Usage    | Error    | Watch attribute expects only components.  |
 | BANG3001 | Usage    | Error    | Classes cannot be messages.               |
 | BANG3002 | Usage    | Error    | Messages must be declared as readonly.    |
