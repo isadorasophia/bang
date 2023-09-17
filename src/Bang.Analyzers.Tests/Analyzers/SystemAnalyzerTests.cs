@@ -334,4 +334,88 @@ public class IncorrectSystem : ISystem
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
+
+    [TestMethod(displayName: "Systems that inherit from an annotated system do not need the Filter annotation.")]
+    public async Task SystemWithAnnotatedSubclass()
+    {
+        const string source = @"
+using Bang;
+using Bang.Components;
+using Bang.Contexts;
+using Bang.Entities;
+using Bang.Systems;
+
+namespace BangAnalyzerTestNamespace;
+
+public readonly record struct CorrectComponent : IComponent;
+
+[Filter(ContextAccessorKind.Read, typeof(CorrectComponent))]
+public class BaseSystem : ISystem
+{
+}
+
+public class InheritingSystem : BaseSystem
+{
+}";
+
+        await Verify.VerifyAnalyzerAsync(source);
+    }
+
+    [TestMethod(displayName: "Reactive systems that inherit from an annotated system do not need the Filter or Watch annotation.")]
+    public async Task ReactiveSystemWithAnnotatedSubclass()
+    {
+        const string source = @"
+using Bang;
+using Bang.Components;
+using Bang.Contexts;
+using Bang.Entities;
+using Bang.Systems;
+using System.Collections.Immutable;
+
+namespace BangAnalyzerTestNamespace;
+
+public readonly record struct CorrectComponent : IComponent;
+
+[Watch(typeof(CorrectComponent))]
+public class BaseSystem : IReactiveSystem
+{
+    public void OnAdded(World world, ImmutableArray<Entity> entities) { }
+    public void OnRemoved(World world, ImmutableArray<Entity> entities) { }
+    public void OnModified(World world, ImmutableArray<Entity> entities) { }
+}
+
+public class InheritingSystem : BaseSystem
+{
+}";
+
+        await Verify.VerifyAnalyzerAsync(source);
+    }
+
+    [TestMethod(displayName: "Messager Systems that inherit from an annotated system do not need the Filter or Message annotation.")]
+    public async Task MessagerSystemWithAnnotatedSubclass()
+    {
+        const string source = @"
+using System.Collections.Immutable;
+using Bang;
+using Bang.Components;
+using Bang.Contexts;
+using Bang.Entities;
+using Bang.Systems;
+
+namespace BangAnalyzerTestNamespace;
+
+public readonly record struct CorrectMessage : IMessage;
+
+[Messager(typeof(CorrectMessage))]
+public class BaseSystem : IMessagerSystem
+{
+    public void OnMessage(World world, Entity entity, IMessage message) { }
+}
+
+public class InheritingSystem : BaseSystem
+{
+}";
+
+        await Verify.VerifyAnalyzerAsync(source);
+    }
 }
