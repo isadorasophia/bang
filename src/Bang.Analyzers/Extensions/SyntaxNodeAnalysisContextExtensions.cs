@@ -12,9 +12,7 @@ public static class SyntaxNodeAnalysisContextExtensions
         DiagnosticDescriptor diagnosticDescriptor
     )
     {
-        var hasAttribute = type.GetAttributes().Any(
-            attr => attr.AttributeClass is not null && attr.AttributeClass.Equals(attributeToCheck, SymbolEqualityComparer.IncludeNullability));
-
+        var hasAttribute = RecursivelyCheckForAttribute(type, attributeToCheck);
         context.ConditionallyReportDiagnostic(diagnosticDescriptor, !hasAttribute);
     }
 
@@ -25,10 +23,32 @@ public static class SyntaxNodeAnalysisContextExtensions
         DiagnosticDescriptor diagnosticDescriptor
     )
     {
-        var hasAttribute = type.GetAttributes().Any(
-            attr => attr.AttributeClass is not null && attr.AttributeClass.Equals(attributeToCheck, SymbolEqualityComparer.IncludeNullability));
-
+        var hasAttribute = RecursivelyCheckForAttribute(type, attributeToCheck);
         context.ConditionallyReportDiagnostic(diagnosticDescriptor, hasAttribute);
+    }
+
+    private static bool RecursivelyCheckForAttribute(
+        INamedTypeSymbol type,
+        ISymbol? attributeToCheck)
+    {
+        bool hasAttribute;
+        var typeToCheck = type;
+        do
+        {
+            hasAttribute = typeToCheck
+                .GetAttributes()
+                .Any(attr =>
+                    attr.AttributeClass is not null && attr.AttributeClass.Equals(attributeToCheck,
+                        SymbolEqualityComparer.IncludeNullability));
+
+            if (!hasAttribute)
+            {
+                typeToCheck = typeToCheck.BaseType;
+            }
+
+        } while (!hasAttribute && typeToCheck != null);
+
+        return hasAttribute;
     }
 
     private static void ConditionallyReportDiagnostic(
