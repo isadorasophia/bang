@@ -530,6 +530,9 @@ namespace Bang
             return allEntities.ToImmutableArray();
         }
 
+        /// <summary>
+        /// Total of entities in the world. This is useful for displaying debug information.
+        /// </summary>
         public int EntityCount => _entities.Count;
 
         /// <summary>
