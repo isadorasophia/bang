@@ -94,7 +94,7 @@ using Bang.Systems;
 
 namespace BangAnalyzerTestNamespace;
 
-public class ExitSystem : IExitSystem
+public class System : IExitSystem
 {
     public void Exit(Context context) { }
 }";
@@ -109,7 +109,7 @@ using Bang.Systems;
 
 namespace BangAnalyzerTestNamespace;
 
-public class FixedUpdateSystem : IFixedUpdateSystem
+public class System : IFixedUpdateSystem
 {
     public void FixedUpdate(Context context) { }
 }";
@@ -127,7 +127,7 @@ namespace BangAnalyzerTestNamespace;
 public readonly record struct CorrectMessage : IMessage;
 
 [Messager(typeof(CorrectMessage))]
-public class MessagerSystem : IMessagerSystem
+public class System : IMessagerSystem
 {
     public void OnMessage(World world, Entity entity, IMessage message) { }
 }";
@@ -145,7 +145,7 @@ namespace BangAnalyzerTestNamespace;
 public readonly record struct CorrectComponent : IComponent;
 
 [Watch(typeof(CorrectComponent))]
-public class ReactiveSystem : IReactiveSystem
+public class System : IReactiveSystem
 {
     public void OnAdded(World world, ImmutableArray<Entity> entities) { }
     public void OnModified(World world, ImmutableArray<Entity> entities) { }
@@ -162,7 +162,7 @@ using Bang.Systems;
 
 namespace BangAnalyzerTestNamespace;
 
-public class RenderSystem : IRenderSystem 
+public class System : IRenderSystem 
 {
 }";
 
@@ -176,7 +176,7 @@ using Bang.Systems;
 
 namespace BangAnalyzerTestNamespace;
 
-public class StartupSystem : IStartupSystem
+public class System : IStartupSystem
 {
     public void Start(Context context) { }
 }";
@@ -191,7 +191,7 @@ using Bang.Systems;
 
 namespace BangAnalyzerTestNamespace;
 
-public class UpdateSystem : IUpdateSystem
+public class System : IUpdateSystem
 {
     public void Update(Context context) { }
 }";
@@ -206,13 +206,12 @@ public class UpdateSystem : IUpdateSystem
     public async Task SystemsNotAnnotatedWithTheFilterAttributeTriggerTheAnalyzer(string source)
     {
         // Figure out starting index of diagnosis (class declaration except when an annotation is used)
-        var diagnosisStartPoint = source.IndexOf("[") > 0 ? source.IndexOf("[") : source.IndexOf("public class");
+        var diagnosisStartPoint = source.IndexOf("public class");
         // Count newlines to figure out the starting line. Add 1 because lines are 1-indexed.
         var startLine = Regex.Count(source.Substring(0, diagnosisStartPoint), Environment.NewLine) + 1;
-        var endLine = Regex.Count(source.Substring(diagnosisStartPoint, source.Length - diagnosisStartPoint - 1), Environment.NewLine);
         var expected = Verify.Diagnostic(SystemAnalyzer.FilterAttribute)
             .WithSeverity(DiagnosticSeverity.Error)
-            .WithSpan(startLine, 1, startLine + endLine, 2);
+            .WithSpan(startLine, 14, startLine, 20);
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
@@ -246,7 +245,7 @@ public class IncorrectMessagerSystem : IMessagerSystem
 
         var expected = Verify.Diagnostic(SystemAnalyzer.MessagerAttribute)
             .WithSeverity(DiagnosticSeverity.Error)
-            .WithSpan(12, 1, 16, 2);
+            .WithSpan(13, 14, 13, 37);
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
@@ -276,7 +275,7 @@ public class IncorrectReactiveSystem : IReactiveSystem
 
         var expected = Verify.Diagnostic(SystemAnalyzer.WatchAttribute)
             .WithSeverity(DiagnosticSeverity.Error)
-            .WithSpan(13, 1, 19, 2);
+            .WithSpan(14, 14, 14, 37);
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
@@ -303,7 +302,7 @@ public class IncorrectSystem : ISystem
 
         var expected = Verify.Diagnostic(SystemAnalyzer.NonApplicableMessagerAttribute)
             .WithSeverity(DiagnosticSeverity.Warning)
-            .WithSpan(12, 1, 16, 2);
+            .WithSpan(13, 2, 13, 34);
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
@@ -330,7 +329,7 @@ public class IncorrectSystem : ISystem
 
         var expected = Verify.Diagnostic(SystemAnalyzer.NonApplicableWatchAttribute)
             .WithSeverity(DiagnosticSeverity.Warning)
-            .WithSpan(12, 1, 16, 2);
+            .WithSpan(12, 2, 12, 33);
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
