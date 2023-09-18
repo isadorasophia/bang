@@ -6,4 +6,9 @@ public static class CodeFixes
     {
         public const string Title = "Convert to readonly struct";
     }
+
+    public static class RemoveAttribute
+    {
+        public const string Title = "Remove attribute";
+    }
 }
