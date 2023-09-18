@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 
-namespace Bang.Analyzers;
+namespace Bang.Analyzers.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class AttributeAnalyzer : DiagnosticAnalyzer
@@ -99,10 +99,10 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
 
     // First call to .Parent gets the AttributeList.
     // Second call to .Parent get the type annotated with the attribute we're looking for.
-    public static SyntaxNode? GetTypeAnnotatedByAttribute(AttributeSyntax? attributeSyntax)
+    private static SyntaxNode? GetTypeAnnotatedByAttribute(AttributeSyntax? attributeSyntax)
         => attributeSyntax?.Parent?.Parent;
 
-    public static AttributeData? GetAttributeDataForArgumentList(
+    private static AttributeData? GetAttributeDataForArgumentList(
         SyntaxNodeAnalysisContext context,
         AttributeArgumentListSyntax argumentListSyntax
     )

@@ -1,8 +1,9 @@
-using Bang.Analyzers.Fixes;
+using Bang.Analyzers.Analyzers;
+using Bang.Analyzers.CodeFixProviders;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bang.Analyzers.Tests;
+namespace Bang.Analyzers.Tests.CodeFixProviders;
 
 using Verify = BangCodeFixProviderVerifier<ComponentAnalyzer, ReadonlyStructCodeFixProvider>;
 

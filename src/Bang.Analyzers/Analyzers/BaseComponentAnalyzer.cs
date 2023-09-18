@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 
-namespace Bang.Analyzers;
+namespace Bang.Analyzers.Analyzers;
 
 public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
 {
@@ -25,7 +25,7 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
         context.RegisterSyntaxNodeAction(
-            action: context => Analyze(context, InterfaceName, DoNotUseClassesDiagnostic, ReadonlyDiagnostic),
+            action: c => Analyze(c, InterfaceName, DoNotUseClassesDiagnostic, ReadonlyDiagnostic),
             syntaxKinds: syntaxKinds
         );
     }
@@ -33,7 +33,7 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
     private static void Analyze(
         SyntaxNodeAnalysisContext context,
         string interfaceName,
-        DiagnosticDescriptor classesAreNotvalidDiagnostic,
+        DiagnosticDescriptor classesAreNotValidDiagnostic,
         DiagnosticDescriptor readonlyDiagnostic
     )
     {
@@ -55,7 +55,7 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
         {
             context.ReportDiagnostic(
                 Diagnostic.Create(
-                    classesAreNotvalidDiagnostic,
+                    classesAreNotValidDiagnostic,
                     classDeclarationSyntax.Identifier.GetLocation()
                 )
             );
@@ -93,7 +93,7 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
             {
                 context.ReportDiagnostic(
                     Diagnostic.Create(
-                        classesAreNotvalidDiagnostic,
+                        classesAreNotValidDiagnostic,
                         recordDeclarationSyntax.Identifier.GetLocation()
                     )
                 );
