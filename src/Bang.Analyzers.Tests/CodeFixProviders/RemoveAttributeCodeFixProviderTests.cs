@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Text.RegularExpressions;
 using Bang.Analyzers.CodeFixProviders;
+using Bang.Analyzers.Analyzers;
 
 namespace Bang.Analyzers.Tests.CodeFixProviders;
 
