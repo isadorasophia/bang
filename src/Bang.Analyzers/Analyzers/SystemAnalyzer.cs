@@ -1,6 +1,7 @@
 using Bang.Analyzers.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 
@@ -92,6 +93,9 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
         if (context.ContainingSymbol is not INamedTypeSymbol typeSymbol)
             return;
 
+        if (context.Node is not TypeDeclarationSyntax typeDeclarationSyntax)
+            return;
+
         // Bail if the current type declaration is not a system.
         var isSystem = typeSymbol.ImplementsInterface(bangSystemInterface);
         if (!isSystem)
@@ -110,12 +114,37 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             var messagerAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.MessagerAttribute);
             if (typeSymbol.ImplementsInterface(bangMessagerSystem))
             {
-                context.ReportDiagnosticIfLackingAttribute(typeSymbol, messagerAttribute, MessagerAttribute);
+                var hasAttribute = typeSymbol.RecursivelyCheckForAttribute(messagerAttribute);
+                if (!hasAttribute)
+                {
+                    context.ReportDiagnostic(
+                        Diagnostic.Create(
+                            MessagerAttribute,
+                            typeDeclarationSyntax.Identifier.GetLocation()
+                        )
+                    );
+                }
+
                 filterIsOptional = true;
             }
-            else
+            else if (typeSymbol.HasAttribute(messagerAttribute))
             {
-                context.ReportDiagnosticIfAttributeExists(typeSymbol, messagerAttribute, NonApplicableMessagerAttribute);
+                // TODO: Check using aliases, full attribute name and normal attribute name
+                var attributeSyntax = context.Node
+                    .DescendantNodes()
+                    .OfType<AttributeSyntax>()
+                    .FirstOrDefault(attributeSyntax =>
+                    {
+                        var attributeData = GetAttributeDataForSyntax(attributeSyntax, typeSymbol);
+                        return attributeData.AttributeClass?.Equals(messagerAttribute, SymbolEqualityComparer.IncludeNullability) ?? false;
+                    });
+
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        NonApplicableMessagerAttribute,
+                        attributeSyntax?.GetLocation() ?? typeDeclarationSyntax.Identifier.GetLocation()
+                    )
+                );
             }
         }
 
@@ -125,12 +154,36 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             var watchAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.WatchAttribute);
             if (typeSymbol.ImplementsInterface(bangReactiveSystem))
             {
-                context.ReportDiagnosticIfLackingAttribute(typeSymbol, watchAttribute, WatchAttribute);
+                var hasAttribute = typeSymbol.RecursivelyCheckForAttribute(watchAttribute);
+                if (!hasAttribute)
+                {
+                    context.ReportDiagnostic(
+                        Diagnostic.Create(
+                            WatchAttribute,
+                            typeDeclarationSyntax.Identifier.GetLocation()
+                        )
+                    );
+                }
                 filterIsOptional = true;
             }
-            else
+            else if (typeSymbol.HasAttribute(watchAttribute))
             {
-                context.ReportDiagnosticIfAttributeExists(typeSymbol, watchAttribute, NonApplicableWatchAttribute);
+                // TODO: Check using aliases, full attribute name and normal attribute name
+                var attributeSyntax = context.Node
+                    .DescendantNodes()
+                    .OfType<AttributeSyntax>()
+                    .FirstOrDefault(attributeSyntax =>
+                    {
+                        var attributeData = GetAttributeDataForSyntax(attributeSyntax, typeSymbol);
+                        return attributeData.AttributeClass?.Equals(watchAttribute, SymbolEqualityComparer.IncludeNullability) ?? false;
+                    });
+
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        NonApplicableWatchAttribute,
+                        attributeSyntax?.GetLocation() ?? typeDeclarationSyntax.Identifier.GetLocation()
+                    )
+                );
             }
         }
 
@@ -138,6 +191,22 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             return;
 
         var filterAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.FilterAttribute);
-        context.ReportDiagnosticIfLackingAttribute(typeSymbol, filterAttribute, FilterAttribute);
+        var hasFilterAttribute = typeSymbol.RecursivelyCheckForAttribute(filterAttribute);
+        if (!hasFilterAttribute)
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    FilterAttribute,
+                    typeDeclarationSyntax.Identifier.GetLocation()
+                )
+            );
+        }
     }
+
+    private static AttributeData GetAttributeDataForSyntax(
+        AttributeSyntax attributeSyntax,
+        ISymbol annotatedTypeSymbol
+    ) => annotatedTypeSymbol
+        .GetAttributes()
+        .Single(a => a.ApplicationSyntaxReference!.GetSyntax() == attributeSyntax);
 }
