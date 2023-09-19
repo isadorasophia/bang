@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 
-namespace Bang.Analyzers;
+namespace Bang.Analyzers.Analyzers;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class ComponentAnalyzer : BaseComponentAnalyzer

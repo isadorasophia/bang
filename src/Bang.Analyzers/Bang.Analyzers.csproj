@@ -8,7 +8,6 @@
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 
     <!-- NuGet package configuration. -->
-    <RootNamespace>Bang</RootNamespace> <!-- This is necessary because of the way things are packed.-->
     <AssemblyName>Bang.Analyzers</AssemblyName>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>

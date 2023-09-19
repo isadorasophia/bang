@@ -6,21 +6,21 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.Composition;
 
-namespace Bang.Analyzers.Fixes;
+namespace Bang.Analyzers.CodeFixProviders;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ReadonlyStructCodeFixProvider)), Shared]
-public class ReadonlyStructCodeFixProvider : CodeFixProvider
+public sealed class ReadonlyStructCodeFixProvider : CodeFixProvider
 {
-    public sealed override ImmutableArray<string> FixableDiagnosticIds
+    public override ImmutableArray<string> FixableDiagnosticIds
         => ImmutableArray.Create(
             Diagnostics.Components.ComponentsMustBeReadonly.Id,
             Diagnostics.Messages.MessagesMustBeReadonly.Id
         );
 
-    public sealed override FixAllProvider GetFixAllProvider()
+    public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;
 
-    public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+    public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var root = await context.Document
             .GetSyntaxRootAsync(context.CancellationToken)

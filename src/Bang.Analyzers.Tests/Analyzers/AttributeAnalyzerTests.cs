@@ -1,6 +1,7 @@
+using Bang.Analyzers.Analyzers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bang.Analyzers.Tests;
+namespace Bang.Analyzers.Tests.Analyzers;
 
 using Verify = BangAnalyzerVerifier<AttributeAnalyzer>;
 
