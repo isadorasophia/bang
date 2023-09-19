@@ -85,4 +85,13 @@ public static class Diagnostics
             public const string Message = "Messages must be declared as readonly";
         }
     }
+
+    public static class World
+    {
+        public static class MarkUniqueComponentAsUnique
+        {
+            public const string Id = "BANG4001";
+            public const string Message = "Trying to get an unique component not marked with the Unique attribute";
+        }
+    }
 }

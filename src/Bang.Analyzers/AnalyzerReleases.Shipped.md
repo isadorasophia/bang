@@ -1,3 +1,11 @@
+## Release 0.0.4
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+BANG4001 | Usage    | Warning  | Component must be annotated with UniqueAttribute.    
+
 ## Release 0.0.3
 
 ### New Rules
