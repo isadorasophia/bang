@@ -4,6 +4,7 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
+BANG0003 | Usage    | Error    | Components must not also be messages.    
 BANG4001 | Usage    | Warning  | Component must be annotated with UniqueAttribute.    
 
 ## Release 0.0.3

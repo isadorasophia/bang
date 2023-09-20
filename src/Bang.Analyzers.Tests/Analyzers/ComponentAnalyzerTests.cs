@@ -226,4 +226,22 @@ record struct Component : IComponent;";
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
+
+    [TestMethod(displayName: "Components that also implement IMessage trigger an error.")]
+    public async Task ComponentsThatAreAlsoMessages()
+    {
+        const string source = @"
+using Bang.Components;
+
+namespace BangAnalyzerTestNamespace;
+
+public readonly struct ReadonlyStructComponent : IComponent, IMessage { }";
+
+        var expected = Verify
+            .Diagnostic(ComponentAnalyzer.ComponentsCannotBeMessages)
+            .WithSeverity(DiagnosticSeverity.Error)
+            .WithSpan(6, 24, 6, 47);
+
+        await Verify.VerifyAnalyzerAsync(source, expected);
+    }
 }
