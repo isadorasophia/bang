@@ -12,4 +12,7 @@ public static class TypeMetadataNames
     public const string MessageInterface = "Bang.Components.IMessage";
     public const string MessagerSystemInterface = "Bang.Systems.IMessagerSystem";
     public const string MessagerAttribute = "Bang.Systems.MessagerAttribute";
+
+    public const string WorldType = "Bang.World";
+    public const string UniqueAttribute = "Bang.Components.UniqueAttribute";
 }
