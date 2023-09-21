@@ -15,6 +15,12 @@ public static class Diagnostics
             public const string Id = "BANG0002";
             public const string Message = "Components must be declared as readonly";
         }
+
+        public class ComponentsCannotBeMessages
+        {
+            public const string Id = "BANG0003";
+            public const string Message = "Components cannot also be messages";
+        }
     }
 
     public static class Systems

@@ -30,29 +30,39 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
         );
     }
 
-    private static void Analyze(
+    protected virtual void PerformExtraAnalysis(
+        SyntaxNodeAnalysisContext context,
+        INamedTypeSymbol typeSymbol,
+        Location diagnosticLocation
+    )
+    { }
+
+    private void Analyze(
         SyntaxNodeAnalysisContext context,
         string interfaceName,
         DiagnosticDescriptor classesAreNotValidDiagnostic,
         DiagnosticDescriptor readonlyDiagnostic
     )
     {
-        // Bail if IComponent is not resolvable.
-        var bangComponentInterface = context.Compilation.GetTypeByMetadataName(interfaceName);
-        if (bangComponentInterface is null)
+        // Bail if the interface we're analysing is not resolvable.
+        var interfaceBeingAnalyzed = context.Compilation.GetTypeByMetadataName(interfaceName);
+        if (interfaceBeingAnalyzed is null)
             return;
 
         // Bail if the node we are checking is not a type declaration.
         if (context.ContainingSymbol is not INamedTypeSymbol typeSymbol)
             return;
 
-        // Bail if the current type declaration is not a component.
-        var isComponent = typeSymbol.ImplementsInterface(bangComponentInterface);
-        if (!isComponent)
+        // Bail if the current type declaration does not implement the interface we're analysing.
+        var implementsInterface = typeSymbol.ImplementsInterface(interfaceBeingAnalyzed);
+        if (!implementsInterface)
             return;
+
+        var location = context.Node.GetLocation();
 
         if (context.Node is ClassDeclarationSyntax classDeclarationSyntax)
         {
+            location = classDeclarationSyntax.Identifier.GetLocation();
             context.ReportDiagnostic(
                 Diagnostic.Create(
                     classesAreNotValidDiagnostic,
@@ -63,6 +73,7 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
 
         if (context.Node is StructDeclarationSyntax structDeclarationSyntax)
         {
+            location = structDeclarationSyntax.Identifier.GetLocation();
             if (!typeSymbol.IsReadOnly)
             {
                 context.ReportDiagnostic(
@@ -76,6 +87,7 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
 
         if (context.Node is RecordDeclarationSyntax recordDeclarationSyntax)
         {
+            location = recordDeclarationSyntax.Identifier.GetLocation();
             // This checks if the record is a struct.
             if (typeSymbol.IsValueType)
             {
@@ -99,5 +111,7 @@ public abstract class BaseComponentAnalyzer : DiagnosticAnalyzer
                 );
             }
         }
+
+        PerformExtraAnalysis(context, typeSymbol, location);
     }
 }
