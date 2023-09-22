@@ -100,4 +100,19 @@ public static class Diagnostics
             public const string Message = "Trying to get an unique component not marked with the Unique attribute";
         }
     }
+
+    public static class Interactions
+    {
+        public static class ClassesCannotBeInteractions
+        {
+            public const string Id = "BANG5001";
+            public const string Message = "Classes cannot be interactions";
+        }
+
+        public static class InteractionsMustBeReadonly
+        {
+            public const string Id = "BANG5002";
+            public const string Message = "Interactions must be declared as readonly";
+        }
+    }
 }

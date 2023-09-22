@@ -14,7 +14,8 @@ public sealed class ReadonlyStructCodeFixProvider : CodeFixProvider
     public override ImmutableArray<string> FixableDiagnosticIds
         => ImmutableArray.Create(
             Diagnostics.Components.ComponentsMustBeReadonly.Id,
-            Diagnostics.Messages.MessagesMustBeReadonly.Id
+            Diagnostics.Messages.MessagesMustBeReadonly.Id,
+            Diagnostics.Interactions.InteractionsMustBeReadonly.Id
         );
 
     public override FixAllProvider GetFixAllProvider()
