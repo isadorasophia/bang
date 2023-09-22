@@ -25,6 +25,12 @@ We are on nuget! So you can either use this repository as a submodule or simply 
 <!-- Main Package. -->
 <PackageReference Include="Murder.Bang" Version="0.0.2-alpha" />
 
+<!-- Generator package. Needed in the project that generates the final binary, but not in libraries. -->
+<PackageReference Include="Murder.Bang.Generator" Version="0.0.4">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+</PackageReference>
+
 <!-- Optional Package with analyzers and code fixes. -->
 <PackageReference Include="Murder.Bang.Analyzers" Version="0.0.3">
     <PrivateAssets>all</PrivateAssets>
