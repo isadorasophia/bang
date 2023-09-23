@@ -62,6 +62,7 @@ public sealed class MetadataFetcher
                 Index: index,
                 FriendlyName: component.Name.ToCleanComponentName(),
                 FullyQualifiedName: component.FullyQualifiedName(),
+                IsTransformComponent: component.ImplementsInterface(bangTypeSymbols.TransformInterface),
                 IsParentRelativeComponent: component.ImplementsInterface(bangTypeSymbols.ParentRelativeComponentInterface),
                 Constructors: component.Constructors
                     .Where(c => c.DeclaredAccessibility == Accessibility.Public)

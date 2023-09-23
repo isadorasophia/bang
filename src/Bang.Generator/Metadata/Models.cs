@@ -11,6 +11,7 @@ public sealed class BangTypeSymbols
     public INamedTypeSymbol StateMachineClass { get; }
     public INamedTypeSymbol InteractionInterface { get; }
     public INamedTypeSymbol ComponentsLookupClass { get; }
+    public INamedTypeSymbol TransformInterface { get; }
 
     private BangTypeSymbols(
         INamedTypeSymbol componentInterface,
@@ -18,11 +19,13 @@ public sealed class BangTypeSymbols
         INamedTypeSymbol parentRelativeComponentInterface,
         INamedTypeSymbol stateMachineClass,
         INamedTypeSymbol interactionInterface,
-        INamedTypeSymbol componentsLookupClass)
+        INamedTypeSymbol componentsLookupClass,
+        INamedTypeSymbol transformInterface)
     {
         MessageInterface = messageInterface;
         StateMachineClass = stateMachineClass;
         ComponentInterface = componentInterface;
+        TransformInterface = transformInterface;
         InteractionInterface = interactionInterface;
         ComponentsLookupClass = componentsLookupClass;
         ParentRelativeComponentInterface = parentRelativeComponentInterface;
@@ -60,13 +63,19 @@ public sealed class BangTypeSymbols
         if (componentsLookupClass is null)
             return null;
 
-        return new(
+        // Bail if ITransformComponent is not resolvable.
+        var transformComponentInterface = compilation.GetTypeByMetadataName("Bang.Components.ITransformComponent");
+        if (transformComponentInterface is null)
+            return null;
+
+        return new BangTypeSymbols(
             componentInterface,
             messageInterface,
             parentRelativeComponentInterface,
             stateMachineClass,
             interactionInterface,
-            componentsLookupClass
+            componentsLookupClass,
+            transformComponentInterface
         );
     }
 }
@@ -92,6 +101,7 @@ public abstract record TypeMetadata
         int Index,
         string FriendlyName,
         string FullyQualifiedName,
+        bool IsTransformComponent,
         bool IsParentRelativeComponent,
         ImmutableArray<ConstructorMetadata> Constructors
     ) : TypeMetadata;

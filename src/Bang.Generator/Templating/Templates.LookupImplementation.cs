@@ -45,7 +45,7 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $$"""
-                          { typeof(global::{{metadata.FullyQualifiedName}}), global::Bang.Entities.{{ProjectPrefix}}ComponentTypes.{{metadata.FriendlyName}} },
+                          { typeof(global::{{metadata.FullyQualifiedName}}), global::Bang.Entities.{{(metadata.IsTransformComponent ? "Bang" : ProjectPrefix)}}ComponentTypes.{{(metadata.IsTransformComponent ? "Transform" : metadata.FriendlyName)}} },
 
               """;
 
