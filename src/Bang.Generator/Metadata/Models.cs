@@ -99,6 +99,7 @@ public abstract record TypeMetadata
 
     public sealed record Component(
         int Index,
+        bool IsInternal,
         string FriendlyName,
         string FullyQualifiedName,
         bool IsTransformComponent,
@@ -108,6 +109,7 @@ public abstract record TypeMetadata
 
     public sealed record Message(
         int Index,
+        bool IsInternal,
         string TypeName,
         string FriendlyName,
         string FullyQualifiedName
@@ -116,10 +118,12 @@ public abstract record TypeMetadata
     // TODO: These can be turned into something like `GenericComponentConstrainedType` should we go the route 
     // to support arbitrary, user provided generic types.
     public sealed record StateMachine(
+        bool IsInternal,
         string FullyQualifiedName
     ) : TypeMetadata;
 
     public sealed record Interaction(
+        bool IsInternal,
         string FullyQualifiedName
     ) : TypeMetadata;
 }

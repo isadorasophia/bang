@@ -27,7 +27,7 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
-                     public static global::{metadata.FullyQualifiedName} Get{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
+                     {(metadata.IsInternal ? "internal" : "public")} static global::{metadata.FullyQualifiedName} Get{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.GetComponent<global::{metadata.FullyQualifiedName}>(global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName});
 
              
@@ -40,7 +40,7 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
-                     public static bool Has{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
+                     {(metadata.IsInternal ? "internal" : "public")} static bool Has{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.HasComponent(global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName});
 
              
@@ -53,7 +53,7 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
-                     public static global::{metadata.FullyQualifiedName}? TryGet{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
+                     {(metadata.IsInternal ? "internal" : "public")} static global::{metadata.FullyQualifiedName}? TryGet{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.Has{metadata.FriendlyName}() ? e.Get{metadata.FriendlyName}() : null;
 
              
@@ -71,23 +71,28 @@ public static partial class Templates
             // Adds a special extension method for each constructor
             foreach (var constructor in metadata.Constructors)
             {
-                builder.Append($"        public static void Set{metadata.FriendlyName}(this global::Bang.Entities.Entity e");
-                foreach (var parameter in constructor.Parameters)
-                {
-                    builder.Append($", global::{parameter.FullyQualifiedTypeName} {parameter.Name}");
-                }
+                var parameterList = 
+                    constructor.Parameters.Any()
+                    ? $", {(string.Join(", ",  constructor.Parameters.Select(parameter => $"{parameter.FullyQualifiedTypeName} {parameter.Name}")))}"
+                    : "";
 
-                builder.AppendLine(")");
-                builder.AppendLine("        {");
-                builder.Append($"            e.AddOrReplaceComponent(new global::{metadata.FullyQualifiedName}(");
-                builder.Append(string.Join(", ", constructor.Parameters.Select(x => x.Name)));
-                builder.AppendLine($"), global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName});");
-                builder.AppendLine("        }");
-                builder.AppendLine("");
+                var argumentList = 
+                    constructor.Parameters.Any()
+                        ? $"{(string.Join(", ", constructor.Parameters.Select(x => x.Name)))}"
+                        : "";
+                
+                builder.Append($$"""
+                                         {{(metadata.IsInternal ? "internal" : "public")}} static void Set{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e{{parameterList}})
+                                         {
+                                             e.AddOrReplaceComponent(new global::{{metadata.FullyQualifiedName}}({{argumentList}}), global::Bang.Entities.{{ProjectPrefix}}ComponentTypes.{{metadata.FriendlyName}});
+                                         }
+                                         
+
+                                 """);
             }
 
             builder.Append($$"""
-                             public static void Set{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e, global::{{metadata.FullyQualifiedName}} component)
+                             {{(metadata.IsInternal ? "internal" : "public")}} static void Set{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e, global::{{metadata.FullyQualifiedName}} component)
                              {
                                  e.AddOrReplaceComponent(component, global::Bang.Entities.{{ProjectPrefix}}ComponentTypes.{{metadata.FriendlyName}});
                              }
@@ -106,7 +111,7 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $$"""
-                      public static global::Bang.Entities.Entity With{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e, global::{{metadata.FullyQualifiedName}} component)
+                      {{(metadata.IsInternal ? "internal" : "public")}} static global::Bang.Entities.Entity With{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e, global::{{metadata.FullyQualifiedName}} component)
                       {
                           e.AddOrReplaceComponent(component, global::Bang.Entities.{{ProjectPrefix}}ComponentTypes.{{metadata.FriendlyName}});
                           return e;
@@ -122,7 +127,7 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
-                     public static bool Remove{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
+                     {(metadata.IsInternal ? "internal" : "public")} static bool Remove{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.RemoveComponent(global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName});
 
              
@@ -135,7 +140,7 @@ public static partial class Templates
 
         protected override string ProcessMessage(TypeMetadata.Message metadata) =>
             $"""
-                     public static bool Has{metadata.TypeName}(this global::Bang.Entities.Entity e)
+                     {(metadata.IsInternal ? "internal" : "public")} static bool Has{metadata.TypeName}(this global::Bang.Entities.Entity e)
                          => e.HasComponent(global::Bang.Entities.{ProjectPrefix}MessageTypes.{metadata.FriendlyName});
 
              

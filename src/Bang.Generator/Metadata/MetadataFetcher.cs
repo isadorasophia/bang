@@ -62,6 +62,7 @@ public sealed class MetadataFetcher
                 Index: index,
                 FriendlyName: component.Name.ToCleanComponentName(),
                 FullyQualifiedName: component.FullyQualifiedName(),
+                IsInternal: component.DeclaredAccessibility == Accessibility.Internal,
                 IsTransformComponent: component.ImplementsInterface(bangTypeSymbols.TransformInterface),
                 IsParentRelativeComponent: component.ImplementsInterface(bangTypeSymbols.ParentRelativeComponentInterface),
                 Constructors: component.Constructors
@@ -86,6 +87,7 @@ public sealed class MetadataFetcher
             .Select((message, index) => new TypeMetadata.Message(
                 Index: index + componentIndexOffset,
                 TypeName: message.Name,
+                IsInternal: message.DeclaredAccessibility == Accessibility.Internal,
                 FriendlyName: message.Name.ToCleanComponentName(),
                 FullyQualifiedName: message.FullyQualifiedName()
             ));
@@ -97,7 +99,10 @@ public sealed class MetadataFetcher
             .Select(GetTypeSymbol(compilation))
             .Where(t => t.IsSubtypeOf(bangTypeSymbols.StateMachineClass))
             .OrderBy(x => x.Name)
-            .Select(s => new TypeMetadata.StateMachine(s.FullyQualifiedName()));
+            .Select(s => new TypeMetadata.StateMachine(
+                IsInternal: s.DeclaredAccessibility == Accessibility.Internal,
+                FullyQualifiedName: s.FullyQualifiedName())
+            );
 
     private static IEnumerable<TypeMetadata.Interaction> FetchInteractions(
         BangTypeSymbols bangTypeSymbols,
@@ -105,7 +110,10 @@ public sealed class MetadataFetcher
     ) => allValueTypesToBeCompiled
         .Where(t => !t.IsGenericType && t.ImplementsInterface(bangTypeSymbols.InteractionInterface))
         .OrderBy(i => i.Name)
-        .Select(i => new TypeMetadata.Interaction(i.FullyQualifiedName()));
+        .Select(i => new TypeMetadata.Interaction(
+            IsInternal: i.DeclaredAccessibility == Accessibility.Internal,
+            FullyQualifiedName: i.FullyQualifiedName())
+        );
 
     private Func<TypeDeclarationSyntax, IEnumerable<INamedTypeSymbol>> ValueTypeFromTypeDeclarationSyntax(Compilation compilation)
         => typeDeclarationSyntax =>
