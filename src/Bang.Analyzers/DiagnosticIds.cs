@@ -90,6 +90,12 @@ public static class Diagnostics
             public const string Id = "BANG3002";
             public const string Message = "Messages must be declared as readonly";
         }
+
+        public class MessagesCannotBeInteractions
+        {
+            public const string Id = "BANG3003";
+            public const string Message = "Messages cannot also be interactions";
+        }
     }
 
     public static class World

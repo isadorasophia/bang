@@ -226,4 +226,28 @@ record struct Message : IMessage;";
 
         await Verify.VerifyAnalyzerAsync(source, expected);
     }
+
+    [TestMethod(displayName: "Messages that also implement IInteraction trigger an error.")]
+    public async Task MessagesThatAreAlsoInteractions()
+    {
+        const string source = @"
+using Bang;
+using Bang.Entities;
+using Bang.Components;
+using Bang.Interactions;
+
+namespace BangAnalyzerTestNamespace;
+
+public readonly struct ReadonlyStructComponent : IMessage, IInteraction
+{
+    public void Interact(World world, Entity interactor, Entity? interacted) { }
+}";
+
+        var expected = Verify
+            .Diagnostic(MessageAnalyzer.MessagesCannotBeInteractions)
+            .WithSeverity(DiagnosticSeverity.Error)
+            .WithSpan(9, 24, 9, 47);
+
+        await Verify.VerifyAnalyzerAsync(source, expected);
+    }
 }
