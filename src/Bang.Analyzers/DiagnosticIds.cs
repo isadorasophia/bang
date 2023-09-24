@@ -21,6 +21,12 @@ public static class Diagnostics
             public const string Id = "BANG0003";
             public const string Message = "Components cannot also be messages";
         }
+
+        public class ComponentsCannotBeInteractions
+        {
+            public const string Id = "BANG0004";
+            public const string Message = "Components cannot also be interactions";
+        }
     }
 
     public static class Systems

@@ -38,8 +38,23 @@ public sealed class ComponentAnalyzer : BaseComponentAnalyzer
         description: "Structs implementing IComponent cannot also implement IMessage."
     );
 
+    public static readonly DiagnosticDescriptor ComponentsCannotBeInteractions = new(
+        id: Diagnostics.Components.ComponentsCannotBeInteractions.Id,
+        title: nameof(ComponentAnalyzer) + "." + nameof(ComponentsCannotBeInteractions),
+        messageFormat: Diagnostics.Components.ComponentsCannotBeInteractions.Message,
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Structs implementing IComponent cannot also implement IInteraction."
+    );
+
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-        => ImmutableArray.Create(ClassesCannotBeComponents, ComponentsMustBeReadonly, ComponentsCannotBeMessages);
+        => ImmutableArray.Create(
+            ClassesCannotBeComponents,
+            ComponentsMustBeReadonly,
+            ComponentsCannotBeMessages,
+            ComponentsCannotBeInteractions
+        );
 
     protected override string InterfaceName => TypeMetadataNames.ComponentInterface;
 
@@ -58,13 +73,25 @@ public sealed class ComponentAnalyzer : BaseComponentAnalyzer
         if (messageInterface is null)
             return;
 
+        // Bail if IInteraction is not resolvable.
+        var interactionInterface = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.InteractionInterface);
+        if (interactionInterface is null)
+            return;
+
         // The base class already checked that we do implement IComponent 
         if (typeSymbol.ImplementsInterface(messageInterface))
         {
             context.ReportDiagnostic(
                 Diagnostic.Create(ComponentsCannotBeMessages, diagnosticLocation)
             );
+        }
 
+        // The base class already checked that we do implement IComponent 
+        if (typeSymbol.ImplementsInterface(interactionInterface))
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(ComponentsCannotBeInteractions, diagnosticLocation)
+            );
         }
     }
 }

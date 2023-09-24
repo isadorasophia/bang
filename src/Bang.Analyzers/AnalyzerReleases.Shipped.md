@@ -4,8 +4,9 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
-BANG0003 | Usage    | Error    | Components must not also be messages.    
-BANG4001 | Usage    | Warning  | Component must be annotated with UniqueAttribute.    
+BANG0003 | Usage    | Error    | Components must not also be messages.
+BANG0004 | Usage    | Error    | Components must not also be interactions.
+BANG4001 | Usage    | Warning  | Component must be annotated with UniqueAttribute.
 BANG5001 | Usage    | Error    | Classes cannot be interactions.             
 BANG5002 | Usage    | Error    | Interactions must be declared as readonly.  
 
