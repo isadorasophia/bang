@@ -71,16 +71,16 @@ public static partial class Templates
             // Adds a special extension method for each constructor
             foreach (var constructor in metadata.Constructors)
             {
-                var parameterList = 
+                var parameterList =
                     constructor.Parameters.Any()
-                    ? $", {(string.Join(", ",  constructor.Parameters.Select(parameter => $"{parameter.FullyQualifiedTypeName} {parameter.Name}")))}"
+                    ? $", {(string.Join(", ", constructor.Parameters.Select(parameter => $"{parameter.FullyQualifiedTypeName} {parameter.Name}")))}"
                     : "";
 
-                var argumentList = 
+                var argumentList =
                     constructor.Parameters.Any()
                         ? $"{(string.Join(", ", constructor.Parameters.Select(x => x.Name)))}"
                         : "";
-                
+
                 builder.Append($$"""
                                          {{(metadata.IsInternal ? "internal" : "public")}} static void Set{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e{{parameterList}})
                                          {
