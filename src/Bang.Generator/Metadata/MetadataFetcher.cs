@@ -97,7 +97,7 @@ public sealed class MetadataFetcher
         ImmutableArray<ClassDeclarationSyntax> potentialStateMachines
     ) => potentialStateMachines
             .Select(GetTypeSymbol(compilation))
-            .Where(t => t.IsSubtypeOf(bangTypeSymbols.StateMachineClass))
+            .Where(t => !t.IsAbstract && t.IsSubtypeOf(bangTypeSymbols.StateMachineClass))
             .OrderBy(x => x.Name)
             .Select(s => new TypeMetadata.StateMachine(
                 IsInternal: s.DeclaredAccessibility == Accessibility.Internal,
