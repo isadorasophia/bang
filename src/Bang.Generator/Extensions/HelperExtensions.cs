@@ -24,7 +24,8 @@ public static class HelperExtensions
     public static string FullyQualifiedName(this ITypeSymbol type)
     {
         var fullyQualifiedTypeName = type.ToDisplayString(FullyQualifiedDisplayFormat);
-        if (type is not INamedTypeSymbol { IsGenericType: true } namedTypeSymbol)
+        // Roslyn graces us with Nullable types as `T?` instead of `Nullable<T>`, so we make an exception here.
+        if (fullyQualifiedTypeName.Contains("?") || type is not INamedTypeSymbol { IsGenericType: true } namedTypeSymbol)
         {
             return fullyQualifiedTypeName;
         }
