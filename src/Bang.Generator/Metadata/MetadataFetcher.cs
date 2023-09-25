@@ -22,7 +22,7 @@ public sealed class MetadataFetcher
     {
         // Gets all potential components/messages from the assembly this generator is processing.
         var allValueTypesToBeCompiled = potentialComponents
-            .SelectMany(ValueTypeFromTypeDeclarationSyntax(compilation))
+            .SelectMany(ValueTypeFromTypeDeclarationSyntax)
             .ToImmutableArray();
 
         var componentIndexOffset = 0;
@@ -96,13 +96,13 @@ public sealed class MetadataFetcher
         BangTypeSymbols bangTypeSymbols,
         ImmutableArray<ClassDeclarationSyntax> potentialStateMachines
     ) => potentialStateMachines
-            .Select(GetTypeSymbol(compilation))
+            .Select(GetTypeSymbol)
             .Where(t => !t.IsAbstract && t.IsSubtypeOf(bangTypeSymbols.StateMachineClass))
             .OrderBy(x => x.Name)
             .Select(s => new TypeMetadata.StateMachine(
                 IsInternal: s.DeclaredAccessibility == Accessibility.Internal,
                 FullyQualifiedName: s.FullyQualifiedName())
-            );
+            ).Distinct();
 
     private static IEnumerable<TypeMetadata.Interaction> FetchInteractions(
         BangTypeSymbols bangTypeSymbols,
@@ -115,24 +115,22 @@ public sealed class MetadataFetcher
             FullyQualifiedName: i.FullyQualifiedName())
         );
 
-    private Func<TypeDeclarationSyntax, IEnumerable<INamedTypeSymbol>> ValueTypeFromTypeDeclarationSyntax(Compilation compilation)
-        => typeDeclarationSyntax =>
-        {
-            var semanticModel = compilation.GetSemanticModel(typeDeclarationSyntax.SyntaxTree);
-            if (semanticModel.GetDeclaredSymbol(typeDeclarationSyntax) is not INamedTypeSymbol potentialComponentTypeSymbol)
-                return Enumerable.Empty<INamedTypeSymbol>();
+    private IEnumerable<INamedTypeSymbol> ValueTypeFromTypeDeclarationSyntax(TypeDeclarationSyntax typeDeclarationSyntax)
+    {
+        var semanticModel = compilation.GetSemanticModel(typeDeclarationSyntax.SyntaxTree);
+        if (semanticModel.GetDeclaredSymbol(typeDeclarationSyntax) is not INamedTypeSymbol potentialComponentTypeSymbol)
+            return Enumerable.Empty<INamedTypeSymbol>();
 
-            // Record classes cannot be components or messages.
-            if (typeDeclarationSyntax is RecordDeclarationSyntax && !potentialComponentTypeSymbol.IsValueType)
-                return Enumerable.Empty<INamedTypeSymbol>();
+        // Record classes cannot be components or messages.
+        if (typeDeclarationSyntax is RecordDeclarationSyntax && !potentialComponentTypeSymbol.IsValueType)
+            return Enumerable.Empty<INamedTypeSymbol>();
 
-            return potentialComponentTypeSymbol.Yield();
-        };
+        return potentialComponentTypeSymbol.Yield();
+    }
 
-    private Func<ClassDeclarationSyntax, INamedTypeSymbol> GetTypeSymbol(Compilation compilation)
-        => classDeclarationSyntax =>
-        {
-            var semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
-            return (INamedTypeSymbol)semanticModel.GetDeclaredSymbol(classDeclarationSyntax)!;
-        };
+    private INamedTypeSymbol GetTypeSymbol(ClassDeclarationSyntax classDeclarationSyntax)
+    {
+        var semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
+        return (INamedTypeSymbol)semanticModel.GetDeclaredSymbol(classDeclarationSyntax)!;
+    }
 }
