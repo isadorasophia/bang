@@ -1,4 +1,5 @@
 ﻿using Bang.Components;
+using Bang.Entities;
 using Bang.Interactions;
 using Bang.StateMachines;
 using System.Collections.Immutable;
@@ -12,19 +13,30 @@ namespace Bang
     public abstract class ComponentsLookup
     {
         /// <summary>
+        /// Tracks the last id this particular implementation is tracking plus one.
+        /// </summary>
+        public const int NextLookupId = 3;
+
+        /// <summary>
         /// Maps all the components to their unique id.
         /// </summary>
-        protected abstract ImmutableDictionary<Type, int> ComponentsIndex { get; }
+        protected ImmutableDictionary<Type, int> ComponentsIndex { get; init; } = new Dictionary<Type, int>
+        {
+            { typeof(IStateMachineComponent), BangComponentTypes.StateMachine },
+            { typeof(IInteractiveComponent), BangComponentTypes.Interactive },
+            { typeof(ITransformComponent), BangComponentTypes.Transform }
+        }.ToImmutableDictionary();
 
         /// <summary>
         /// Maps all the messages to their unique id.
         /// </summary>
-        protected abstract ImmutableDictionary<Type, int> MessagesIndex { get; }
+        protected ImmutableDictionary<Type, int> MessagesIndex { get; init; } = new Dictionary<Type, int>().ToImmutableDictionary();
 
         /// <summary>
         /// List of all the unique id of the components that inherit from <see cref="IParentRelativeComponent"/>.
         /// </summary>
-        public abstract ImmutableHashSet<int> RelativeComponents { get; }
+        public ImmutableHashSet<int> RelativeComponents { get; protected init; } =
+            ImmutableHashSet.Create(BangComponentTypes.Transform);
 
         /// <summary>
         /// Tracks components and messages without a generator. This query will have a lower performance.

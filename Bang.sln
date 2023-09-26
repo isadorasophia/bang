@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang.Analyzers", "src\Bang.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang.Analyzers.Tests", "src\Bang.Analyzers.Tests\Bang.Analyzers.Tests.csproj", "{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bang.Generator", "src\Bang.Generator\Bang.Generator.csproj", "{945C48DA-7A5B-4EB3-93AF-270396334BA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EED28D5-6A33-47F9-9D9E-C587D99DFD93}.Release|Any CPU.Build.0 = Release|Any CPU
+		{945C48DA-7A5B-4EB3-93AF-270396334BA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{945C48DA-7A5B-4EB3-93AF-270396334BA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{945C48DA-7A5B-4EB3-93AF-270396334BA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{945C48DA-7A5B-4EB3-93AF-270396334BA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
