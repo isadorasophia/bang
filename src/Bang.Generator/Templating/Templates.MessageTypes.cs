@@ -20,7 +20,7 @@ public static partial class Templates
 
         protected override string ProcessMessage(TypeMetadata.Message metadata)
             => $"""
-                        public const int {metadata.FriendlyName} = global::Bang.{ParentProjectPrefix}ComponentsLookup.NextLookupId + {metadata.Index};
+                        public const int {metadata.FriendlyName} = global::Bang.{ParentProjectPrefix}ComponentsLookup.{ParentProjectPrefix}NextLookupId + {metadata.Index};
 
                 """;
     }
