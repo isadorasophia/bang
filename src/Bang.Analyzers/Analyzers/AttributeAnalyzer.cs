@@ -115,7 +115,7 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         return context.SemanticModel
             .GetDeclaredSymbol(annotatedTypeNode)?
             .GetAttributes()
-            .Single(a => a.ApplicationSyntaxReference!.GetSyntax() == attributeSyntax);
+            .SingleOrDefault(a => a.ApplicationSyntaxReference!.GetSyntax() == attributeSyntax);
     }
 
     private static (INamedTypeSymbol, DiagnosticDescriptor)? GetInterfaceThatMustBeImplemented(
