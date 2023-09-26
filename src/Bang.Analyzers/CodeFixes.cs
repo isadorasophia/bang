@@ -11,4 +11,9 @@ public static class CodeFixes
     {
         public const string Title = "Remove attribute";
     }
+
+    public static class AddAttribute
+    {
+        public static string Title(string attributeName) => $"Add {attributeName} attribute";
+    }
 }
