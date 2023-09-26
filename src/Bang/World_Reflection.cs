@@ -32,34 +32,16 @@ namespace Bang
                 }
             }
 
-            Type? target = null;
-            if (candidateLookupImplementations.Count == 1)
-            {
-                // Easy, just return the first implementation.
-                target = candidateLookupImplementations[0];
-            }
-            else
-            {
-                // This should only be done once and we will have at *very maximum* three implementations.
-                // Check whoever implements whom.
-                foreach (Type t in candidateLookupImplementations)
-                {
-                    foreach (Type tt in candidateLookupImplementations)
-                    {
-                        if (t != tt && t.IsAssignableFrom(tt))
-                        {
-                            target = tt;
-                        }
-                    }
-                }
-            }
-
+            var target = candidateLookupImplementations.MaxBy(NumberOfParentClasses);
             if (target is not null)
             {
                 return (ComponentsLookup)Activator.CreateInstance(target)!;
             }
 
             throw new InvalidOperationException("A generator is required to be run before running the game!");
+
+            static int NumberOfParentClasses(Type type)
+                => type.BaseType is null ? 0 : 1 + NumberOfParentClasses(type.BaseType);
         }
 
         /// <summary>
