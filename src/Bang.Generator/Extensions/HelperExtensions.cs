@@ -42,12 +42,12 @@ public static class HelperExtensions
     /// <summary>
     /// Checks if the given <see cref="symbol"/> implements the interface <see cref="interfaceTypeSymbol"/>.
     /// </summary>
-    /// <param name="symbol">Type declaration symbol.</param>
+    /// <param name="type">Type declaration symbol.</param>
     /// <param name="interfaceToCheck">Interface to be checked.</param>
     /// <returns></returns>
     public static bool ImplementsInterface(
         this ITypeSymbol type,
-        ISymbol interfaceToCheck
+        ISymbol? interfaceToCheck
     ) => type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceToCheck));
 
     public static bool IsSubtypeOf(

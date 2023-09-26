@@ -12,15 +12,16 @@ public sealed class BangTypeSymbols
     public INamedTypeSymbol InteractionInterface { get; }
     public INamedTypeSymbol ComponentsLookupClass { get; }
     public INamedTypeSymbol TransformInterface { get; }
+    public INamedTypeSymbol? MurderTransformInterface { get; }
 
-    private BangTypeSymbols(
-        INamedTypeSymbol componentInterface,
+    private BangTypeSymbols(INamedTypeSymbol componentInterface,
         INamedTypeSymbol messageInterface,
         INamedTypeSymbol parentRelativeComponentInterface,
         INamedTypeSymbol stateMachineClass,
         INamedTypeSymbol interactionInterface,
         INamedTypeSymbol componentsLookupClass,
-        INamedTypeSymbol transformInterface)
+        INamedTypeSymbol transformInterface,
+        INamedTypeSymbol? murderTransformInterface)
     {
         MessageInterface = messageInterface;
         StateMachineClass = stateMachineClass;
@@ -28,6 +29,7 @@ public sealed class BangTypeSymbols
         TransformInterface = transformInterface;
         InteractionInterface = interactionInterface;
         ComponentsLookupClass = componentsLookupClass;
+        MurderTransformInterface = murderTransformInterface;
         ParentRelativeComponentInterface = parentRelativeComponentInterface;
     }
 
@@ -68,6 +70,9 @@ public sealed class BangTypeSymbols
         if (transformComponentInterface is null)
             return null;
 
+        // This is not part of Bang, so it can be null.
+        var murderTransformComponentInterface = compilation.GetTypeByMetadataName("Murder.Components.IMurderTransformComponent");
+
         return new BangTypeSymbols(
             componentInterface,
             messageInterface,
@@ -75,7 +80,8 @@ public sealed class BangTypeSymbols
             stateMachineClass,
             interactionInterface,
             componentsLookupClass,
-            transformComponentInterface
+            transformComponentInterface,
+            murderTransformComponentInterface
         );
     }
 }
@@ -104,6 +110,7 @@ public abstract record TypeMetadata
         string FullyQualifiedName,
         bool IsTransformComponent,
         bool IsParentRelativeComponent,
+        bool IsMurderTransformComponent,
         ImmutableArray<ConstructorMetadata> Constructors
     ) : TypeMetadata;
 

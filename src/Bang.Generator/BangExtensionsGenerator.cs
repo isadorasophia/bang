@@ -51,7 +51,7 @@ public sealed class BangExtensionsGenerator : IIncrementalGenerator
             .GetAllCompiledClassesWithSubtypes()
             .Where(t => t.IsSubtypeOf(bangTypeSymbols.ComponentsLookupClass))
             .OrderBy(NumberOfParentClasses)
-            .FirstOrDefault() ?? bangTypeSymbols.ComponentsLookupClass;
+            .LastOrDefault() ?? bangTypeSymbols.ComponentsLookupClass;
 
         var projectName = compilation.AssemblyName?.Replace(".", "") ?? "My";
 

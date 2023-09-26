@@ -35,7 +35,8 @@ namespace Bang
         /// <summary>
         /// List of all the unique id of the components that inherit from <see cref="IParentRelativeComponent"/>.
         /// </summary>
-        public ImmutableHashSet<int> RelativeComponents { get; protected init; } = ImmutableHashSet<int>.Empty;
+        public ImmutableHashSet<int> RelativeComponents { get; protected init; } =
+            ImmutableHashSet.Create(BangComponentTypes.Transform);
 
         /// <summary>
         /// Tracks components and messages without a generator. This query will have a lower performance.
