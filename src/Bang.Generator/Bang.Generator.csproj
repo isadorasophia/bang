@@ -8,8 +8,8 @@
     <Nullable>enable</Nullable>
     
     <PackageId>Murder.Bang.Generator</PackageId>
-    <Version>0.0.1-alpha</Version>
-    <Authors>Isadora</Authors>
+    <Version>0.0.5</Version>
+    <Authors>Murder Authors</Authors>
     <Company>Murder Engine</Company>
 
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
