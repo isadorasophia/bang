@@ -27,6 +27,9 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
+                     /// <summary>
+                     /// Gets a component of type <see cref="{metadata.FullyQualifiedName}"/>.
+                     /// </summary>
                      {(metadata.IsInternal ? "internal" : "public")} static global::{metadata.FullyQualifiedName} Get{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.GetComponent<global::{metadata.FullyQualifiedName}>(global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName});
 
@@ -40,6 +43,9 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
+                     /// <summary>
+                     /// Checks whether this entity possesses a component of type <see cref="{metadata.FullyQualifiedName}"/> or not.
+                     /// </summary>
                      {(metadata.IsInternal ? "internal" : "public")} static bool Has{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.HasComponent(global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName});
 
@@ -53,6 +59,9 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
+                     /// <summary>
+                     /// Gets a <see cref="{metadata.FullyQualifiedName}"/> if the entity has one, otherwise returns null.
+                     /// </summary>
                      {(metadata.IsInternal ? "internal" : "public")} static global::{metadata.FullyQualifiedName}? TryGet{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.Has{metadata.FriendlyName}() ? e.Get{metadata.FriendlyName}() : null;
 
@@ -82,6 +91,9 @@ public static partial class Templates
                         : "";
 
                 builder.Append($$"""
+                                         /// <summary>
+                                         /// Adds or replaces the component of type <see cref="{{metadata.FullyQualifiedName}}" />.
+                                         /// </summary>
                                          {{(metadata.IsInternal ? "internal" : "public")}} static void Set{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e{{parameterList}})
                                          {
                                              e.AddOrReplaceComponent(new global::{{metadata.FullyQualifiedName}}({{argumentList}}), global::Bang.Entities.{{ProjectPrefix}}ComponentTypes.{{metadata.FriendlyName}});
@@ -92,6 +104,9 @@ public static partial class Templates
             }
 
             builder.Append($$"""
+                             /// <summary>
+                             /// Adds or replaces the component of type <see cref="{{metadata.FullyQualifiedName}}" />.
+                             /// </summary>
                              {{(metadata.IsInternal ? "internal" : "public")}} static void Set{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e, global::{{metadata.FullyQualifiedName}} component)
                              {
                                  e.AddOrReplaceComponent(component, global::Bang.Entities.{{ProjectPrefix}}ComponentTypes.{{metadata.FriendlyName}});
@@ -111,6 +126,9 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $$"""
+                      /// <summary>
+                      /// Adds or replaces the component of type <see cref="{{metadata.FullyQualifiedName}}" />.
+                      /// </summary>
                       {{(metadata.IsInternal ? "internal" : "public")}} static global::Bang.Entities.Entity With{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e, global::{{metadata.FullyQualifiedName}} component)
                       {
                           e.AddOrReplaceComponent(component, global::Bang.Entities.{{ProjectPrefix}}ComponentTypes.{{metadata.FriendlyName}});
@@ -127,6 +145,9 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata) =>
             $"""
+                     /// <summary>
+                     /// Removes the component of type <see cref="{metadata.FullyQualifiedName}" />.
+                     /// </summary>
                      {(metadata.IsInternal ? "internal" : "public")} static bool Remove{metadata.FriendlyName}(this global::Bang.Entities.Entity e)
                          => e.RemoveComponent(global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName});
 
@@ -140,6 +161,9 @@ public static partial class Templates
 
         protected override string ProcessMessage(TypeMetadata.Message metadata) =>
             $"""
+                     /// <summary>
+                     /// Checks whether the entity has a message of type <see cref="{metadata.FullyQualifiedName}" /> or not.
+                     /// </summary>
                      {(metadata.IsInternal ? "internal" : "public")} static bool Has{metadata.TypeName}(this global::Bang.Entities.Entity e)
                          => e.HasComponent(global::Bang.Entities.{ProjectPrefix}MessageTypes.{metadata.FriendlyName});
 

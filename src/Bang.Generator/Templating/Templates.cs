@@ -6,9 +6,11 @@ public static partial class Templates
         """
         namespace Bang.Entities
         {
+            /// <summary>
+            /// Collection of all ids for fetching components declared in this project.
+            /// </summary>
             public static class <project_prefix>ComponentTypes
-            {
-        <component_id_list>    }
+            {<component_id_list>    }
         }
         """;
 
@@ -16,9 +18,11 @@ public static partial class Templates
         """
         namespace Bang.Entities
         {
+            /// <summary>
+            /// Collection of all ids for fetching components declared in this project.
+            /// </summary>
             public static class <project_prefix>MessageTypes
-            {
-        <message_id_list>    }
+            {<message_id_list>    }
         }
         """;
 
@@ -26,6 +30,9 @@ public static partial class Templates
         """
         namespace Bang.Entities
         {
+            /// <summary>
+            /// Quality of life extensions for the components declared in this project.
+            /// </summary>
             public static class <project_prefix>EntityExtensions
             {
                 #region Component "Get" methods!
@@ -66,9 +73,18 @@ public static partial class Templates
 
         namespace Bang
         {
+            /// <summary>
+            /// Auto-generated implementation of <see cref="Bang.ComponentsLookup" /> for this project.
+            /// </summary>
             public class <project_prefix>ComponentsLookup : <parent_project_lookup>
             {
+                /// <summary>
+                /// First lookup id a <see cref="Bang.ComponentsLookup"/> implementation that inherits from this class must use.
+                /// </summary>
                 <component_count_const>
+                /// <summary>
+                /// Default constructor. This is only relevant for the internals of Bang, so you can ignore it.
+                /// </summary>
                 public <project_prefix>ComponentsLookup()
                 {
                     MessagesIndex = base.MessagesIndex.Concat(_messagesIndex).ToImmutableDictionary();

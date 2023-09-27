@@ -20,6 +20,10 @@ public static partial class Templates
 
         protected override string ProcessComponent(TypeMetadata.Component metadata)
             => $"""
+                
+                        /// <summary>
+                        /// Unique Id used for the lookup of components with type <see cref="{metadata.FullyQualifiedName}"/>.
+                        /// </summary>
                         public const int {metadata.FriendlyName} = global::Bang.{ParentProjectPrefix}ComponentsLookup.{ParentProjectPrefix}NextLookupId + {metadata.Index};
 
                 """;
