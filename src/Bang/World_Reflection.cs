@@ -41,7 +41,7 @@ namespace Bang
 
                 _cachedLookupImplementation = candidateLookupImplementations.MaxBy(NumberOfParentClasses);
             }
-            
+
             if (_cachedLookupImplementation is not null)
             {
                 return (ComponentsLookup)Activator.CreateInstance(_cachedLookupImplementation)!;
