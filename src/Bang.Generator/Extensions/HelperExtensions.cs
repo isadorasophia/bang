@@ -18,12 +18,12 @@ public static class HelperExtensions
         yield return value;
     }
 
-    private static readonly SymbolDisplayFormat FullyQualifiedDisplayFormat =
+    private static readonly SymbolDisplayFormat _fullyQualifiedDisplayFormat =
         new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 
     public static string FullyQualifiedName(this ITypeSymbol type)
     {
-        var fullyQualifiedTypeName = type.ToDisplayString(FullyQualifiedDisplayFormat);
+        var fullyQualifiedTypeName = type.ToDisplayString(_fullyQualifiedDisplayFormat);
         // Roslyn graces us with Nullable types as `T?` instead of `Nullable<T>`, so we make an exception here.
         if (fullyQualifiedTypeName.Contains("?") || type is not INamedTypeSymbol { IsGenericType: true } namedTypeSymbol)
         {

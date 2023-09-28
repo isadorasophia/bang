@@ -134,4 +134,3 @@ public abstract record TypeMetadata
         string FullyQualifiedName
     ) : TypeMetadata;
 }
-

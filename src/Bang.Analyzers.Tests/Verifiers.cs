@@ -68,7 +68,7 @@ public sealed class BangCodeFixTest<TAnalyzer, TCodeFix> : CSharpCodeFixTest<TAn
 /// </summary>
 internal static class Net
 {
-    private static readonly Lazy<ReferenceAssemblies> LazyNet70 = new(() =>
+    private static readonly Lazy<ReferenceAssemblies> _lazyNet70 = new(() =>
         new ReferenceAssemblies(
             "net7.0",
             new PackageIdentity(
@@ -77,11 +77,11 @@ internal static class Net
             Path.Combine("ref", "net7.0")
         )
     );
-    public static ReferenceAssemblies Net70 => LazyNet70.Value;
+    public static ReferenceAssemblies Net70 => _lazyNet70.Value;
 
-    private static readonly Lazy<ReferenceAssemblies> LazyNet70Windows = new(() =>
+    private static readonly Lazy<ReferenceAssemblies> _lazyNet70Windows = new(() =>
         Net70.AddPackages(
             ImmutableArray.Create(
                 new PackageIdentity("Microsoft.WindowsDesktop.App.Ref", "7.0.0-preview.5.22302.5"))));
-    public static ReferenceAssemblies Net70Windows => LazyNet70Windows.Value;
+    public static ReferenceAssemblies Net70Windows => _lazyNet70Windows.Value;
 }

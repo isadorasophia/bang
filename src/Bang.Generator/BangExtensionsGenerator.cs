@@ -1,9 +1,9 @@
 using Bang.Generator.Extensions;
 using Bang.Generator.Metadata;
-using System.Collections.Immutable;
 using Bang.Generator.Templating;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
 
 namespace Bang.Generator;
 
