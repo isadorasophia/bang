@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using Bang.Generator.Templating;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.VisualBasic;
 
 namespace Bang.Generator;
 
@@ -93,7 +92,7 @@ public sealed class BangExtensionsGenerator : IIncrementalGenerator
         }
 
         // Generate sources.
-        foreach (var template in templates)
+        foreach (FileTemplate template in templates)
         {
             context.AddSource(template.FileName, template.GetDocumentWithReplacements());
         }

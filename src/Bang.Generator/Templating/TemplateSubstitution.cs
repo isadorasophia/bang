@@ -8,7 +8,7 @@ namespace Bang.Generator.Templating;
 /// </summary>
 public abstract class TemplateSubstitution
 {
-    private readonly StringBuilder aggregatedText = new();
+    private readonly StringBuilder _aggregatedText = new();
 
     protected string ProjectPrefix = "";
     protected string ParentProjectPrefix = "";
@@ -37,7 +37,7 @@ public abstract class TemplateSubstitution
 
         if (result is not null)
         {
-            aggregatedText.Append(result);
+            _aggregatedText.Append(result);
         }
     }
 
@@ -59,9 +59,9 @@ public abstract class TemplateSubstitution
         var finalModification = FinalModification();
         if (finalModification is not null)
         {
-            aggregatedText.Append(finalModification);
+            _aggregatedText.Append(finalModification);
         }
 
-        return aggregatedText.ToString();
+        return _aggregatedText.ToString();
     }
 }

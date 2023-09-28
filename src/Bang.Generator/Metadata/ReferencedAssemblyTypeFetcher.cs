@@ -5,28 +5,28 @@ namespace Bang.Generator.Metadata;
 
 public sealed class ReferencedAssemblyTypeFetcher
 {
-    private readonly Compilation compilation;
-    private ImmutableArray<INamedTypeSymbol>? cacheOfAllTypesInReferencedAssemblies;
+    private readonly Compilation _compilation;
+    private ImmutableArray<INamedTypeSymbol>? _cacheOfAllTypesInReferencedAssemblies;
 
     public ReferencedAssemblyTypeFetcher(Compilation compilation)
     {
-        this.compilation = compilation;
+        this._compilation = compilation;
     }
 
     private ImmutableArray<INamedTypeSymbol> AllTypesInReferencedAssemblies()
     {
-        if (cacheOfAllTypesInReferencedAssemblies is not null)
-            return cacheOfAllTypesInReferencedAssemblies.Value;
+        if (_cacheOfAllTypesInReferencedAssemblies is not null)
+            return _cacheOfAllTypesInReferencedAssemblies.Value;
 
         var allTypesInReferencedAssemblies =
-               compilation.SourceModule.ReferencedAssemblySymbols
+               _compilation.SourceModule.ReferencedAssemblySymbols
                    .SelectMany(assemblySymbol =>
                        assemblySymbol
                            .GlobalNamespace.GetNamespaceMembers()
                            .SelectMany(GetAllTypesInNamespace))
                            .ToImmutableArray();
 
-        cacheOfAllTypesInReferencedAssemblies = allTypesInReferencedAssemblies;
+        _cacheOfAllTypesInReferencedAssemblies = allTypesInReferencedAssemblies;
         return allTypesInReferencedAssemblies;
     }
 

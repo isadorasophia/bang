@@ -5,8 +5,8 @@ namespace Bang.Generator.Templating;
 
 public sealed class FileTemplate
 {
-    private readonly string templateText;
-    private readonly ImmutableArray<TemplateSubstitution> substitutions;
+    private readonly string _templateText;
+    private readonly ImmutableArray<TemplateSubstitution> _substitutions;
 
     public string FileName { get; }
 
@@ -17,20 +17,20 @@ public sealed class FileTemplate
     )
     {
         FileName = fileName;
-        this.substitutions = substitutions;
-        this.templateText = templateText;
+        this._substitutions = substitutions;
+        this._templateText = templateText;
     }
 
     public void Process(TypeMetadata metadata)
     {
-        foreach (var substitution in substitutions)
+        foreach (var substitution in _substitutions)
         {
             substitution.Process(metadata);
         }
     }
 
-    public string GetDocumentWithReplacements() => substitutions.Aggregate(
-        templateText,
+    public string GetDocumentWithReplacements() => _substitutions.Aggregate(
+        _templateText,
         (text, substitution) => text.Replace(
             substitution.StringToReplaceInTemplate,
             substitution.GetProcessedText()

@@ -76,24 +76,24 @@ public static partial class Templates
 
     private sealed class IdCountSubstitution : TemplateSubstitution
     {
-        private int idCount;
+        private int _idCount;
         public IdCountSubstitution() : base("<component_count_const>") { }
 
         protected override string? ProcessComponent(TypeMetadata.Component metadata)
         {
-            idCount++;
+            _idCount++;
             return base.ProcessComponent(metadata);
         }
 
         protected override string? ProcessMessage(TypeMetadata.Message metadata)
         {
-            idCount++;
+            _idCount++;
             return base.ProcessMessage(metadata);
         }
 
         protected override string FinalModification()
             => $"""
-                public const int {ProjectPrefix}NextLookupId = {idCount} + {ParentProjectPrefix}ComponentsLookup.{ParentProjectPrefix}NextLookupId;
+                public static int {ProjectPrefix}NextLookupId => {_idCount} + {ParentProjectPrefix}ComponentsLookup.{ParentProjectPrefix}NextLookupId;
 
                 """;
     }

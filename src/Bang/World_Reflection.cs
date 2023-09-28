@@ -9,33 +9,42 @@ namespace Bang
     public partial class World
     {
         /// <summary>
+        /// Cache the lookup implementation for this game.
+        /// </summary>
+        private static Type? _cachedLookupImplementation = null;
+
+        /// <summary>
         /// Look for an implementation for the lookup table of components.
         /// </summary>
         public static ComponentsLookup FindLookupImplementation()
         {
-            Type lookup = typeof(ComponentsLookup);
-
-            var isLookup = (Type t) => !t.IsInterface && !t.IsAbstract && lookup.IsAssignableFrom(t);
-
-            // We might find more than one lookup implementation, when inheriting projects with a generator.
-            List<Type> candidateLookupImplementations = new();
-
-            Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly s in allAssemblies)
+            if (_cachedLookupImplementation is null)
             {
-                foreach (Type t in s.GetTypes())
+                Type lookup = typeof(ComponentsLookup);
+
+                var isLookup = (Type t) => !t.IsInterface && !t.IsAbstract && lookup.IsAssignableFrom(t);
+
+                // We might find more than one lookup implementation, when inheriting projects with a generator.
+                List<Type> candidateLookupImplementations = new();
+
+                Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                foreach (Assembly s in allAssemblies)
                 {
-                    if (isLookup(t))
+                    foreach (Type t in s.GetTypes())
                     {
-                        candidateLookupImplementations.Add(t);
+                        if (isLookup(t))
+                        {
+                            candidateLookupImplementations.Add(t);
+                        }
                     }
                 }
-            }
 
-            var target = candidateLookupImplementations.MaxBy(NumberOfParentClasses);
-            if (target is not null)
+                _cachedLookupImplementation = candidateLookupImplementations.MaxBy(NumberOfParentClasses);
+            }
+            
+            if (_cachedLookupImplementation is not null)
             {
-                return (ComponentsLookup)Activator.CreateInstance(target)!;
+                return (ComponentsLookup)Activator.CreateInstance(_cachedLookupImplementation)!;
             }
 
             throw new InvalidOperationException("A generator is required to be run before running the game!");

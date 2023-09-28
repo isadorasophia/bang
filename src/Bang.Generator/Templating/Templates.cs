@@ -66,6 +66,8 @@ public static partial class Templates
         }
         """;
 
+    // The lookup dictionaries are not static so they can pick up any changes made during hot reload.
+    // If this is ever a problem, we can revisit this.
     public const string LookupImplementationRaw =
         """
         using System.Collections.Immutable;
@@ -92,15 +94,15 @@ public static partial class Templates
                     RelativeComponents = base.RelativeComponents.Concat(_relativeComponents).ToImmutableHashSet();
                 }
         
-                private static readonly ImmutableHashSet<int> _relativeComponents = new HashSet<int>()
+                private readonly ImmutableHashSet<int> _relativeComponents = new HashSet<int>()
                 {
         <relative_components_set>        }.ToImmutableHashSet();
         
-                private static readonly ImmutableDictionary<Type, int> _componentsIndex = new Dictionary<Type, int>()
+                private readonly ImmutableDictionary<Type, int> _componentsIndex = new Dictionary<Type, int>()
                 {
         <components_type_to_index>        }.ToImmutableDictionary();
         
-                private static readonly ImmutableDictionary<Type, int> _messagesIndex = new Dictionary<Type, int>()
+                private readonly ImmutableDictionary<Type, int> _messagesIndex = new Dictionary<Type, int>()
                 {
         <messages_type_to_index>        }.ToImmutableDictionary();
             }

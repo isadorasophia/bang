@@ -7,11 +7,11 @@ namespace Bang.Generator.Metadata;
 
 public sealed class MetadataFetcher
 {
-    private readonly Compilation compilation;
+    private readonly Compilation _compilation;
 
     public MetadataFetcher(Compilation compilation)
     {
-        this.compilation = compilation;
+        this._compilation = compilation;
     }
 
     public IEnumerable<TypeMetadata> FetchMetadata(
@@ -118,7 +118,7 @@ public sealed class MetadataFetcher
 
     private IEnumerable<INamedTypeSymbol> ValueTypeFromTypeDeclarationSyntax(TypeDeclarationSyntax typeDeclarationSyntax)
     {
-        var semanticModel = compilation.GetSemanticModel(typeDeclarationSyntax.SyntaxTree);
+        var semanticModel = _compilation.GetSemanticModel(typeDeclarationSyntax.SyntaxTree);
         if (semanticModel.GetDeclaredSymbol(typeDeclarationSyntax) is not INamedTypeSymbol potentialComponentTypeSymbol)
             return Enumerable.Empty<INamedTypeSymbol>();
 
@@ -131,7 +131,7 @@ public sealed class MetadataFetcher
 
     private INamedTypeSymbol GetTypeSymbol(ClassDeclarationSyntax classDeclarationSyntax)
     {
-        var semanticModel = compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
+        var semanticModel = _compilation.GetSemanticModel(classDeclarationSyntax.SyntaxTree);
         return (INamedTypeSymbol)semanticModel.GetDeclaredSymbol(classDeclarationSyntax)!;
     }
 }
