@@ -1,0 +1,31 @@
+name: Publish Pre-Release
+on:
+  schedule:
+    - cron: 0 0 * * *
+
+jobs:
+  generate-version-name:
+    name: Generate version name
+    runs-on: ubuntu-latest
+    outputs:
+      dev-version: ${{ steps.generate-dev-version.outputs.dev-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Calculate build version from Git
+        id: generate-dev-version
+        run: |
+          tag=$(git describe --tags --abbrev=0)
+          commitCount=$(git rev-list --count main)
+          version="$tag-$commitCount-dev"
+          echo "dev-version=$version" >> "$GITHUB_OUTPUT"
+
+  pre-release:
+    name: Build for Linux
+    needs: generate-version-name
+    uses: ./.github/workflows/release.yaml
+    with:
+      release-version: ${{ needs.generate-version-name.outputs.dev-version }}
