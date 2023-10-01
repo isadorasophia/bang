@@ -16,7 +16,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7
+          dotnet-version: 8.0.100-rc.1.23463.5
       - name: Install dependencies
         run: dotnet restore
 
@@ -49,7 +49,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7
+          dotnet-version: 8.0.100-rc.1.23463.5
       - name: Install dependencies
         run: dotnet restore
 
