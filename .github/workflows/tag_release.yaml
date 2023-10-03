@@ -26,4 +26,6 @@ jobs:
     needs: generate-version-name
     uses: ./.github/workflows/release.yaml
     with:
+      is-pre-release: false
       release-version: ${{ needs.generate-version-name.outputs.version }}
+    secrets:
