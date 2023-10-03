@@ -31,3 +31,4 @@ jobs:
       is-pre-release: true
       release-version: ${{ needs.generate-version-name.outputs.dev-version }}
     secrets:
+      nuget-token: ${{secrets.NUGET_TOKEN}}

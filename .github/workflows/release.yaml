@@ -9,6 +9,9 @@ on:
       is-pre-release:
         required: true
         type: boolean
+    secrets:
+      nuget-token:
+        required: true
 
 jobs:
   release:
@@ -64,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pack:
-    name: 📦 Pack and publish
+    name: 📦 Pack and publish to NuGet
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -81,7 +84,7 @@ jobs:
       - name: Pack and push
         run: |
             dotnet build -c Release
-            dotnet pack -c Release
-            dotnet nuget push ./src/**/bin/Release/Murder.Bang.*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${NUGET_TOKEN}
+            dotnet pack -c Release /p:Version=${{inputs.release-version}}
+            dotnet nuget push ./src/**/bin/Release/Murder.Bang.*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${nuget-token}
         env:
-          NUGET_TOKEN: ${{secrets.NUGET_TOKEN}}
+          nuget-token: ${{secrets.nuget-token}}
