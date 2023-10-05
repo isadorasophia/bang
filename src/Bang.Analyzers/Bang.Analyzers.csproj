@@ -15,7 +15,6 @@
     <Description>Source code analyzers for Bang</Description>
 
     <PackageId>Murder.Bang.Analyzers</PackageId>
-    <PackageVersion>0.0.6</PackageVersion>
     <Authors>Murder Authors</Authors>
     <Company>Murder Engine</Company>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
