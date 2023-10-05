@@ -83,8 +83,8 @@ jobs:
   
       - name: Pack and push
         run: |
-            dotnet build -c Release
-            dotnet pack -c Release /p:Version=${{inputs.release-version}}
+            dotnet build -c Release /p:Version=${{inputs.release-version}}
+            dotnet pack -c Release
             dotnet nuget push ./src/**/bin/Release/Murder.Bang.*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${nuget-token}
         env:
           nuget-token: ${{secrets.nuget-token}}
