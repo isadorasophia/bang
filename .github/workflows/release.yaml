@@ -79,12 +79,12 @@ jobs:
           dotnet-version: 8.0.100-rc.1.23463.5
 
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
+        uses: NuGet/setup-nuget@v1.0.6
   
       - name: Pack and push
         run: |
             dotnet build -c Release /p:Version=${{inputs.release-version}}
-            dotnet pack -c Release
+            dotnet pack -c Release /p:PackageVersion=${{inputs.release-version}}
             dotnet nuget push ./src/**/bin/Release/Murder.Bang.*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${nuget-token}
         env:
           nuget-token: ${{secrets.nuget-token}}
