@@ -110,11 +110,18 @@ public sealed class AddAttributeCodeFixProvider : CodeFixProvider
                 SyntaxKind.SimpleMemberAccessExpression,
                 IdentifierName("ContextAccessorFilter"),
                 Token(SyntaxKind.DotToken),
-                IdentifierName("None")
+                IdentifierName("AllOf")
             )
         );
+        var typeOfExpression =
+            AttributeArgument(TypeOfExpression(ParseTypeName("")));
         var attributeArguments =
-            AttributeArgumentList(SeparatedList(new[] { filterAttributeArgument }));
+            AttributeArgumentList(SeparatedList(
+                new[]
+                {
+                    filterAttributeArgument,
+                    typeOfExpression
+                }));
 
         return Attribute(nameSyntax).WithArgumentList(attributeArguments);
     }
@@ -122,13 +129,21 @@ public sealed class AddAttributeCodeFixProvider : CodeFixProvider
     private static AttributeSyntax CreateWatchAttribute()
     {
         var nameSyntax = IdentifierName("Watch");
-        return Attribute(nameSyntax);
+        var typeOfExpression =
+            AttributeArgument(TypeOfExpression(ParseTypeName("")));
+        var attributeArguments =
+            AttributeArgumentList(SeparatedList(new[] { typeOfExpression }));
+        return Attribute(nameSyntax).WithArgumentList(attributeArguments);
     }
 
     private static AttributeSyntax CreateMessagerAttribute()
     {
         var nameSyntax = IdentifierName("Messager");
-        return Attribute(nameSyntax);
+        var typeOfExpression =
+            AttributeArgument(TypeOfExpression(ParseTypeName("")));
+        var attributeArguments =
+            AttributeArgumentList(SeparatedList(new[] { typeOfExpression }));
+        return Attribute(nameSyntax).WithArgumentList(attributeArguments);
     }
 
     private enum AttributeToAdd
