@@ -40,7 +40,7 @@ using Bang.Systems;
 
 namespace BangAnalyzerTestNamespace;
 
-[Filter]
+[Filter(ContextAccessorFilter.None)]
 public class System : IUpdateSystem
 {
     public void Update(Context context) { }
@@ -79,7 +79,7 @@ using Bang.Systems;
 
 namespace BangAnalyzerTestNamespace;
 
-[Filter]
+[Filter(ContextAccessorFilter.None)]
 public class System : Bang.Systems.IUpdateSystem
 {
     public void Update(Context context) { }

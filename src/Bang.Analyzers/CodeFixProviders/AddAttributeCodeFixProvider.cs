@@ -1,10 +1,11 @@
-using System.Collections.Immutable;
-using System.Composition;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
+using System.Composition;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Bang.Analyzers.CodeFixProviders;
 
@@ -32,11 +33,11 @@ public sealed class AddAttributeCodeFixProvider : CodeFixProvider
 
         foreach (var diagnostic in context.Diagnostics)
         {
-            var attributeToCreate = diagnostic.Id switch
+            var attributeToAdd = diagnostic.Id switch
             {
-                Diagnostics.Systems.WatchAttribute.Id => "Watch",
-                Diagnostics.Systems.MessagerAttribute.Id => "Messager",
-                _ => "Filter"
+                Diagnostics.Systems.WatchAttribute.Id => AttributeToAdd.Watch,
+                Diagnostics.Systems.MessagerAttribute.Id => AttributeToAdd.Messager,
+                _ => AttributeToAdd.Filter
             };
 
             var diagnosticSpan = diagnostic.Location.SourceSpan;
@@ -45,8 +46,8 @@ public sealed class AddAttributeCodeFixProvider : CodeFixProvider
 
             context.RegisterCodeFix(
                 CodeAction.Create(
-                    title: CodeFixes.AddAttribute.Title(attributeToCreate),
-                    createChangedDocument: c => AddAttribute(context.Document, typeDeclarationSyntax, attributeToCreate, c),
+                    title: CodeFixes.AddAttribute.Title(attributeToAdd.ToString()),
+                    createChangedDocument: c => AddAttribute(context.Document, typeDeclarationSyntax, attributeToAdd, c),
                     equivalenceKey: nameof(CodeFixes.AddAttribute)),
                 diagnostic
             );
@@ -56,17 +57,14 @@ public sealed class AddAttributeCodeFixProvider : CodeFixProvider
     private async Task<Document> AddAttribute(
         Document document,
         TypeDeclarationSyntax typeDeclarationSyntax,
-        string attributeToCreate,
+        AttributeToAdd attributeToAdd,
         CancellationToken cancellationToken)
     {
         var oldRoot = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
         if (oldRoot is null)
             return document;
 
-        var nameSyntax = SyntaxFactory.IdentifierName(attributeToCreate);
-        var attribute = SyntaxFactory.Attribute(nameSyntax);
-        var separatedSyntaxList = SyntaxFactory.SeparatedList(new[] { attribute });
-        var newAttributeList = SyntaxFactory.AttributeList(separatedSyntaxList);
+        var newAttributeList = CreateNewAttributeList(attributeToAdd);
         var attributeLists =
             new SyntaxList<AttributeListSyntax>(typeDeclarationSyntax.AttributeLists.Prepend(newAttributeList));
         var newTypeDeclarationSyntax = typeDeclarationSyntax.WithAttributeLists(attributeLists);
@@ -83,11 +81,60 @@ public sealed class AddAttributeCodeFixProvider : CodeFixProvider
         if (rootWithAttribute is not CompilationUnitSyntax compilationUnit)
             return document.WithSyntaxRoot(rootWithAttribute);
 
-        var bangToken = SyntaxFactory.IdentifierName("Bang");
-        var systemsToken = SyntaxFactory.IdentifierName("Systems");
-        var name = SyntaxFactory.QualifiedName(bangToken, systemsToken);
-        var rootWithImportedNamespace = compilationUnit.AddUsings(SyntaxFactory.UsingDirective(name));
+        var bangToken = IdentifierName("Bang");
+        var systemsToken = IdentifierName("Systems");
+        var name = QualifiedName(bangToken, systemsToken);
+        var rootWithImportedNamespace = compilationUnit.AddUsings(UsingDirective(name));
 
         return document.WithSyntaxRoot(rootWithImportedNamespace);
+    }
+
+    private static AttributeListSyntax CreateNewAttributeList(AttributeToAdd attributeToAdd)
+    {
+        var attribute = attributeToAdd switch
+        {
+            AttributeToAdd.Filter => CreateFilterAttribute(),
+            AttributeToAdd.Watch => CreateWatchAttribute(),
+            AttributeToAdd.Messager => CreateMessagerAttribute(),
+            _ => throw new ArgumentOutOfRangeException(nameof(attributeToAdd), attributeToAdd, null)
+        };
+        var separatedSyntaxList = SeparatedList(new[] { attribute });
+        return AttributeList(separatedSyntaxList);
+    }
+
+    private static AttributeSyntax CreateFilterAttribute()
+    {
+        var nameSyntax = IdentifierName("Filter");
+        var filterAttributeArgument = AttributeArgument(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                IdentifierName("ContextAccessorFilter"),
+                Token(SyntaxKind.DotToken),
+                IdentifierName("None")
+            )
+        );
+        var attributeArguments =
+            AttributeArgumentList(SeparatedList(new[] { filterAttributeArgument }));
+
+        return Attribute(nameSyntax).WithArgumentList(attributeArguments);
+    }
+
+    private static AttributeSyntax CreateWatchAttribute()
+    {
+        var nameSyntax = IdentifierName("Watch");
+        return Attribute(nameSyntax);
+    }
+
+    private static AttributeSyntax CreateMessagerAttribute()
+    {
+        var nameSyntax = IdentifierName("Messager");
+        return Attribute(nameSyntax);
+    }
+
+    private enum AttributeToAdd
+    {
+        Filter,
+        Watch,
+        Messager
     }
 }
