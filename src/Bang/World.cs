@@ -178,6 +178,11 @@ namespace Bang
         public bool IsPaused { get; private set; }
 
         /// <summary>
+        /// Whether the world is currently being exited, e.g. <see cref="Exit"/> was called.
+        /// </summary>
+        public bool IsExiting { get; private set; }
+
+        /// <summary>
         /// Map of all the components index across the world.
         /// </summary>
         internal readonly ComponentsLookup ComponentsLookup;
@@ -1270,6 +1275,13 @@ namespace Bang
         /// </summary>
         public void Dispose()
         {
+            if (IsExiting)
+            {
+                return;
+            }
+
+            IsExiting = true;
+
             Exit();
 
             foreach (Entity e in _entities.Values)
