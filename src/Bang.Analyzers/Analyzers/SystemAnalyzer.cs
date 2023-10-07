@@ -168,7 +168,6 @@ public sealed class SystemAnalyzer : DiagnosticAnalyzer
             }
             else if (typeSymbol.HasAttribute(watchAttribute))
             {
-                // TODO: Check using aliases, full attribute name and normal attribute name
                 var attributeSyntax = context.Node
                     .DescendantNodes()
                     .OfType<AttributeSyntax>()
