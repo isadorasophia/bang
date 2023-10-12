@@ -22,7 +22,7 @@ jobs:
       - name: Pack and push
         run: |
           tag=$(git describe --tags --abbrev=0)
-          version="$tag-$(git rev-list --count HEAD)-dev"
+          version="$tag-$(git rev-list --count HEAD)"
           dotnet build -c Release
           dotnet pack -c Release /p:Version=$version
           dotnet nuget push ./src/**/bin/Release/Murder.Bang.*.nupkg --source https://api.nuget.org/v3/index.json --skip-duplicate --api-key ${NUGET_TOKEN}
