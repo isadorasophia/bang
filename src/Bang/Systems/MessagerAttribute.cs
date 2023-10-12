@@ -21,13 +21,14 @@ namespace Bang.Systems
         /// <param name="types">Messages that will be fired to this system.</param>
         public MessagerAttribute(params Type[] types)
         {
-#if DEBUG
-            foreach (Type t in types)
+            if (World.DIAGNOSTICS_MODE)
             {
-                Debug.Assert(t.IsValueType || t == typeof(IMessage),
-                    "Why are we adding a watcher attribute for a non-struct? This won't be notified when the value changes.");
+                foreach (Type t in types)
+                {
+                    Debug.Assert(t.IsValueType || t == typeof(IMessage),
+                        "Why are we adding a watcher attribute for a non-struct? This won't be notified when the value changes.");
+                }
             }
-#endif
 
             Types = types;
         }
