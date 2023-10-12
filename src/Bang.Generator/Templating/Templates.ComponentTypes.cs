@@ -22,13 +22,19 @@ public static partial class Templates
         // This is mostly so hot reload is happy whenever we add more components to the project.
         // If this is ever a problem, we can revisit this.
         protected override string ProcessComponent(TypeMetadata.Component metadata)
-            => $"""
-                
-                        /// <summary>
-                        /// Unique Id used for the lookup of components with type <see cref="{metadata.FullyQualifiedName}"/>.
-                        /// </summary>
-                        public static int {metadata.FriendlyName} => global::Bang.{ParentProjectPrefix}ComponentsLookup.{ParentProjectPrefix}NextLookupId + {metadata.Index};
+        {
+            var id = metadata.IsTransformComponent
+                ? "global::Bang.Entities.BangComponentTypes.Transform"
+                : $"global::Bang.{ParentProjectPrefix}ComponentsLookup.{ParentProjectPrefix}NextLookupId + {metadata.Index}";
 
-                """;
+            return $"""
+                    
+                            /// <summary>
+                            /// Unique Id used for the lookup of components with type <see cref="{metadata.FullyQualifiedName}"/>.
+                            /// </summary>
+                            public static int {metadata.FriendlyName} => {id};
+
+                    """;
+        }
     }
 }
