@@ -50,7 +50,7 @@ namespace Bang.Entities
         {
             Debug.Assert(_world is not null);
 
-            int index = GetComponentIndex(typeof(T));
+            int index = GetComponentIndex(message.GetType());
 
             _messages.Add(index);
 
