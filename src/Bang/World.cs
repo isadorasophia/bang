@@ -121,6 +121,13 @@ namespace Bang
         private readonly HashSet<int> _systemsToResume = new();
 
         /// <summary>
+        /// List of <see cref="IStartupSystem"/> systems which were already initialized.
+        /// We track this here rather than <see cref="_cachedStartupSystems"/> if a startup system
+        /// happen to be deactivated.
+        /// </summary>
+        private readonly HashSet<int> _systemsInitialized = new();
+
+        /// <summary>
         /// Maps all the context IDs with the context.
         /// We might add new ones if a system calls for a new context filter.
         /// </summary>
@@ -679,12 +686,16 @@ namespace Bang
             int context = _systems[id].ContextId;
 
             ISystem system = IdToSystem[id];
-            if (system is IStartupSystem startupSystem && !_cachedStartupSystems.ContainsKey(id))
+            if (system is IStartupSystem startupSystem)
             {
                 _cachedStartupSystems.Add(id, (startupSystem, context));
 
-                // System has never started before. Start them here!
-                startupSystem.Start(Contexts[context]);
+                if (!_systemsInitialized.Contains(id))
+                {
+                    // System has never started before. Start them here!
+                    startupSystem.Start(Contexts[context]);
+                    _systemsInitialized.Add(id);
+                }
             }
 
             if (system is IUpdateSystem updateSystem) _cachedExecuteSystems.Add(id, (updateSystem, context));
@@ -932,9 +943,12 @@ namespace Bang
         /// </summary>
         public void Start()
         {
-            foreach (var (_, (system, contextId)) in _cachedStartupSystems)
+            foreach (var (systemId, (system, contextId)) in _cachedStartupSystems)
             {
                 system.Start(Contexts[contextId]);
+
+                // Track that this system has been started (only once).
+                _systemsInitialized.Add(systemId);
             }
 
             NotifyReactiveSystems();
