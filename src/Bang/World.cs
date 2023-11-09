@@ -582,22 +582,22 @@ namespace Bang
         /// <summary>
         /// Deactivate a system within our world.
         /// </summary>
-        public bool DeactivateSystem<T>()
+        public bool DeactivateSystem<T>(bool immediately = false)
         {
-            return DeactivateSystem(typeof(T));
+            return DeactivateSystem(typeof(T), immediately);
         }
 
         /// <summary>
         /// Deactivate a system within our world.
         /// </summary>
-        public bool DeactivateSystem(Type t)
+        public bool DeactivateSystem(Type t, bool immediately = false)
         {
             if (!_typeToSystems.TryGetValue(t, out int id))
             {
                 return false;
             }
 
-            return DeactivateSystem(id);
+            return DeactivateSystem(id, immediately);
         }
 
         /// <summary>
@@ -743,6 +743,7 @@ namespace Bang
             // We do not remove it from the list of startup systems, since it was already initialized.
 
             ISystem system = IdToSystem[id];
+            if (system is IStartupSystem) _cachedStartupSystems.Remove(id);
             if (system is IUpdateSystem) _cachedExecuteSystems.Remove(id);
             if (system is IFixedUpdateSystem) _cachedFixedExecuteSystems.Remove(id);
             if (system is IRenderSystem) _cachedRenderSystems.Remove(id);
