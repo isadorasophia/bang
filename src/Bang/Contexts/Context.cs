@@ -409,6 +409,22 @@ namespace Bang.Contexts
             }
         }
 
+        /// <summary>
+        /// Tries to get a unique entity, if none is available, returns null
+        /// </summary>
+        /// <returns></returns>
+        public Entity? TryGetUniqueEntity()
+        {
+            if (_entities.Count == 1)
+            {
+                return _entities.First().Value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         private void StartWatchingEntity(Entity e, int index)
         {
             _entities.Add(e.EntityId, e);
