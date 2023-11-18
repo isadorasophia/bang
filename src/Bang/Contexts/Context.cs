@@ -18,6 +18,11 @@ namespace Bang.Contexts
         private readonly Dictionary<int, Entity> _entities = new();
 
         /// <summary>
+        /// List of entities that are tracked, yet deactivated.
+        /// </summary>
+        private readonly HashSet<int> _deactivatedEntities = new();
+
+        /// <summary>
         /// Cached value of the immutable set of entities.
         /// </summary>
         private ImmutableArray<Entity>? _cachedEntities = null;
@@ -379,6 +384,8 @@ namespace Bang.Contexts
                 _cachedEntities = null;
 
                 OnActivateEntityInContext?.Invoke(e);
+
+                _deactivatedEntities.Remove(e.EntityId);
             }
         }
 
@@ -390,13 +397,15 @@ namespace Bang.Contexts
                 _cachedEntities = null;
 
                 OnDeactivateEntityInContext?.Invoke(e);
+
+                _deactivatedEntities.Add(e.EntityId);
             }
         }
 
         private void OnEntityModified(Entity e, int index)
         {
             bool isFiltered = DoesEntityMatch(e);
-            bool isWatchingEntity = _entities.ContainsKey(e.EntityId);
+            bool isWatchingEntity = IsWatchingEntity(e.EntityId);
 
             if (!isWatchingEntity && isFiltered)
             {
@@ -407,6 +416,9 @@ namespace Bang.Contexts
                 StopWatchingEntity(e, index, causedByDestroy: false);
             }
         }
+
+        private bool IsWatchingEntity(int entityId) =>
+            _entities.ContainsKey(entityId) || _deactivatedEntities.Contains(entityId);
 
         /// <summary>
         /// Tries to get a unique entity, if none is available, returns null
@@ -444,6 +456,10 @@ namespace Bang.Contexts
                 _entities.Add(e.EntityId, e);
                 _cachedEntities = null;
             }
+            else
+            {
+                _deactivatedEntities.Add(index);
+            }
         }
 
         private void StopWatchingEntity(Entity e, int index, bool causedByDestroy)
@@ -467,6 +483,8 @@ namespace Bang.Contexts
             {
                 Debug.Assert(!_entities.ContainsKey(e.EntityId),
                     "Why is a deactivate entity is in the collection?");
+
+                _deactivatedEntities.Remove(e.EntityId);
             }
 
             _entities.Remove(e.EntityId);
