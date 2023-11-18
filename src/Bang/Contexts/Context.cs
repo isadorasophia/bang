@@ -436,7 +436,7 @@ namespace Bang.Contexts
             e.OnEntityActivated += OnEntityActivated;
             e.OnEntityDeactivated += OnEntityDeactivated;
 
-            if (e.IsActive)
+            if (!e.IsDeactivated)
             {
                 // Notify immediately of the new added component.
                 OnComponentAddedForEntityInContext?.Invoke(e, index);
