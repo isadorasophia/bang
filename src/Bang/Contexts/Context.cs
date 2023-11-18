@@ -280,7 +280,7 @@ namespace Bang.Contexts
 
                 if (OnComponentAddedForEntityInContext is not null)
                 {
-                    if (entity.IsActive)
+                    if (!entity.IsDeactivated)
                     {
                         // TODO: Optimize this? We must notify all the reactive systems
                         // that the entity has been added.
@@ -293,7 +293,7 @@ namespace Bang.Contexts
                     entity.OnComponentAdded += OnComponentAddedForEntityInContext;
                 }
 
-                if (entity.IsActive)
+                if (!entity.IsDeactivated)
                 {
                     _entities[entity.EntityId] = entity;
                     _cachedEntities = null;
@@ -458,7 +458,7 @@ namespace Bang.Contexts
             e.OnEntityActivated -= OnEntityActivated;
             e.OnEntityDeactivated -= OnEntityDeactivated;
 
-            if (e.IsActive)
+            if (!e.IsDeactivated)
             {
                 // Notify immediately of the removed component.
                 OnComponentRemovedForEntityInContext?.Invoke(e, index, causedByDestroy);
