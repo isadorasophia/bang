@@ -275,25 +275,29 @@ namespace Bang.Contexts
 
                 entity.OnMessage += OnMessageSentForEntityInContext;
 
-                //Debug.Assert(!_entities.ContainsKey(entity.EntityId), "Do we have a dead entity in this context!? Call isa here!");
-                _entities[entity.EntityId] = entity;
+                entity.OnEntityActivated += OnEntityActivated;
+                entity.OnEntityDeactivated += OnEntityDeactivated;
 
                 if (OnComponentAddedForEntityInContext is not null)
                 {
-                    // TODO: Optimize this? We must notify all the reactive systems
-                    // that the entity has been added.
-                    foreach (int c in entity.ComponentsIndices)
+                    if (entity.IsActive)
                     {
-                        OnComponentAddedForEntityInContext.Invoke(entity, c);
+                        // TODO: Optimize this? We must notify all the reactive systems
+                        // that the entity has been added.
+                        foreach (int c in entity.ComponentsIndices)
+                        {
+                            OnComponentAddedForEntityInContext.Invoke(entity, c);
+                        }
                     }
 
                     entity.OnComponentAdded += OnComponentAddedForEntityInContext;
                 }
 
-                entity.OnEntityActivated += OnEntityActivated;
-                entity.OnEntityDeactivated += OnEntityDeactivated;
-
-                _cachedEntities = null;
+                if (entity.IsActive)
+                {
+                    _entities[entity.EntityId] = entity;
+                    _cachedEntities = null;
+                }
             }
         }
 
@@ -302,11 +306,6 @@ namespace Bang.Contexts
         /// </summary>
         private bool DoesEntityMatch(Entity e)
         {
-            if (e.IsDeactivated)
-            {
-                return false;
-            }
-
             if (_targetComponentsIndex.ContainsKey(ContextAccessorFilter.NoneOf))
             {
                 foreach (var c in _targetComponentsIndex[ContextAccessorFilter.NoneOf])
@@ -427,8 +426,6 @@ namespace Bang.Contexts
 
         private void StartWatchingEntity(Entity e, int index)
         {
-            _entities.Add(e.EntityId, e);
-
             // Add any watchers from now on.
             e.OnComponentAdded += OnComponentAddedForEntityInContext;
             e.OnComponentRemoved += OnComponentRemovedForEntityInContext;
@@ -439,16 +436,18 @@ namespace Bang.Contexts
             e.OnEntityActivated += OnEntityActivated;
             e.OnEntityDeactivated += OnEntityDeactivated;
 
-            // Notify immediately of the new added component.
-            OnComponentAddedForEntityInContext?.Invoke(e, index);
+            if (e.IsActive)
+            {
+                // Notify immediately of the new added component.
+                OnComponentAddedForEntityInContext?.Invoke(e, index);
 
-            _cachedEntities = null;
+                _entities.Add(e.EntityId, e);
+                _cachedEntities = null;
+            }
         }
 
         private void StopWatchingEntity(Entity e, int index, bool causedByDestroy)
         {
-            _entities.Remove(e.EntityId);
-
             // Remove any watchers.
             e.OnComponentAdded -= OnComponentAddedForEntityInContext;
             e.OnComponentRemoved -= OnComponentRemovedForEntityInContext;
@@ -459,9 +458,18 @@ namespace Bang.Contexts
             e.OnEntityActivated -= OnEntityActivated;
             e.OnEntityDeactivated -= OnEntityDeactivated;
 
-            // Notify immediately of the removed component.
-            OnComponentRemovedForEntityInContext?.Invoke(e, index, causedByDestroy);
+            if (e.IsActive)
+            {
+                // Notify immediately of the removed component.
+                OnComponentRemovedForEntityInContext?.Invoke(e, index, causedByDestroy);
+            }
+            else
+            {
+                Debug.Assert(!_entities.ContainsKey(e.EntityId),
+                    "Why is a deactivate entity is in the collection?");
+            }
 
+            _entities.Remove(e.EntityId);
             _cachedEntities = null;
         }
 
