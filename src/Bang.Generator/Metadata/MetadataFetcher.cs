@@ -90,7 +90,11 @@ public sealed class MetadataFetcher
                 TypeName: message.Name,
                 IsInternal: message.DeclaredAccessibility == Accessibility.Internal,
                 FriendlyName: message.Name.ToCleanComponentName(),
-                FullyQualifiedName: message.FullyQualifiedName()
+                FullyQualifiedName: message.FullyQualifiedName(),
+                Constructors: message.Constructors
+                    .Where(c => c.DeclaredAccessibility == Accessibility.Public)
+                    .Select(ConstructorMetadataFromConstructor)
+                    .ToImmutableArray()
             ));
 
     private IEnumerable<TypeMetadata.StateMachine> FetchStateMachines(

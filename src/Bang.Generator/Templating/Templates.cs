@@ -62,6 +62,14 @@ public static partial class Templates
                 #region Message "Has" checkers!
 
         <messages_has>        #endregion
+        
+                #region Message "Set" checkers!
+        
+        <messages_set>        #endregion
+        
+                #region Message "Remove" checkers!
+        
+        <messages_remove>        #endregion
             }
         }
         """;

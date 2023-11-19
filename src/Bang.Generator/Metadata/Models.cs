@@ -119,7 +119,8 @@ public abstract record TypeMetadata
         bool IsInternal,
         string TypeName,
         string FriendlyName,
-        string FullyQualifiedName
+        string FullyQualifiedName,
+        ImmutableArray<ConstructorMetadata> Constructors
     ) : TypeMetadata;
 
     // TODO: These can be turned into something like `GenericComponentConstrainedType` should we go the route 

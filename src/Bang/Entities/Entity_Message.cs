@@ -44,13 +44,20 @@ namespace Bang.Entities
 
         /// <summary>
         /// Sends a message of type <typeparamref name="T"/> for any system watching it.
-        /// This will also send a body message through <paramref name="message"/>.
         /// </summary>
         public void SendMessage<T>(T message) where T : IMessage
         {
-            Debug.Assert(_world is not null);
-
             int index = GetComponentIndex(message.GetType());
+            SendMessage(index, message);
+        }
+
+        /// <summary>
+        /// Sends a message of type <typeparamref name="T"/> for any system watching it.
+        /// This will also send a body message through <paramref name="message"/>.
+        /// </summary>
+        public void SendMessage<T>(int index, T message) where T : IMessage
+        {
+            Debug.Assert(_world is not null);
 
             _messages.Add(index);
 
@@ -81,6 +88,18 @@ namespace Bang.Entities
                 // Notify systems that may filter by this message.
                 OnComponentRemoved?.Invoke(this, index, false /* causedByDestroy */);
             }
+        }
+
+        /// <summary>
+        /// This removes a message from the entity. This is used when the message must be removed within
+        /// this frame.
+        /// </summary>
+        public bool RemoveMessage(int index)
+        {
+            bool removed = _messages.Remove(index);
+            OnComponentRemoved?.Invoke(this, index, false /* causedByDestroy */);
+
+            return removed;
         }
     }
 }

@@ -17,7 +17,9 @@ public static partial class Templates
             new ComponentSetSubstitution(),
             new ComponentWithSubstitution(),
             new ComponentRemoveSubstitution(),
-            new MessageHasSubstitution()
+            new MessageHasSubstitution(),
+            new MessageSetSubstitution(),
+            new MessageRemoveSubstitution()
         )
     );
 
@@ -165,7 +167,74 @@ public static partial class Templates
                      /// Checks whether the entity has a message of type <see cref="{metadata.FullyQualifiedName}" /> or not.
                      /// </summary>
                      {(metadata.IsInternal ? "internal" : "public")} static bool Has{metadata.TypeName}(this global::Bang.Entities.Entity e)
-                         => e.HasComponent(global::Bang.Entities.{ProjectPrefix}MessageTypes.{metadata.FriendlyName});
+                         => e.HasMessage(global::Bang.Entities.{ProjectPrefix}MessageTypes.{metadata.FriendlyName});
+
+             
+             """;
+    }
+
+    private sealed class MessageSetSubstitution : TemplateSubstitution
+    {
+        public MessageSetSubstitution() : base("<messages_set>") { }
+
+        protected override string ProcessMessage(TypeMetadata.Message metadata)
+        {
+            var builder = new StringBuilder();
+
+            // Adds a special extension method for each constructor
+            foreach (var constructor in metadata.Constructors)
+            {
+                var parameterList =
+                    constructor.Parameters.Any()
+                    ? $", {(string.Join(", ", constructor.Parameters.Select(parameter => $"{parameter.FullyQualifiedTypeName} {parameter.Name}")))}"
+                    : "";
+
+                var argumentList =
+                    constructor.Parameters.Any()
+                        ? $"{(string.Join(", ", constructor.Parameters.Select(x => x.Name)))}"
+                        : "";
+
+                builder.Append($$"""
+                                         /// <summary>
+                                         /// Send a message of type <see cref="{{metadata.FullyQualifiedName}}" />.
+                                         /// </summary>
+                                         {{(metadata.IsInternal ? "internal" : "public")}} static void Send{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e{{parameterList}})
+                                         {
+                                             e.SendMessage(global::Bang.Entities.{{ProjectPrefix}}MessageTypes.{{metadata.FriendlyName}}, new global::{{metadata.FullyQualifiedName}}({{argumentList}}));
+                                         }
+                                         
+
+                                 """);
+            }
+
+            builder.Append($$"""
+                             /// <summary>
+                             /// Send a message of type <see cref="{{metadata.FullyQualifiedName}}" />.
+                             /// </summary>
+                             {{(metadata.IsInternal ? "internal" : "public")}} static void Send{{metadata.FriendlyName}}(this global::Bang.Entities.Entity e, global::{{metadata.FullyQualifiedName}} message)
+                             {
+                                 e.SendMessage(global::Bang.Entities.{{ProjectPrefix}}MessageTypes.{{metadata.FriendlyName}}, message);
+                             }
+
+                     
+                     """);
+
+
+            return builder.ToString();
+        }
+    }
+
+    private sealed class MessageRemoveSubstitution : TemplateSubstitution
+    {
+        public MessageRemoveSubstitution() : base("<messages_remove>") { }
+
+        protected override string ProcessMessage(TypeMetadata.Message metadata) =>
+            $"""
+                     /// <summary>
+                     /// Set a message of type <see cref="{metadata.FullyQualifiedName}" />.
+                     /// </summary>
+                     {(metadata.IsInternal ? "internal" : "public")} static bool Remove{metadata.TypeName}(this global::Bang.Entities.Entity e)
+                         => e.RemoveMessage(global::Bang.Entities.{ProjectPrefix}MessageTypes.{metadata.FriendlyName});
 
              
              """;
