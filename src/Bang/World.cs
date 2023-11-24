@@ -233,6 +233,16 @@ namespace Bang
                     Contexts.Add(c.Id, c);
                 }
 
+                if (IsPlayOnPauseSystem(s))
+                {
+                    isActive = false;
+                    playOnPauseSystems.Add(i);
+                }
+                else if (IsPauseSystem(s))
+                {
+                    pauseSystems.Add(i);
+                }
+
                 // If this is a reactive system, get all the watch components.
                 List<int> componentWatchers = new();
                 foreach (ComponentWatcher watcher in GetWatchComponentsForSystem(s, c))
@@ -268,16 +278,6 @@ namespace Bang
                     }
 
                     messageWatcher = messager.Id;
-                }
-
-                if (IsPlayOnPauseSystem(s))
-                {
-                    isActive = false;
-                    playOnPauseSystems.Add(i);
-                }
-                else if (IsPauseSystem(s))
-                {
-                    pauseSystems.Add(i);
                 }
 
                 idToSystems.Add(i, s);
