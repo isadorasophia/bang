@@ -1,4 +1,5 @@
 using Bang.Analyzers.Analyzers;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bang.Analyzers.Tests.Analyzers;
@@ -136,6 +137,25 @@ public sealed class MessagerSystem : IMessagerSystem
                 .Diagnostic(AttributeAnalyzer.NonMessagesOnMessagerAttribute)
                 .WithSpan(14, 11, 14, 28),
         };
+        await Verify.VerifyAnalyzerAsync(source, expectedDiagnostics);
+    }
+
+    [TestMethod(displayName: "Non-Component types annotated with the Unique attribute trigger a warning.")]
+    public async Task AnnotatedNonComponents()
+    {
+        const string source = @"
+using Bang;
+using Bang.Components;
+
+namespace BangAnalyzerTestNamespace;
+
+[Unique]
+public readonly struct IncorrectUnique { }";
+
+        var expectedDiagnostics = Verify.Diagnostic(AttributeAnalyzer.UniqueAttributeOnNonComponent)
+            .WithSeverity(DiagnosticSeverity.Error)
+            .WithSpan(7, 2, 7, 8);
+
         await Verify.VerifyAnalyzerAsync(source, expectedDiagnostics);
     }
 }
