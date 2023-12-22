@@ -40,15 +40,29 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         description: "Types in Watch attribute must be IComponents."
     );
 
+    public static readonly DiagnosticDescriptor UniqueAttributeOnNonComponent = new(
+        id: Diagnostics.Attributes.UniqueAttributeOnNonComponent.Id,
+        title: nameof(AttributeAnalyzer) + "." + nameof(UniqueAttributeOnNonComponent),
+        messageFormat: Diagnostics.Attributes.UniqueAttributeOnNonComponent.Message,
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true,
+        description: "Unique attribute must annotate only IComponents."
+    );
+
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
         NonComponentsOnFilterAttribute,
         NonMessagesOnMessagerAttribute,
-        NonComponentsOnWatchAttribute
+        NonComponentsOnWatchAttribute,
+        UniqueAttributeOnNonComponent
     );
 
     public override void Initialize(AnalysisContext context)
     {
-        var syntaxKind = ImmutableArray.Create(SyntaxKind.AttributeArgumentList);
+        var syntaxKind = ImmutableArray.Create(
+            SyntaxKind.Attribute,
+            SyntaxKind.AttributeArgumentList
+        );
 
         context.EnableConcurrentExecution();
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
@@ -56,6 +70,12 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
     }
 
     private static void Analyze(SyntaxNodeAnalysisContext context)
+    {
+        AnalyzeAttributeArguments(context);
+        AnalyzeTypeBeingAnnotated(context);
+    }
+
+    private static void AnalyzeAttributeArguments(SyntaxNodeAnalysisContext context)
     {
         // Bail if wrong syntax
         if (context.Node is not AttributeArgumentListSyntax argumentList)
@@ -72,19 +92,18 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
 
         var (interfaceThatMustBeImplemented, diagnosticDescriptor) = diagnosticInfo.Value;
 
-        var offendingArguments = argumentList.Arguments
-            .Where(argument =>
-            {
-                // If the argument is not a type of expression we don't need to check it.
-                if (argument.Expression is not TypeOfExpressionSyntax typeOfExpression)
-                    return false;
+        var offendingArguments = argumentList.Arguments.Where(argument =>
+        {
+            // If the argument is not a type of expression we don't need to check it.
+            if (argument.Expression is not TypeOfExpressionSyntax typeOfExpression)
+                return false;
 
-                if (context.SemanticModel.GetSymbolInfo(typeOfExpression.Type).Symbol is not ITypeSymbol typeSymbol)
-                    return false;
+            if (context.SemanticModel.GetSymbolInfo(typeOfExpression.Type).Symbol is not ITypeSymbol typeSymbol)
+                return false;
 
-                // If the type passed does not implement the relevant interface it's a violation.
-                return !typeSymbol.ImplementsInterface(interfaceThatMustBeImplemented);
-            });
+            // If the type passed does not implement the relevant interface it's a violation.
+            return !typeSymbol.ImplementsInterface(interfaceThatMustBeImplemented);
+        });
 
         foreach (var offense in offendingArguments)
         {
@@ -97,10 +116,51 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    // First call to .Parent gets the AttributeList.
-    // Second call to .Parent get the type annotated with the attribute we're looking for.
-    private static SyntaxNode? GetTypeAnnotatedByAttribute(AttributeSyntax? attributeSyntax)
-        => attributeSyntax?.Parent?.Parent;
+    private static void AnalyzeTypeBeingAnnotated(SyntaxNodeAnalysisContext context)
+    {
+        // Bail if wrong syntax
+        if (context.Node is not AttributeSyntax attributeSyntax)
+            return;
+
+        // Bail if we can't find the unique attribute.
+        var uniqueAttribute = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.UniqueAttribute);
+        if (uniqueAttribute is null)
+            return;
+
+        // Bail if we can't find the IComponent interface
+        var componentInterface = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.ComponentInterface);
+        if (componentInterface is null)
+            return;
+
+        var annotatedTypeNode = attributeSyntax.GetTypeAnnotatedByAttribute();
+        if (annotatedTypeNode is null)
+            return;
+
+        var annotatedType = context.SemanticModel.GetDeclaredSymbol(annotatedTypeNode);
+        if (annotatedType is not ITypeSymbol annotatedTypeSymbol)
+            return;
+
+        var attributeData = annotatedType
+            .GetAttributes()
+            .SingleOrDefault(a => a.ApplicationSyntaxReference!.GetSyntax() == attributeSyntax);
+        var attributeClass = attributeData?.AttributeClass;
+        if (attributeClass is null)
+            return;
+
+        // Return if this is not an UniqueAttribute.
+        if (!uniqueAttribute.Equals(attributeClass, SymbolEqualityComparer.IncludeNullability))
+            return;
+
+        if (!annotatedTypeSymbol.ImplementsInterface(componentInterface))
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    UniqueAttributeOnNonComponent,
+                    attributeSyntax.GetLocation()
+                )
+            );
+        }
+    }
 
     private static AttributeData? GetAttributeDataForArgumentList(
         SyntaxNodeAnalysisContext context,
@@ -108,7 +168,7 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
     )
     {
         var attributeSyntax = argumentListSyntax.Parent as AttributeSyntax;
-        var annotatedTypeNode = GetTypeAnnotatedByAttribute(attributeSyntax);
+        var annotatedTypeNode = attributeSyntax.GetTypeAnnotatedByAttribute();
         if (annotatedTypeNode is null)
             return null;
 

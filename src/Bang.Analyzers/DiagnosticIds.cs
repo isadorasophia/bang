@@ -81,6 +81,12 @@ public static class Diagnostics
             public const string Id = "BANG2003";
             public const string Message = "Watch attribute expects only components";
         }
+
+        public static class UniqueAttributeOnNonComponent
+        {
+            public const string Id = "BANG2004";
+            public const string Message = "Unique attribute must be used only on components";
+        }
     }
 
     public static class Messages
