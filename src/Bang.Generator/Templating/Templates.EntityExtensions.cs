@@ -18,7 +18,7 @@ public static partial class Templates
             new ComponentWithSubstitution(),
             new ComponentRemoveSubstitution(),
             new MessageHasSubstitution(),
-            new MessageSetSubstitution(),
+            new MessageSendSubstitution(),
             new MessageRemoveSubstitution()
         )
     );
@@ -173,9 +173,9 @@ public static partial class Templates
              """;
     }
 
-    private sealed class MessageSetSubstitution : TemplateSubstitution
+    private sealed class MessageSendSubstitution : TemplateSubstitution
     {
-        public MessageSetSubstitution() : base("<messages_set>") { }
+        public MessageSendSubstitution() : base("<messages_send>") { }
 
         protected override string ProcessMessage(TypeMetadata.Message metadata)
         {
