@@ -931,6 +931,11 @@ namespace Bang
                 context.FilterEntity(entity);
             }
 
+            foreach (var (_, entity) in _deactivatedEntities)
+            {
+                context.FilterEntity(entity);
+            }
+
             // Add new context to our cache.
             Contexts.Add(context.Id, context);
 
