@@ -63,11 +63,11 @@ public static partial class Templates
 
         <messages_has>        #endregion
         
-                #region Message "Set" checkers!
+                #region Message "Send" methods!
         
-        <messages_set>        #endregion
+        <messages_send>        #endregion
         
-                #region Message "Remove" checkers!
+                #region Message "Remove" methods!
         
         <messages_remove>        #endregion
             }
