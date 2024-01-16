@@ -40,21 +40,21 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         description: "Types in Watch attribute must be IComponents."
     );
 
-    public static readonly DiagnosticDescriptor UniqueAttributeOnNonComponent = new(
-        id: Diagnostics.Attributes.UniqueAttributeOnNonComponent.Id,
-        title: nameof(AttributeAnalyzer) + "." + nameof(UniqueAttributeOnNonComponent),
-        messageFormat: Diagnostics.Attributes.UniqueAttributeOnNonComponent.Message,
+    public static readonly DiagnosticDescriptor NonApplicableUniqueAttribute = new(
+        id: Diagnostics.Attributes.NonApplicableUniqueAttribute.Id,
+        title: nameof(AttributeAnalyzer) + "." + nameof(NonApplicableUniqueAttribute),
+        messageFormat: Diagnostics.Attributes.NonApplicableUniqueAttribute.Message,
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
-        description: "Unique attribute must annotate only IComponents."
+        description: "Unique attribute must annotate only IComponents, StateMachines and IInteractions."
     );
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
         NonComponentsOnFilterAttribute,
         NonMessagesOnMessagerAttribute,
         NonComponentsOnWatchAttribute,
-        UniqueAttributeOnNonComponent
+        NonApplicableUniqueAttribute
     );
 
     public override void Initialize(AnalysisContext context)
@@ -127,9 +127,19 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         if (uniqueAttribute is null)
             return;
 
-        // Bail if we can't find the IComponent interface
+        // Bail if we can't find the IComponent interface.
         var componentInterface = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.ComponentInterface);
         if (componentInterface is null)
+            return;
+
+        // Bail if we can't find the IComponent interface.
+        var interactionInterface = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.InteractionInterface);
+        if (interactionInterface is null)
+            return;
+
+        // Bail if we can't find the StateMachine base class.
+        var stateMachineBaseClass = context.Compilation.GetTypeByMetadataName(TypeMetadataNames.StateMachineClass);
+        if (stateMachineBaseClass is null)
             return;
 
         var annotatedTypeNode = attributeSyntax.GetTypeAnnotatedByAttribute();
@@ -151,11 +161,13 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         if (!uniqueAttribute.Equals(attributeClass, SymbolEqualityComparer.IncludeNullability))
             return;
 
-        if (!annotatedTypeSymbol.ImplementsInterface(componentInterface))
+        if (!annotatedTypeSymbol.ImplementsInterface(componentInterface) &&
+            !annotatedTypeSymbol.IsSubtypeOf(stateMachineBaseClass) &&
+            !annotatedTypeSymbol.ImplementsInterface(interactionInterface))
         {
             context.ReportDiagnostic(
                 Diagnostic.Create(
-                    UniqueAttributeOnNonComponent,
+                    NonApplicableUniqueAttribute,
                     attributeSyntax.GetLocation()
                 )
             );
