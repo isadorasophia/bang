@@ -15,9 +15,9 @@ public sealed class AddBaseTypeFromAttributeDiagnosticCodeFix : AddBaseTypeCodeF
         => ImmutableArray.Create(
             Diagnostics.Attributes.NonApplicableUniqueAttribute.Id
         );
-    
+
     protected override TypeDeclarationSyntax? FindTypeDeclarationSyntaxFromDiagnosticSpan(
-        SyntaxNode root, 
+        SyntaxNode root,
         TextSpan diagnosticSpan
     )
     {
@@ -28,7 +28,7 @@ public sealed class AddBaseTypeFromAttributeDiagnosticCodeFix : AddBaseTypeCodeF
     }
 
     protected override IEnumerable<BaseTypeSuggestion> GetBaseTypeSuggestions(TypeDeclarationSyntax typeDeclarationSyntax, INamedTypeSymbol namedTypeSymbol)
-    {   
+    {
         // If the type being annotated is a value type, we should suggest making it an interaction or a component.
         // Otherwise, it can only be helped by being made a StateMachine, which can only be a class.
         if (!typeDeclarationSyntax.IsValueType(namedTypeSymbol))
@@ -38,15 +38,15 @@ public sealed class AddBaseTypeFromAttributeDiagnosticCodeFix : AddBaseTypeCodeF
             if (typeDeclarationSyntax is RecordDeclarationSyntax || namedTypeSymbol.HasANonObjectBaseType())
                 return Enumerable.Empty<BaseTypeSuggestion>();
 
-            return [ BaseTypeSuggestion.StateMachine ];
+            return [BaseTypeSuggestion.StateMachine];
         }
-     
-        var typeName = namedTypeSymbol.Name;       
-    
+
+        var typeName = namedTypeSymbol.Name;
+
         // We can use some heuristics to determine the user's intentions.
-        return 
-            typeName.EndsWith("Component") ? [ BaseTypeSuggestion.IComponent ] :
-            typeName.EndsWith("Interaction") ? [ BaseTypeSuggestion.IInteraction ] :
-            [ BaseTypeSuggestion.IComponent, BaseTypeSuggestion.IInteraction ];
+        return
+            typeName.EndsWith("Component") ? [BaseTypeSuggestion.IComponent] :
+            typeName.EndsWith("Interaction") ? [BaseTypeSuggestion.IInteraction] :
+            [BaseTypeSuggestion.IComponent, BaseTypeSuggestion.IInteraction];
     }
 }

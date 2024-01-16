@@ -18,7 +18,7 @@ internal static class TypeSymbolExtensions
         this ITypeSymbol symbol,
         ISymbol interfaceTypeSymbol
     ) => symbol.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceTypeSymbol));
-    
+
     internal static bool IsSubtypeOf(this ITypeSymbol type, ISymbol subtypeToCheck)
     {
         ITypeSymbol? nextTypeToVerify = type;
@@ -36,7 +36,7 @@ internal static class TypeSymbolExtensions
 
         return false;
     }
-    
+
     internal static bool HasAttribute(this INamedTypeSymbol type, ISymbol? attributeToCheck)
         => type.GetAttributes().Any(attr =>
             attr.AttributeClass is not null && attr.AttributeClass.Equals(attributeToCheck,

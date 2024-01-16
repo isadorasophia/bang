@@ -29,15 +29,15 @@ public abstract class AddBaseTypeCodeFix : CodeFixProvider
             var typeDeclarationSyntax = FindTypeDeclarationSyntaxFromDiagnosticSpan(root, diagnosticSpan);
             if (typeDeclarationSyntax is null)
                 return;
-            
+
             var semanticModel = await context.Document.GetSemanticModelAsync();
             var typeSymbol = semanticModel?.GetDeclaredSymbol(typeDeclarationSyntax);
             if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
                 return;
 
             var baseTypeSuggestions = GetBaseTypeSuggestions(typeDeclarationSyntax, namedTypeSymbol);
-            
-            foreach (BaseTypeSuggestion baseTypeSuggestion in baseTypeSuggestions )
+
+            foreach (BaseTypeSuggestion baseTypeSuggestion in baseTypeSuggestions)
             {
                 context.RegisterCodeFix(
                     CodeAction.Create(
@@ -45,7 +45,7 @@ public abstract class AddBaseTypeCodeFix : CodeFixProvider
                         createChangedDocument: c => AddBase(context.Document, baseTypeSuggestion, typeDeclarationSyntax, c),
                         equivalenceKey: nameof(CodeFixes.AddInterface)),
                     diagnostic
-                );   
+                );
             }
         }
     }
@@ -104,7 +104,7 @@ public abstract class AddBaseTypeCodeFix : CodeFixProvider
         IInteraction,
         StateMachine
     }
-    
+
     private static string NamespaceFor(BaseTypeSuggestion baseTypeSuggestion) => baseTypeSuggestion switch
     {
         BaseTypeSuggestion.IComponent => "Bang.Components",
