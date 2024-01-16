@@ -264,7 +264,7 @@ namespace Bang.StateMachines
             if (Entity.TryGetComponent(out IStateMachineComponent? c) && c.GetType().GenericTypeArguments.Length > 0 &&
                 c.GetType().GenericTypeArguments[0] == GetType() && c.State == Name)
             {
-                Entity?.RemoveComponent<IStateMachineComponent>();
+                Entity?.RemoveStateMachine();
             }
         }
 
