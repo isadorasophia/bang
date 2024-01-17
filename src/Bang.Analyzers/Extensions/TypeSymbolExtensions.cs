@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Bang.Analyzers.Extensions;
 
@@ -18,6 +19,23 @@ internal static class TypeSymbolExtensions
         ISymbol interfaceTypeSymbol
     ) => symbol.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceTypeSymbol));
 
+    internal static bool IsSubtypeOf(this ITypeSymbol type, ISymbol subtypeToCheck)
+    {
+        ITypeSymbol? nextTypeToVerify = type;
+        do
+        {
+            var subtype = nextTypeToVerify.BaseType;
+            if (subtype is not null && SymbolEqualityComparer.Default.Equals(subtype, subtypeToCheck))
+            {
+                return true;
+            }
+
+            nextTypeToVerify = subtype;
+
+        } while (nextTypeToVerify is not null);
+
+        return false;
+    }
 
     internal static bool HasAttribute(this INamedTypeSymbol type, ISymbol? attributeToCheck)
         => type.GetAttributes().Any(attr =>
@@ -41,4 +59,12 @@ internal static class TypeSymbolExtensions
 
         return hasAttribute;
     }
+
+    internal static bool IsValueType(this TypeDeclarationSyntax typeDeclarationSyntax, INamedTypeSymbol namedTypeSymbol)
+        => typeDeclarationSyntax is StructDeclarationSyntax ||
+          (typeDeclarationSyntax is RecordDeclarationSyntax &&
+           namedTypeSymbol.IsValueType);
+
+    internal static bool HasANonObjectBaseType(this INamedTypeSymbol typeSymbol)
+        => typeSymbol.BaseType?.BaseType is not null;
 }

@@ -152,7 +152,7 @@ namespace BangAnalyzerTestNamespace;
 [Unique]
 public readonly struct IncorrectUnique { }";
 
-        var expectedDiagnostics = Verify.Diagnostic(AttributeAnalyzer.UniqueAttributeOnNonComponent)
+        var expectedDiagnostics = Verify.Diagnostic(AttributeAnalyzer.NonApplicableUniqueAttribute)
             .WithSeverity(DiagnosticSeverity.Error)
             .WithSpan(7, 2, 7, 8);
 

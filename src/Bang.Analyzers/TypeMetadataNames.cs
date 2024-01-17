@@ -17,4 +17,5 @@ public static class TypeMetadataNames
 
     public const string WorldType = "Bang.World";
     public const string UniqueAttribute = "Bang.Components.UniqueAttribute";
+    public const string StateMachineClass = "Bang.StateMachines.StateMachine";
 }
