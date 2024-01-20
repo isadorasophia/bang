@@ -164,7 +164,27 @@ namespace Bang.Entities
                         Debug.Assert(typeof(IComponent).IsAssignableFrom(requiredType),
                             "Why is a component requiring a type that is not a component?");
 
-                        Debug.Assert(components.ContainsKey(requiredId),
+                        bool report = false;
+                        if (!components.ContainsKey(requiredId))
+                        {
+                            report = true;
+
+                            // The entity does not have the required component. This might still be okay, if this component
+                            // generated another component.
+                            GeneratesAttribute? generatesAttribute = 
+                                Attribute.GetCustomAttribute(requiredType, typeof(GeneratesAttribute)) as GeneratesAttribute;
+
+                            if (generatesAttribute is not null)
+                            {
+                                int generatedRequiredId = _lookup.Id(generatesAttribute.Type);
+                                if (components.ContainsKey(generatedRequiredId))
+                                {
+                                    report = false;
+                                }
+                            }
+                        }
+
+                        Debug.Assert(!report,
                             $"Missing {requiredType.Name} required by {t.Name} in entity declaration!");
                     }
                 }
