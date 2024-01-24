@@ -957,6 +957,8 @@ namespace Bang
             }
 
             NotifyReactiveSystems();
+            DestroyPendingEntities();
+            ActivateOrDeactivatePendingSystems();
         }
 
         /// <summary>
