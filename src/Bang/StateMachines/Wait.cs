@@ -19,9 +19,9 @@ namespace Bang.StateMachines
         public int? Value;
 
         /// <summary>
-        /// Used for <see cref="WaitKind.Message"/>.
+        /// Used for <see cref="WaitKind.Message"/> and <see cref="WaitKind.Component"/>.
         /// </summary>
-        public Type? Component;
+        public Type? TypeToCheck;
 
         /// <summary>
         /// Used for <see cref="WaitKind.Message"/> when waiting on another entity that is not the owner of the state machine.
@@ -51,12 +51,22 @@ namespace Bang.StateMachines
         /// <summary>
         /// Wait until message of type <typeparamref name="T"/> is fired.
         /// </summary>
-        public static Wait ForMessage<T>() where T : IMessage => new(typeof(T));
+        public static Wait ForMessage<T>() where T : IMessage => new(WaitKind.Message, typeof(T));
 
         /// <summary>
         /// Wait until message of type <typeparamref name="T"/> is fired from <paramref name="target"/>.
         /// </summary>
-        public static Wait ForMessage<T>(Entity target) where T : IMessage => new(typeof(T), target);
+        public static Wait ForMessage<T>(Entity target) where T : IMessage => new(WaitKind.Message, typeof(T), target);
+
+        /// <summary>
+        /// Wait until the unique component of type <typeparamref name="T"/> is added.
+        /// </summary>
+        public static Wait ForUniqueComponent<T>() where T : IComponent => new(WaitKind.Component, typeof(T));
+
+        /// <summary>
+        /// Wait until the component of type <typeparamref name="T"/> is added to the entity <see cref="target"/>.
+        /// </summary>
+        public static Wait ForComponent<T>(Entity target) where T : IComponent => new(WaitKind.Component, typeof(T), target);
 
         /// <summary>
         /// Wait until <paramref name="frames"/> have occurred.
@@ -75,8 +85,8 @@ namespace Bang.StateMachines
 
         private Wait() => Kind = WaitKind.Stop;
         private Wait(WaitKind kind, int value) => (Kind, Value) = (kind, value);
-        private Wait(Type messageType) => (Kind, Component) = (WaitKind.Message, messageType);
-        private Wait(Type messageType, Entity target) => (Kind, Component, Target) = (WaitKind.Message, messageType, target);
+        private Wait(WaitKind kind, Type typeToCheck) => (Kind, TypeToCheck) = (kind, typeToCheck);
+        private Wait(WaitKind kind, Type typeToCheck, Entity target) => (Kind, TypeToCheck, Target) = (kind, typeToCheck, target);
         private Wait(IEnumerator<Wait> routine) => (Kind, Routine) = (WaitKind.Routine, routine);
     }
 }
