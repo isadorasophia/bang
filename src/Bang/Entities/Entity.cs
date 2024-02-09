@@ -171,7 +171,7 @@ namespace Bang.Entities
 
                             // The entity does not have the required component. This might still be okay, if this component
                             // generated another component.
-                            GeneratesAttribute? generatesAttribute = 
+                            GeneratesAttribute? generatesAttribute =
                                 Attribute.GetCustomAttribute(requiredType, typeof(GeneratesAttribute)) as GeneratesAttribute;
 
                             if (generatesAttribute is not null)
