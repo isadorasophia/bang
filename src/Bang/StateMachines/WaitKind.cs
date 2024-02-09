@@ -28,6 +28,11 @@
         /// <summary>
         /// Redirect execution to another routine. This will resume once that's finished.
         /// </summary>
-        Routine
+        Routine,
+
+        /// <summary>
+        /// Wait for component to be added to an entity.
+        /// </summary>
+        Component
     }
 }
