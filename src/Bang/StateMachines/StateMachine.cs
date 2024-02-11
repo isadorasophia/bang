@@ -257,7 +257,7 @@ namespace Bang.StateMachines
             return Routine?.Current ?? Wait.Stop;
         }
 
-        internal virtual void Finish()
+        internal void Finish()
         {
             OnDestroyed();
 
