@@ -2,6 +2,7 @@
 using Bang.Entities;
 using Bang.Systems;
 using Bang.Util;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
@@ -129,7 +130,7 @@ namespace Bang.Contexts
         /// <summary>
         /// Initializes a context that is not necessarily tied to any system.
         /// </summary>
-        internal Context(World world, ContextAccessorFilter filter, params int[] components) : base(world)
+        internal Context(World world, ContextAccessorFilter filter, Span<int> components) : base(world)
         {
             _targetComponentsIndex =
                 new Dictionary<ContextAccessorFilter, ImmutableArray<int>> { { filter, components.ToImmutableArray() } }.ToImmutableDictionary();
@@ -155,6 +156,26 @@ namespace Bang.Contexts
                 // Add the filter identifier. This is negative so the hash can uniquely identify them.
                 allComponents.Add(-(int)filter);
                 allComponents.AddRange(collection.Sort());
+            }
+
+            return allComponents.GetHashCodeImpl();
+        }
+
+        /// <summary>
+        /// Perf: Calculate the context id. This is used to calculate whether it is necessary to create a new context
+        /// if there is already an existing one.
+        /// </summary>
+        internal static int CalculateContextId(ContextAccessorFilter filter, Span<int> components)
+        {
+            Span<int> allComponents = stackalloc int[components.Length + 1];
+
+            // Add the filter identifier. This is negative so the hash can uniquely identify them.
+            allComponents[0] = -(int)filter;
+            components.Sort();
+
+            for (int i = 0; i < components.Length; ++i)
+            {
+                allComponents[i + 1] = components[i];
             }
 
             return allComponents.GetHashCodeImpl();
@@ -309,7 +330,7 @@ namespace Bang.Contexts
         /// <summary>
         /// Returns whether the entity matches the filter for this context.
         /// </summary>
-        private bool DoesEntityMatch(Entity e)
+        internal bool DoesEntityMatch(Entity e)
         {
             if (_targetComponentsIndex.ContainsKey(ContextAccessorFilter.NoneOf))
             {

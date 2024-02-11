@@ -873,7 +873,7 @@ namespace Bang
             if (!_cacheUniqueContexts.TryGetValue(typeof(T), out int contextId))
             {
                 // Get the context for acquiring the unique component.
-                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, ComponentsLookup.Id(typeof(T)));
+                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, [ComponentsLookup.Id(typeof(T))]);
 
                 _cacheUniqueContexts.Add(typeof(T), contextId);
             }
@@ -909,21 +909,30 @@ namespace Bang
         /// </summary>
         public ImmutableArray<Entity> GetEntitiesWith(ContextAccessorFilter filter, params Type[] components)
         {
-            int id = GetOrCreateContext(filter, components.Select(t => ComponentsLookup.Id(t)).ToArray());
+            Span<int> componentsIndices = stackalloc int[components.Length];
+            for (int i = 0; i < components.Length; ++i)
+            {
+                componentsIndices[i] = ComponentsLookup.Id(components[i]);
+            }
+
+            int id = GetOrCreateContext(filter, componentsIndices);
             return Contexts[id].Entities;
         }
 
         /// <summary>
         /// Get or create a context id for the specified filter and components.
         /// </summary>
-        private int GetOrCreateContext(ContextAccessorFilter filter, params int[] components)
+        private int GetOrCreateContext(ContextAccessorFilter filter, Span<int> components)
         {
-            Context context = new(this, filter, components);
-            if (Contexts.ContainsKey(context.Id))
+            int index = Context.CalculateContextId(filter, components);
+            if (Contexts.ContainsKey(index))
             {
                 // Context already exists within our cache. Just return the id.
-                return context.Id;
+                return index;
             }
+
+            // Otherwise, we need to create a context for this.
+            Context context = new(this, filter, components);
 
             // Otherwise, we need to introduce the context to the world! Filter each entity.
             foreach (var (_, entity) in _entities)
@@ -940,6 +949,36 @@ namespace Bang
             Contexts.Add(context.Id, context);
 
             return context.Id;
+        }
+
+        /// <summary>
+        /// This is very slow. It should get both the activate an deactivate entities.
+        /// Used when it is absolutely necessary to get both activate and deactivated entities on the filtering.
+        /// </summary>
+        public ImmutableArray<Entity> GetActivatedAndDeactivatedEntitiesWith(params Type[] components)
+        {
+            Span<int> componentsIndices = stackalloc int[components.Length];
+            for (int i = 0; i < components.Length; ++i)
+            {
+                componentsIndices[i] = ComponentsLookup.Id(components[i]);
+            }
+
+            int id = GetOrCreateContext(ContextAccessorFilter.AllOf, componentsIndices);
+
+            Context context = Contexts[id];
+
+            var builder = ImmutableArray.CreateBuilder<Entity>();
+            builder.AddRange(context.Entities);
+
+            foreach (Entity e in _deactivatedEntities.Values)
+            {
+                if (context.DoesEntityMatch(e))
+                {
+                    builder.Add(e);
+                }
+            }
+
+            return builder.ToImmutable();
         }
 
         /// <summary>
