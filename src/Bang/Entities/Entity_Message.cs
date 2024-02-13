@@ -65,9 +65,6 @@ namespace Bang.Entities
             // but we will not save any of its data afterwards.
             OnMessage?.Invoke(this, index, message);
 
-            // Notify systems that may filter by this message.
-            OnComponentAdded?.Invoke(this, index);
-
             // Notify world that a message has been sent for this entity.
             _world.OnMessage(this);
         }
@@ -77,17 +74,10 @@ namespace Bang.Entities
         /// </summary>
         internal void ClearMessages()
         {
-            // First, keep a reference of all the removed messages and clear them.
-            // We only notify the contexts afterwards -- since they will check whether
-            // the message is available when updating their filters.
-            ImmutableArray<int> allRemovedMessages = _messages.ToImmutableArray();
+            // We no longer send notification to systems upon clearing messages.
+            // Filters should NOT track messages, this just has too much overhead.
+            _ = _messages.ToImmutableArray();
             _messages.Clear();
-
-            foreach (int index in allRemovedMessages)
-            {
-                // Notify systems that may filter by this message.
-                OnComponentRemoved?.Invoke(this, index, false /* causedByDestroy */);
-            }
         }
 
         /// <summary>
