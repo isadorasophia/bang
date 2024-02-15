@@ -104,6 +104,10 @@ namespace Bang
                     id = Id(typeof(IInteractiveComponent));
                 }
             }
+            else
+            {
+                Debug.Assert(t != typeof(IComponent), "Why are we doing a lookup for an IComponent itself?");
+            }
 
             if (id is null)
             {
