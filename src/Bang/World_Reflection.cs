@@ -61,6 +61,11 @@ namespace Bang
         /// </summary>
         private static bool IsPauseSystem(ISystem s)
         {
+            if (Attribute.IsDefined(s.GetType(), typeof(IncludeOnPauseAttribute)))
+            {
+                return true;
+            }
+
             if (s is IRenderSystem)
             {
                 // do not pause render systems.
