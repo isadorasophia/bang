@@ -2,6 +2,7 @@
 {
     /// <summary>
     /// When a system is watching for a component, this is the kind of notification currently fired.
+    /// The order of the enumerator dictates the order that these will be called on the watcher systems.
     /// </summary>
     public enum WatcherNotificationKind
     {
@@ -21,14 +22,14 @@
         Modified,
 
         /// <summary>
-        /// Entity has been disabled, hence all its components.
-        /// </summary>
-        Disabled,
-
-        /// <summary>
         /// Entity has been enabled, hence all its components. Called if an entity was
         /// previously disabled.
         /// </summary>
-        Enabled
+        Enabled,
+
+        /// <summary>
+        /// Entity has been disabled, hence all its components.
+        /// </summary>
+        Disabled
     }
 }
