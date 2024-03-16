@@ -155,7 +155,9 @@ namespace Bang.Contexts
             {
                 // Add the filter identifier. This is negative so the hash can uniquely identify them.
                 allComponents.Add(-(int)filter);
-                allComponents.AddRange(collection.Sort());
+
+                // Sum one to the value so we are not ignoring 0-indexed components.
+                allComponents.AddRange(collection.Sort().Select(c => c + 1));
             }
 
             return allComponents.GetHashCodeImpl();
@@ -175,7 +177,8 @@ namespace Bang.Contexts
 
             for (int i = 0; i < components.Length; ++i)
             {
-                allComponents[i + 1] = components[i];
+                // Sum one to the value so we are not ignoring 0-indexed components.
+                allComponents[i + 1] = components[i] + 1;
             }
 
             return allComponents.GetHashCodeImpl();
