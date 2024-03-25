@@ -856,7 +856,7 @@ namespace Bang
         /// </summary>
         public Entity GetUniqueEntity<T>() where T : struct, IComponent
         {
-            Entity? entity = TryGetUniqueEntity<T>();
+            Entity? entity = TryGetUniqueEntity(typeof(T));
             if (entity is null)
             {
                 throw new InvalidOperationException($"How do we not have the unique component of type '{typeof(T).Name}' within our world?");
@@ -868,14 +868,16 @@ namespace Bang
         /// <summary>
         /// Try to get a unique entity that owns <typeparamref name="T"/>.
         /// </summary>
-        public Entity? TryGetUniqueEntity<T>() where T : IComponent
+        public Entity? TryGetUniqueEntity<T>() where T : IComponent => TryGetUniqueEntity(typeof(T));
+
+        internal Entity? TryGetUniqueEntity(Type componentType)
         {
-            if (!_cacheUniqueContexts.TryGetValue(typeof(T), out int contextId))
+            if (!_cacheUniqueContexts.TryGetValue(componentType, out int contextId))
             {
                 // Get the context for acquiring the unique component.
-                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, [ComponentsLookup.Id(typeof(T))]);
+                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, [ComponentsLookup.Id(componentType)]);
 
-                _cacheUniqueContexts.Add(typeof(T), contextId);
+                _cacheUniqueContexts.Add(componentType, contextId);
             }
 
             Context context = Contexts[contextId];
