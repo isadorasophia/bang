@@ -1,6 +1,5 @@
 ﻿using Bang.Components;
 using Bang.Entities;
-using Newtonsoft.Json;
 
 namespace Bang.Interactions
 {
@@ -9,7 +8,7 @@ namespace Bang.Interactions
     /// </summary>
     public struct InteractiveComponent<T> : IInteractiveComponent, IModifiableComponent where T : IInteraction, new()
     {
-        [JsonProperty]
+        [Serialize]
         private readonly T _interaction;
 
         /// <summary>

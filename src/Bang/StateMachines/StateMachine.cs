@@ -1,6 +1,5 @@
 ﻿using Bang.Components;
 using Bang.Entities;
-using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -18,7 +17,7 @@ namespace Bang.StateMachines
         /// This is the only property of the state machine we will actually persist.
         /// This will keep track of the last state of the state machine.
         /// </summary>
-        [JsonProperty]
+        [Serialize]
         private string? _cachedPersistedState;
 
         /// <summary>

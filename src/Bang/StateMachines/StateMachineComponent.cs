@@ -1,6 +1,6 @@
 ﻿using Bang.Components;
 using Bang.Entities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Bang.StateMachines
 {
@@ -14,7 +14,7 @@ namespace Bang.StateMachines
         /// </summary>
         public string State => _routine.Name;
 
-        [JsonProperty]
+        [Serialize]
         private readonly T _routine;
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Bang.StateMachines
         /// Default constructor initialize a brand new routine.
         /// </summary>
         [JsonConstructor]
-        public StateMachineComponent([JsonProperty("_routine")] T routine) => _routine = routine;
+        public StateMachineComponent(T _routine) => this._routine = _routine;
 
         /// <summary>
         /// Initialize the state machine with the world knowledge. Called before any tick.
