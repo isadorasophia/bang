@@ -26,7 +26,7 @@ namespace Bang.StateMachines
         /// Default constructor initialize a brand new routine.
         /// </summary>
         [JsonConstructor]
-        public StateMachineComponent(T _routine) => this._routine = _routine;
+        public StateMachineComponent(T routine) => _routine = routine;
 
         /// <summary>
         /// Initialize the state machine with the world knowledge. Called before any tick.
