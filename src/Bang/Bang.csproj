@@ -12,7 +12,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
 
     <GenerateDocumentationFile Condition="'$(Configuration)' == 'Debug'">true</GenerateDocumentationFile>
-    
+
+    <PublishAot>true</PublishAot>
+
     <PackageId>Murder.Bang</PackageId>
     <Authors>Murder Authors</Authors>
     <Company>Murder Engine</Company>

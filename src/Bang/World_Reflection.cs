@@ -1,4 +1,5 @@
 ﻿using Bang.Systems;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Bang
@@ -11,11 +12,14 @@ namespace Bang
         /// <summary>
         /// Cache the lookup implementation for this game.
         /// </summary>
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
         private static Type? _cachedLookupImplementation = null;
 
         /// <summary>
         /// Look for an implementation for the lookup table of components.
         /// </summary>
+        [UnconditionalSuppressMessage("AOT", "IL2026:System.Reflection.Assembly.GetTypes() can break functionality when trimming application code. Types might be removed.", Justification = "Target assemblies scanned are not trimmed.")]
+        [UnconditionalSuppressMessage("AOT", "IL2074:Public constructor might have been removed when scanning the candidate type.", Justification = "Target assemblies scanned are not trimmed.")]
         public static ComponentsLookup FindLookupImplementation()
         {
             if (_cachedLookupImplementation is null)
@@ -25,7 +29,7 @@ namespace Bang
                 var isLookup = (Type t) => !t.IsInterface && !t.IsAbstract && lookup.IsAssignableFrom(t);
 
                 // We might find more than one lookup implementation, when inheriting projects with a generator.
-                List<Type> candidateLookupImplementations = new();
+                List<Type> candidateLookupImplementations = [];
 
                 Assembly[] allAssemblies = AppDomain.CurrentDomain.GetAssemblies();
                 foreach (Assembly s in allAssemblies)
