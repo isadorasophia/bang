@@ -78,6 +78,8 @@ public static partial class Templates
     // If this is ever a problem, we can revisit this.
     public const string LookupImplementationRaw =
         """
+        using System;
+        using System.Collections.Generic;
         using System.Collections.Immutable;
         using System.Linq;
 
