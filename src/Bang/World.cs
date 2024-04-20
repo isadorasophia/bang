@@ -53,6 +53,7 @@ namespace Bang
         /// We will keep the systems here even after they were deactivated.
         /// </summary>
         private readonly SortedList<int, (IStartupSystem System, int ContextId)> _cachedStartupSystems;
+
         private readonly SortedList<int, (IExitSystem System, int ContextId)> _cachedExitSystems;
 
         private readonly SortedList<int, (IFixedUpdateSystem System, int ContextId)> _cachedFixedExecuteSystems;
@@ -137,13 +138,15 @@ namespace Bang
         /// Maps all the watcher IDs.
         /// Maps: Watcher Ids -> (Watcher, Systems that subscribe to this watcher).
         /// </summary>
-        private readonly ImmutableDictionary<int, (ComponentWatcher Watcher, SortedList<int, IReactiveSystem> Systems)> _watchers;
+        private readonly ImmutableDictionary<int, (ComponentWatcher Watcher, SortedList<int, IReactiveSystem> Systems)>
+            _watchers;
 
         /// <summary>
         /// Maps all the messagers IDs.
         /// Maps: Messager Ids -> (Messager, Systems that subscribe to this messager).
         /// </summary>
-        private readonly ImmutableDictionary<int, (MessageWatcher Watcher, SortedList<int, IMessagerSystem> Systems)> _messagers;
+        private readonly ImmutableDictionary<int, (MessageWatcher Watcher, SortedList<int, IMessagerSystem> Systems)>
+            _messagers;
 
         /// <summary>
         /// Cache all the unique contexts according to the component type.
@@ -208,8 +211,10 @@ namespace Bang
 
             ComponentsLookup = FindLookupImplementation();
 
-            var watchBuilder = ImmutableDictionary.CreateBuilder<int, (ComponentWatcher Watcher, SortedList<int, IReactiveSystem> Systems)>();
-            var messageBuilder = ImmutableDictionary.CreateBuilder<int, (MessageWatcher Watcher, SortedList<int, IMessagerSystem> Systems)>();
+            var watchBuilder = ImmutableDictionary
+                .CreateBuilder<int, (ComponentWatcher Watcher, SortedList<int, IReactiveSystem> Systems)>();
+            var messageBuilder = ImmutableDictionary
+                .CreateBuilder<int, (MessageWatcher Watcher, SortedList<int, IMessagerSystem> Systems)>();
             var pauseSystems = ImmutableHashSet.CreateBuilder<int>();
             var playOnPauseSystems = ImmutableHashSet.CreateBuilder<int>();
 
@@ -281,7 +286,15 @@ namespace Bang
                 }
 
                 idToSystems.Add(i, s);
-                _systems.Add(i, new SystemInfo { ContextId = c.Id, Watchers = componentWatchers.ToArray(), Messager = messageWatcher, Order = i, IsActive = isActive });
+                _systems.Add(i,
+                    new SystemInfo
+                    {
+                        ContextId = c.Id,
+                        Watchers = componentWatchers.ToArray(),
+                        Messager = messageWatcher,
+                        Order = i,
+                        IsActive = isActive
+                    });
             }
 
             _watchers = watchBuilder.ToImmutable();
@@ -299,8 +312,10 @@ namespace Bang
             _cachedExitSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IExitSystem)
                 .ToDictionary(kv => kv.Value.Order, kv => ((IExitSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
 
-            _cachedFixedExecuteSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IFixedUpdateSystem)
-                .ToDictionary(kv => kv.Value.Order, kv => ((IFixedUpdateSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
+            _cachedFixedExecuteSystems = new(_systems
+                .Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IFixedUpdateSystem)
+                .ToDictionary(kv => kv.Value.Order,
+                    kv => ((IFixedUpdateSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
 
             _cachedExecuteSystems = new(_systems.Where(kv => kv.Value.IsActive && IdToSystem[kv.Key] is IUpdateSystem)
                 .ToDictionary(kv => kv.Value.Order, kv => ((IUpdateSystem)IdToSystem[kv.Key], kv.Value.ContextId)));
@@ -699,7 +714,8 @@ namespace Bang
             }
 
             if (system is IUpdateSystem updateSystem) _cachedExecuteSystems.Add(id, (updateSystem, context));
-            if (system is IFixedUpdateSystem fixedUpdateSystem) _cachedFixedExecuteSystems.Add(id, (fixedUpdateSystem, context));
+            if (system is IFixedUpdateSystem fixedUpdateSystem)
+                _cachedFixedExecuteSystems.Add(id, (fixedUpdateSystem, context));
             if (system is IRenderSystem renderSystem) _cachedRenderSystems.Add(id, (renderSystem, context));
 
             if (system is IReactiveSystem reactiveSystem)
@@ -829,7 +845,8 @@ namespace Bang
             T? component = TryGetUnique<T>();
             if (component is null)
             {
-                throw new InvalidOperationException($"How do we not have a '{typeof(T).Name}' component within our world?");
+                throw new InvalidOperationException(
+                    $"How do we not have a '{typeof(T).Name}' component within our world?");
             }
 
             return component.Value;
@@ -856,10 +873,11 @@ namespace Bang
         /// </summary>
         public Entity GetUniqueEntity<T>() where T : struct, IComponent
         {
-            Entity? entity = TryGetUniqueEntity<T>();
+            Entity? entity = TryGetUniqueEntity(typeof(T));
             if (entity is null)
             {
-                throw new InvalidOperationException($"How do we not have the unique component of type '{typeof(T).Name}' within our world?");
+                throw new InvalidOperationException(
+                    $"How do we not have the unique component of type '{typeof(T).Name}' within our world?");
             }
 
             return entity;
@@ -868,14 +886,16 @@ namespace Bang
         /// <summary>
         /// Try to get a unique entity that owns <typeparamref name="T"/>.
         /// </summary>
-        public Entity? TryGetUniqueEntity<T>() where T : IComponent
+        public Entity? TryGetUniqueEntity<T>() where T : IComponent => TryGetUniqueEntity(typeof(T));
+
+        internal Entity? TryGetUniqueEntity(Type componentType)
         {
-            if (!_cacheUniqueContexts.TryGetValue(typeof(T), out int contextId))
+            if (!_cacheUniqueContexts.TryGetValue(componentType, out int contextId))
             {
                 // Get the context for acquiring the unique component.
-                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, [ComponentsLookup.Id(typeof(T))]);
+                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, [ComponentsLookup.Id(componentType)]);
 
-                _cacheUniqueContexts.Add(typeof(T), contextId);
+                _cacheUniqueContexts.Add(componentType, contextId);
             }
 
             Context context = Contexts[contextId];

@@ -80,6 +80,16 @@ namespace Bang.StateMachines
         private Entity? _waitForMessageTarget = null;
 
         /// <summary>
+        /// Track the component we are waiting for.
+        /// </summary>
+        private Type? _waitForComponent = null;
+
+        /// <summary>
+        /// Target entity for <see cref="_waitForComponent"/>.
+        /// </summary>
+        private Entity? _waitForComponentTarget = null;
+
+        /// <summary>
         /// Tracks whether a message which was waited has been received.
         /// </summary>
         private bool _isMessageReceived = false;
@@ -167,6 +177,21 @@ namespace Bang.StateMachines
                 _isMessageReceived = false;
             }
 
+            if (_waitForComponent is not null)
+            {
+                // If the component exists, we can proceed to the next tick.
+                if (ComponentExists(_waitForComponentTarget, _waitForComponent))
+                {
+                    _waitForComponent = null;
+                    _waitForComponentTarget = null;
+                }
+                else
+                {
+                    // Early return otherwise since we're still waiting.
+                    return true;
+                }
+            }
+
             Wait r = Tick();
             switch (r.Kind)
             {
@@ -182,9 +207,24 @@ namespace Bang.StateMachines
                     _waitFrames = r.Value!.Value;
                     return true;
 
+                case WaitKind.Component:
+                    Type componentType = r.TypeToCheck!;
+                    if (ComponentExists(r.Target, componentType))
+                    {
+                        // The component might already exist within the frame.
+                        // If that is the case, skip the wait and resume in the next frame.
+                        _waitFrames = 1;
+                        return true;
+                    }
+
+                    _waitForComponent = componentType;
+                    _waitForComponentTarget = r.Target;
+
+                    return true;
+
                 case WaitKind.Message:
                     Entity target = r.Target ?? Entity;
-                    int messageId = World.ComponentsLookup.Id(r.Component!);
+                    int messageId = World.ComponentsLookup.Id(r.TypeToCheck!);
 
                     if (target.HasMessage(messageId))
                     {
@@ -217,6 +257,13 @@ namespace Bang.StateMachines
             }
 
             return true;
+        }
+
+        private bool ComponentExists(Entity? targetEntity, Type componentType)
+        {
+            int componentId = World.ComponentsLookup.Id(componentType);
+            return targetEntity?.HasComponent(componentId) ??
+                   World.TryGetUniqueEntity(componentType) is not null;
         }
 
         private Wait Tick()
