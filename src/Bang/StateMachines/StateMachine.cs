@@ -3,6 +3,7 @@ using Bang.Entities;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace Bang.StateMachines
 {
@@ -35,6 +36,7 @@ namespace Bang.StateMachines
         /// <summary>
         /// Name of the active state. Used for debug.
         /// </summary>
+        [JsonIgnore]
         public string Name { get; private set; } = string.Empty;
 
         /// <summary>
