@@ -61,6 +61,7 @@ public sealed class BangExtensionsGenerator : IIncrementalGenerator
             Templates.ComponentTypes(projectName),
             Templates.MessageTypes(projectName),
             Templates.EntityExtensions(projectName),
+            Templates.WorldExtensions(projectName),
             Templates.LookupImplementation(projectName)
         );
 

@@ -19,7 +19,8 @@ public static partial class Templates
             new ComponentRemoveSubstitution(),
             new MessageHasSubstitution(),
             new MessageSendSubstitution(),
-            new MessageRemoveSubstitution()
+            new MessageRemoveSubstitution(),
+            new WorldGetUniqueSubstitution()
         )
     );
 

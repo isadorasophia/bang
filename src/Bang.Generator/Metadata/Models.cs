@@ -13,6 +13,7 @@ public sealed class BangTypeSymbols
     public INamedTypeSymbol ComponentsLookupClass { get; }
     public INamedTypeSymbol TransformInterface { get; }
     public INamedTypeSymbol? MurderTransformInterface { get; }
+    public INamedTypeSymbol UniqueAttribute { get; }
 
     private BangTypeSymbols(INamedTypeSymbol componentInterface,
         INamedTypeSymbol messageInterface,
@@ -21,7 +22,8 @@ public sealed class BangTypeSymbols
         INamedTypeSymbol interactionInterface,
         INamedTypeSymbol componentsLookupClass,
         INamedTypeSymbol transformInterface,
-        INamedTypeSymbol? murderTransformInterface)
+        INamedTypeSymbol? murderTransformInterface,
+        INamedTypeSymbol uniqueAttribute)
     {
         MessageInterface = messageInterface;
         StateMachineClass = stateMachineClass;
@@ -31,6 +33,7 @@ public sealed class BangTypeSymbols
         ComponentsLookupClass = componentsLookupClass;
         MurderTransformInterface = murderTransformInterface;
         ParentRelativeComponentInterface = parentRelativeComponentInterface;
+        UniqueAttribute = uniqueAttribute;
     }
 
     public static BangTypeSymbols? FromCompilation(Compilation compilation)
@@ -73,6 +76,11 @@ public sealed class BangTypeSymbols
         // This is not part of Bang, so it can be null.
         var murderTransformComponentInterface = compilation.GetTypeByMetadataName("Murder.Components.IMurderTransformComponent");
 
+        // Bail if ITransformComponent is not resolvable.
+        var uniqueAttribute = compilation.GetTypeByMetadataName("Bang.Components.UniqueAttribute");
+        if (uniqueAttribute is null)
+            return null;
+
         return new BangTypeSymbols(
             componentInterface,
             messageInterface,
@@ -81,7 +89,8 @@ public sealed class BangTypeSymbols
             interactionInterface,
             componentsLookupClass,
             transformComponentInterface,
-            murderTransformComponentInterface
+            murderTransformComponentInterface,
+            uniqueAttribute
         );
     }
 }
@@ -111,6 +120,7 @@ public abstract record TypeMetadata
         bool IsTransformComponent,
         bool IsParentRelativeComponent,
         bool IsMurderTransformComponent,
+        bool IsUniqueComponent,
         ImmutableArray<ConstructorMetadata> Constructors
     ) : TypeMetadata;
 

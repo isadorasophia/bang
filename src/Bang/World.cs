@@ -147,9 +147,9 @@ namespace Bang
 
         /// <summary>
         /// Cache all the unique contexts according to the component type.
-        /// Maps: Unique component type -> Context id.
+        /// Maps: Component type index -> Context id.
         /// </summary>
-        private readonly Dictionary<Type, int> _cacheUniqueContexts = new();
+        private readonly Dictionary<int, int> _cacheUniqueContexts = new();
 
         /// <summary>
         /// Entities that exist within our world.
@@ -822,11 +822,36 @@ namespace Bang
         }
 
         /// <summary>
-        /// Get the unique component within an entity <typeparamref name="T"/>.
+        /// Call <see cref="GetUnique{T}(int)"/> from a generator instead.
         /// </summary>
-        public T GetUnique<T>() where T : struct, IComponent
+        public T GetUnique<T>() where T : struct, IComponent =>
+            GetUnique<T>(ComponentsLookup.Id(typeof(T)));
+
+        /// <summary>
+        /// Call <see cref="TryGetUnique{T}(int)"/> from a generator instead.
+        /// </summary>
+        public T? TryGetUnique<T>() where T : struct, IComponent =>
+            TryGetUnique<T>(ComponentsLookup.Id(typeof(T)));
+
+        /// <summary>
+        /// Call <see cref="GetUniqueEntity{T}(int)"/> from a generator instead.
+        /// </summary>
+        public Entity GetUniqueEntity<T>() where T : struct, IComponent =>
+            GetUniqueEntity<T>(ComponentsLookup.Id(typeof(T)));
+
+        /// <summary>
+        /// Call <see cref="TryGetUniqueEntity{T}(int)"/> from a generator instead.
+        /// </summary>
+        public Entity? TryGetUniqueEntity<T>() where T : struct, IComponent =>
+            TryGetUniqueEntity<T>(ComponentsLookup.Id(typeof(T)));
+
+        /// <summary>
+        /// Get the unique component <typeparamref name="T"/> within an entity. The component has index of <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index">Index of the component in the lookup table.</param>
+        public T GetUnique<T>(int index) where T : struct, IComponent
         {
-            T? component = TryGetUnique<T>();
+            T? component = TryGetUnique<T>(index);
             if (component is null)
             {
                 throw new InvalidOperationException($"How do we not have a '{typeof(T).Name}' component within our world?");
@@ -836,16 +861,17 @@ namespace Bang
         }
 
         /// <summary>
-        /// Try to get a unique entity that owns <typeparamref name="T"/>.
+        /// Try to get a unique entity that owns <typeparamref name="T"/>. The component has index of <paramref name="index"/>.
         /// </summary>
+        /// <param name="index">Index of the component in the lookup table.</param>
         /// <returns>
         /// The unique component <typeparamref name="T"/>.
         /// </returns>
-        public T? TryGetUnique<T>() where T : struct, IComponent
+        public T? TryGetUnique<T>(int index) where T : struct, IComponent
         {
-            if (TryGetUniqueEntity<T>() is Entity e)
+            if (TryGetUniqueEntity<T>(index) is Entity e)
             {
-                return e.GetComponent<T>();
+                return e.GetComponent<T>(index);
             }
 
             return default;
@@ -854,9 +880,9 @@ namespace Bang
         /// <summary>
         /// Get an entity with the unique component <typeparamref name="T"/>.
         /// </summary>
-        public Entity GetUniqueEntity<T>() where T : struct, IComponent
+        public Entity GetUniqueEntity<T>(int index) where T : struct, IComponent
         {
-            Entity? entity = TryGetUniqueEntity<T>();
+            Entity? entity = TryGetUniqueEntity<T>(index);
             if (entity is null)
             {
                 throw new InvalidOperationException($"How do we not have the unique component of type '{typeof(T).Name}' within our world?");
@@ -868,14 +894,14 @@ namespace Bang
         /// <summary>
         /// Try to get a unique entity that owns <typeparamref name="T"/>.
         /// </summary>
-        public Entity? TryGetUniqueEntity<T>() where T : IComponent
+        public Entity? TryGetUniqueEntity<T>(int index) where T : IComponent
         {
-            if (!_cacheUniqueContexts.TryGetValue(typeof(T), out int contextId))
+            if (!_cacheUniqueContexts.TryGetValue(index, out int contextId))
             {
                 // Get the context for acquiring the unique component.
-                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, [ComponentsLookup.Id(typeof(T))]);
+                contextId = GetOrCreateContext(ContextAccessorFilter.AnyOf, [index]);
 
-                _cacheUniqueContexts.Add(typeof(T), contextId);
+                _cacheUniqueContexts.Add(index, contextId);
             }
 
             Context context = Contexts[contextId];
@@ -989,10 +1015,24 @@ namespace Bang
         {
             foreach (var (systemId, (system, contextId)) in _cachedStartupSystems)
             {
+                if (DIAGNOSTICS_MODE)
+                {
+                    _stopwatch.Reset();
+                    _stopwatch.Start();
+                }
+
                 system.Start(Contexts[contextId]);
 
                 // Track that this system has been started (only once).
                 _systemsInitialized.Add(systemId);
+
+                if (DIAGNOSTICS_MODE)
+                {
+                    InitializeDiagnosticsCounters();
+
+                    _stopwatch.Stop();
+                    StartCounters[systemId].Update(_stopwatch.Elapsed.TotalMicroseconds, Contexts[contextId].Entities.Length);
+                }
             }
 
             NotifyReactiveSystems();

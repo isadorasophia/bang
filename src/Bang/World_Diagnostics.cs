@@ -21,6 +21,12 @@ namespace Bang
         protected readonly Stopwatch _overallStopwatch = Stopwatch.StartNew();
 
         /// <summary>
+        /// This has the duration of each start system (id) to its corresponding time (in ms).
+        /// See <see cref="IdToSystem"/> on how to fetch the actual system.
+        /// </summary>
+        public readonly Dictionary<int, SmoothCounter> StartCounters = new();
+
+        /// <summary>
         /// This has the duration of each update system (id) to its corresponding time (in ms).
         /// See <see cref="IdToSystem"/> on how to fetch the actual system.
         /// </summary>
@@ -56,6 +62,11 @@ namespace Bang
 
             foreach (var (systemId, system) in IdToSystem)
             {
+                if (system is IStartupSystem)
+                {
+                    StartCounters[systemId] = new();
+                }
+
                 if (system is IUpdateSystem)
                 {
                     UpdateCounters[systemId] = new();
@@ -77,7 +88,8 @@ namespace Bang
 
         private void UpdateDiagnosticsOnDeactivateSystem(int id)
         {
-            if (UpdateCounters.TryGetValue(id, out var value)) value.Clear();
+            if (StartCounters.TryGetValue(id, out var value)) value.Clear();
+            if (UpdateCounters.TryGetValue(id, out value)) value.Clear();
             if (FixedUpdateCounters.TryGetValue(id, out value)) value.Clear();
             if (ReactiveCounters.TryGetValue(id, out value)) value.Clear();
 

@@ -50,6 +50,17 @@ public static class HelperExtensions
         ISymbol? interfaceToCheck
     ) => type.AllInterfaces.Any(i => SymbolEqualityComparer.Default.Equals(i, interfaceToCheck));
 
+    /// <summary>
+    /// Checks if the given <see cref="symbol"/> has an attribute defined of type <see cref="attributeToCheck"/>.
+    /// </summary>
+    /// <param name="type">Type declaration symbol.</param>
+    /// <param name="attributeToCheck">Attribute to be checked.</param>
+    /// <returns></returns>
+    public static bool HasAttribute(
+        this ITypeSymbol type,
+        ISymbol? attributeToCheck
+    ) => type.GetAttributes().Any(i => SymbolEqualityComparer.Default.Equals(i.AttributeClass, attributeToCheck));
+
     public static bool IsSubtypeOf(
         this ITypeSymbol type,
         ISymbol subtypeToCheck

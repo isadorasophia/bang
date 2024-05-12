@@ -28,10 +28,12 @@ public static partial class Templates
 
     public const string EntityExtensionsRawText =
         """
+        #nullable enable
+
         namespace Bang.Entities
         {
             /// <summary>
-            /// Quality of life extensions for the components declared in this project.
+            /// Quality of life entity extensions for the components declared in this project.
             /// </summary>
             public static class <project_prefix>EntityExtensions
             {
@@ -70,6 +72,28 @@ public static partial class Templates
                 #region Message "Remove" methods!
         
         <messages_remove>        #endregion
+            }
+        }
+        """;
+
+    public const string WorldExtensionsRawText =
+        """
+        #nullable enable
+        
+        namespace Bang
+        {
+            /// <summary>
+            /// Quality of life world extensions for the components declared in this project.
+            /// </summary>
+            public static class <project_prefix>WorldExtensions
+            {
+                #region World "GetUnique" methods!
+        
+        <world_getunique>        #endregion
+        
+                #region World "GetUniqueEntity" methods!
+        
+        <world_getuniqueentity>        #endregion
             }
         }
         """;

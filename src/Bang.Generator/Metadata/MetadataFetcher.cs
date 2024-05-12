@@ -2,6 +2,7 @@ using Bang.Generator.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bang.Generator.Metadata;
 
@@ -66,6 +67,7 @@ public sealed class MetadataFetcher
                 IsTransformComponent: component.ImplementsInterface(bangTypeSymbols.TransformInterface),
                 IsMurderTransformComponent: component.ImplementsInterface(bangTypeSymbols.MurderTransformInterface),
                 IsParentRelativeComponent: component.ImplementsInterface(bangTypeSymbols.ParentRelativeComponentInterface),
+                IsUniqueComponent: component.HasAttribute(bangTypeSymbols.UniqueAttribute),
                 Constructors: component.Constructors
                     .Where(c => c.DeclaredAccessibility == Accessibility.Public)
                     .Select(ConstructorMetadataFromConstructor)
