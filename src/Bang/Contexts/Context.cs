@@ -387,7 +387,12 @@ namespace Bang.Contexts
         {
             if (e.IsDestroyed)
             {
-                if (_entities.ContainsKey(e.EntityId))
+                if (!IsWatchingEntity(e.EntityId))
+                {
+                    return;
+                }
+
+                if (!DoesEntityMatch(e))
                 {
                     // The entity was just destroyed, don't bother filtering it.
                     // Destroy it immediately.
