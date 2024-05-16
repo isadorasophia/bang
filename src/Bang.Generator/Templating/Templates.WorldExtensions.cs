@@ -26,7 +26,7 @@ public static partial class Templates
                 return null;
             }
 
-            return 
+            return
             $"""
                      /// <summary>
                      /// Tries to fetch the unique component of type <see cref="{metadata.FullyQualifiedName}" />.
