@@ -3,6 +3,7 @@ using Bang.Contexts;
 using Bang.Diagnostics;
 using Bang.Entities;
 using Bang.Systems;
+using Bang.Util;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
@@ -1115,14 +1116,26 @@ namespace Bang
             }
         }
 
-        // This will map:
-        // [System ID] => ([Notification => Entities], System)
-        // This is so we can track any duplicate entities reported for watchers of multiple components.
+        /// <summary>
+        /// This will map:
+        /// [System ID] => ([Notification => Entities], System)
+        /// This is so we can track any duplicate entities reported for watchers of multiple components.
+        /// </summary>
         private readonly Dictionary<int, (Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> Notifications, IReactiveSystem System)> _systemsToNotify = [];
+
+        /// <summary>
+        /// Same as <see cref="_systemsToNotify"/>, but ordered once the data is collected.
+        /// </summary>
+        private readonly SortedList<int, (Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> Notifications, IReactiveSystem System)> _orderedSystemsToNotify = [];
 
         // This is used when DIAGNOSTICS_MODE is set to update reactive systems that were
         // not triggered.
         private readonly HashSet<int> _reactiveTriggeredSystems = [];
+
+        /// <summary>
+        /// Reuse the same instance for ordering the notifications per system.
+        /// </summary>
+        private readonly SortedList<WatcherNotificationKind, Dictionary<int, Entity>> _orderedNotificationsPerSystem = new(DescendingWatcherNotificationKindComparer.Instance);
 
         /// <summary>
         /// Notify all reactive systems of any change that happened during the update.
@@ -1154,6 +1167,7 @@ namespace Bang
             }
 
             _systemsToNotify.Clear();
+            _orderedSystemsToNotify.Clear();
 
             // First, iterate over each watcher and clean up their notification queue.
             foreach (int watcherId in watchersTriggered)
@@ -1200,8 +1214,12 @@ namespace Bang
 
             // Now, iterate over each watcher and actually notify the systems based on their pending notifications.
             // This must be done *afterwards* since the reactive systems may add further notifications on their implementation.
-            var orderedSystemsToNotify = _systemsToNotify.OrderBy(s => s.Key);
-            foreach (var (systemId, notificationsAndSystem) in orderedSystemsToNotify)
+            foreach (var (systemId, notificationsAndSystem) in _systemsToNotify)
+            {
+                _orderedSystemsToNotify.Add(systemId, notificationsAndSystem);
+            }
+
+            foreach (var (systemId, notificationsAndSystem) in _orderedSystemsToNotify)
             {
                 if (DIAGNOSTICS_MODE)
                 {
@@ -1213,8 +1231,14 @@ namespace Bang
 
                 // Make sure we make this in order. Some components are added *and* removed in the same frame.
                 // If this is the case, make sure we first call remove and *then* add.
-                var orderedNotifications = notificationsAndSystem.Notifications.OrderByDescending(kv => (int)kv.Key);
-                foreach (var (kind, entities) in orderedNotifications)
+                _orderedNotificationsPerSystem.Clear();
+
+                foreach (var (kind, entities) in notificationsAndSystem.Notifications)
+                {
+                    _orderedNotificationsPerSystem.Add(kind, entities);
+                }
+
+                foreach (var (kind, entities) in _orderedNotificationsPerSystem)
                 {
                     if (entities.Count == 0)
                     {
@@ -1223,7 +1247,7 @@ namespace Bang
                         continue;
                     }
 
-                    ImmutableArray<Entity> entitiesInput = entities.Values.ToImmutableArray();
+                    ImmutableArray<Entity> entitiesInput = [.. entities.Values];
 
                     switch (kind)
                     {
