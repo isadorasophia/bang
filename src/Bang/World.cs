@@ -1115,9 +1115,19 @@ namespace Bang
             }
         }
 
+        // This will map:
+        // [System ID] => ([Notification => Entities], System)
+        // This is so we can track any duplicate entities reported for watchers of multiple components.
+        private readonly Dictionary<int, (Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> Notifications, IReactiveSystem System)> _systemsToNotify = [];
+
+        // This is used when DIAGNOSTICS_MODE is set to update reactive systems that were
+        // not triggered.
+        private readonly HashSet<int> _reactiveTriggeredSystems = [];
+
         /// <summary>
         /// Notify all reactive systems of any change that happened during the update.
         /// </summary>
+        // TODO_Perf: There's tons of garbage cleanup here. We should be able to optimize a lot of it at some point.
         private void NotifyReactiveSystems()
         {
             ImmutableArray<int> watchersTriggered;
@@ -1139,14 +1149,11 @@ namespace Bang
                     return;
                 }
 
-                watchersTriggered = _watchersTriggered.ToImmutableArray();
+                watchersTriggered = [.. _watchersTriggered];
                 _watchersTriggered = null;
             }
 
-            // This will map:
-            // [System ID] => ([Notification => Entities], System)
-            // This is so we can track any duplicate entities reported for watchers of multiple components.
-            Dictionary<int, (Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> Notifications, IReactiveSystem System)> systemsToNotify = new();
+            _systemsToNotify.Clear();
 
             // First, iterate over each watcher and clean up their notification queue.
             foreach (int watcherId in watchersTriggered)
@@ -1159,9 +1166,9 @@ namespace Bang
                 foreach (var (systemId, system) in systems)
                 {
                     // Ok, if no previous systems had any notifications, that's easy, just add right away.
-                    if (!systemsToNotify.TryGetValue(systemId, out var notificationsAndSystem))
+                    if (!_systemsToNotify.TryGetValue(systemId, out var notificationsAndSystem))
                     {
-                        systemsToNotify.Add(systemId, (currentNotifications, system));
+                        _systemsToNotify.Add(systemId, (currentNotifications, system));
                         continue;
                     }
 
@@ -1178,22 +1185,23 @@ namespace Bang
                         // Uh-oh, we got a conflicting notification kind. Merge them into the entities for the notification.
                         foreach (var (entityId, entity) in currentEntities)
                         {
-                            if (!entities.ContainsKey(entityId))
-                            {
-                                entities.Add(entityId, entity);
-                            }
+                            entities.TryAdd(entityId, entity);
                         }
                     }
                 }
             }
 
-            // This is used when DIAGNOSTICS_MODE is set to update reactive systems that were
-            // not triggered.
-            HashSet<int> triggeredSystems = new();
+            if (DIAGNOSTICS_MODE)
+            {
+                // This is used when DIAGNOSTICS_MODE is set to update reactive systems that were
+                // not triggered.
+                _reactiveTriggeredSystems.Clear();
+            }
 
             // Now, iterate over each watcher and actually notify the systems based on their pending notifications.
             // This must be done *afterwards* since the reactive systems may add further notifications on their implementation.
-            foreach (var (systemId, notificationsAndSystem) in systemsToNotify)
+            var orderedSystemsToNotify = _systemsToNotify.OrderBy(s => s.Key);
+            foreach (var (systemId, notificationsAndSystem) in orderedSystemsToNotify)
             {
                 if (DIAGNOSTICS_MODE)
                 {
@@ -1250,7 +1258,7 @@ namespace Bang
                     ReactiveCounters[systemId].Update(
                         _stopwatch.Elapsed.TotalMicroseconds, totalEntities: notificationsAndSystem.Notifications.Sum(n => n.Value.Count));
 
-                    triggeredSystems.Add(systemId);
+                    _reactiveTriggeredSystems.Add(systemId);
                 }
             }
 
@@ -1258,7 +1266,7 @@ namespace Bang
             {
                 foreach ((int systemId, SmoothCounter counter) in ReactiveCounters)
                 {
-                    if (!triggeredSystems.Contains(systemId))
+                    if (!_reactiveTriggeredSystems.Contains(systemId))
                     {
                         ReactiveCounters[systemId].Update(0, 0);
                     }
