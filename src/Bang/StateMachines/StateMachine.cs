@@ -43,7 +43,7 @@ namespace Bang.StateMachines
         /// Called when the state changes.
         /// Should only be called by the state machine component, see <see cref="StateMachineComponent{T}"/>.
         /// </summary>
-        internal event Action? OnModified;
+        private event Action? OnModified;
 
         /// <summary>
         /// Current state, represented by <see cref="Name"/>.
@@ -119,8 +119,6 @@ namespace Bang.StateMachines
                     State((Func<IEnumerator<Wait>>)Delegate.CreateDelegate(typeof(Func<IEnumerator<Wait>>), this, method));
                 }
             }
-
-            e.OnMessage += OnMessageSent;
         }
 
         /// <summary>
@@ -284,6 +282,18 @@ namespace Bang.StateMachines
             OnModified = null;
 
             Name = string.Empty;
+        }
+
+        public void Subscribe(Action notification)
+        {
+            OnModified += notification;
+            Entity.OnMessage += OnMessageSent;
+        }
+
+        public void Unsubscribe(Action notification)
+        {
+            OnModified -= notification;
+            Entity.OnMessage -= OnMessageSent;
         }
 
         /// <summary>

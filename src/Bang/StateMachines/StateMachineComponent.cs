@@ -44,13 +44,13 @@ namespace Bang.StateMachines
         public void OnDestroyed() => _routine.OnDestroyed();
 
         /// <summary>
-        /// Stop listening to notifications on this component.
-        /// </summary>
-        public void Unsubscribe(Action notification) => _routine.OnModified -= notification;
-
-        /// <summary>
         /// Subscribe for notifications on this component.
         /// </summary>
-        public void Subscribe(Action notification) => _routine.OnModified += notification;
+        public void Subscribe(Action notification) => _routine.Subscribe(notification);
+
+        /// <summary>
+        /// Stop listening to notifications on this component.
+        /// </summary>
+        public void Unsubscribe(Action notification) => _routine.Unsubscribe(notification);
     }
 }

@@ -1,12 +1,11 @@
-﻿using Bang.Components;
-using Bang.Entities;
+﻿using Bang.Entities;
 
 namespace Bang.Interactions
 {
     /// <summary>
     /// Implements an interaction component which will be passed on to the entity.
     /// </summary>
-    public struct InteractiveComponent<T> : IInteractiveComponent, IModifiableComponent where T : IInteraction, new()
+    public struct InteractiveComponent<T> : IInteractiveComponent where T : struct, IInteraction
     {
         [Serialize]
         private readonly T _interaction;
@@ -26,15 +25,5 @@ namespace Bang.Interactions
         /// </summary>
         public void Interact(World world, Entity interactor, Entity? interacted)
             => _interaction.Interact(world, interactor, interacted);
-
-        /// <summary>
-        /// Stop listening to notifications on this component.
-        /// </summary>
-        public void Unsubscribe(Action notification) { }
-
-        /// <summary>
-        /// Subscribe for notifications on this component.
-        /// </summary>
-        public void Subscribe(Action notification) { }
     }
 }

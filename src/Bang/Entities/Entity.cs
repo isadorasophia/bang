@@ -1,5 +1,6 @@
 ﻿using Bang.Components;
 using Bang.StateMachines;
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -50,6 +51,11 @@ namespace Bang.Entities
         /// Notifies listeners when a particular component has been modified.
         /// </summary>
         private readonly Dictionary<int, Action<int, IComponent>?> _trackedComponentsModified = new();
+
+        /// <summary>
+        /// Keeps track of callbacks from all the modifiable components.
+        /// </summary>
+        private readonly Dictionary<int, Action> _modifiableComponentsCallback = new();
 
         /// <summary>
         /// Entity unique identifier.
@@ -130,8 +136,8 @@ namespace Bang.Entities
             {
                 int key = _lookup.Id(c.GetType());
 
-                (c as IModifiableComponent)?.Subscribe(() => OnComponentModified?.Invoke(this, key));
                 (c as IStateMachineComponent)?.Initialize(_world, this);
+                (c as IModifiableComponent)?.Subscribe(GetModifiableComponentCallback(key));
 
                 AddComponentInternal(c, key);
             }
@@ -498,7 +504,11 @@ namespace Bang.Entities
             }
 
             // If this is a modifiable component, unsubscribe from it before actually replacing it.
-            (_components[index] as IModifiableComponent)?.Unsubscribe(() => OnComponentModified?.Invoke(this, index));
+            if (_components[index] is IModifiableComponent modifiableComponent &&
+                RemoveOnComponentModifiable(index) is Action action)
+            {
+                modifiableComponent.Unsubscribe(action);
+            }
 
             _components[index] = c;
 
@@ -527,7 +537,11 @@ namespace Bang.Entities
                 return false;
             }
 
-            (_components[index] as IModifiableComponent)?.Unsubscribe(() => OnComponentModified?.Invoke(this, index));
+            if (_components[index] is IModifiableComponent modifiableComponent &&
+                RemoveOnComponentModifiable(index) is Action action)
+            {
+                modifiableComponent.Unsubscribe(action);
+            }
 
             _components[index] = default!;
             _availableComponents[index] = false;
@@ -560,8 +574,8 @@ namespace Bang.Entities
             Debug.Assert(_world is not null);
             Debug.Assert(_lookup is not null);
 
-            (c as IModifiableComponent)?.Subscribe(() => OnComponentModified?.Invoke(this, index));
             (c as IStateMachineComponent)?.Initialize(_world, this);
+            (c as IModifiableComponent)?.Subscribe(GetModifiableComponentCallback(index));
 
             OnComponentAdded?.Invoke(this, index);
 
@@ -585,8 +599,8 @@ namespace Bang.Entities
             Debug.Assert(_lookup is not null);
 
             // First, subscribe to the newly replaced component.
-            (c as IModifiableComponent)?.Subscribe(() => OnComponentModified?.Invoke(this, index));
             (c as IStateMachineComponent)?.Initialize(_world, this);
+            (c as IModifiableComponent)?.Subscribe(GetModifiableComponentCallback(index));
 
             // Now, notify all contexts that are observing this change.
             OnComponentModified?.Invoke(this, index);
@@ -596,6 +610,30 @@ namespace Bang.Entities
             {
                 notification?.Invoke(index, c);
             }
+        }
+
+        private Action GetModifiableComponentCallback(int index)
+        {
+            if (_modifiableComponentsCallback.TryGetValue(index, out Action? action))
+            {
+                return action;
+            }
+
+            action = () => OnComponentModified?.Invoke(this, index);
+            _modifiableComponentsCallback.Add(index, action);
+
+            return action;
+        }
+
+        private Action? RemoveOnComponentModifiable(int index)
+        {
+            if (_modifiableComponentsCallback.TryGetValue(index, out Action? action))
+            {
+                _modifiableComponentsCallback.Remove(index);
+                return action;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -721,7 +759,9 @@ namespace Bang.Entities
             OnEntityDeactivated = null;
 
             OnMessage = null;
+
             _trackedComponentsModified.Clear();
+            _modifiableComponentsCallback.Clear();
 
             GC.SuppressFinalize(this);
         }
