@@ -16,6 +16,6 @@ internal class DescendingWatcherNotificationKindComparer : IComparer<WatcherNoti
         int iX = (int)x;
         int iY = (int)y;
 
-        return -iX.CompareTo(iY);
+        return iX.CompareTo(iY);
     }
 }
