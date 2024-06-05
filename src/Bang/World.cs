@@ -702,6 +702,7 @@ namespace Bang
             if (system is IUpdateSystem updateSystem) _cachedExecuteSystems.Add(id, (updateSystem, context));
             if (system is IFixedUpdateSystem fixedUpdateSystem) _cachedFixedExecuteSystems.Add(id, (fixedUpdateSystem, context));
             if (system is IRenderSystem renderSystem) _cachedRenderSystems.Add(id, (renderSystem, context));
+            if (system is IExitSystem exitSystem) _cachedExitSystems.Add(id, (exitSystem, context));
 
             if (system is IReactiveSystem reactiveSystem)
             {
@@ -759,6 +760,7 @@ namespace Bang
             if (system is IUpdateSystem) _cachedExecuteSystems.Remove(id);
             if (system is IFixedUpdateSystem) _cachedFixedExecuteSystems.Remove(id);
             if (system is IRenderSystem) _cachedRenderSystems.Remove(id);
+            if (system is IExitSystem) _cachedExitSystems.Remove(id);
 
             if (system is IReactiveSystem)
             {
