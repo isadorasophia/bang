@@ -151,6 +151,16 @@ namespace Bang.Contexts
 
         private void OnEntityDeactivated(Entity e)
         {
+            if (_entitiesToNotify is not null &&
+                _entitiesToNotify.TryGetValue(WatcherNotificationKind.Added, out var notificationOnAdded) &&
+                notificationOnAdded.ContainsKey(e.EntityId))
+            {
+                // This entity was literally just added this frame. For such scenario, don't trigger Added *or* Deactivated.
+                // It was born into anonymity. Leave it that way.
+                notificationOnAdded.Remove(e.EntityId);
+                return;
+            }
+
             QueueEntityNotification(WatcherNotificationKind.Disabled, e);
         }
 
