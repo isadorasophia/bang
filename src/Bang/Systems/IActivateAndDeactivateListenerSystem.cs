@@ -2,6 +2,9 @@
 
 namespace Bang.Systems;
 
+/// <summary>
+/// This is used for tracking when the system gets manually activated and deactivated.
+/// </summary>
 public interface IActivateAndDeactivateListenerSystem : ISystem
 {
     /// <summary>
