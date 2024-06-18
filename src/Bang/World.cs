@@ -684,9 +684,15 @@ namespace Bang
 
             _systems[id] = _systems[id] with { IsActive = true };
 
+            ISystem system = IdToSystem[id];
             int context = _systems[id].ContextId;
 
-            ISystem system = IdToSystem[id];
+            // First, let the system know that it has been activated.
+            if (system is IActivateAndDeactivateListenerSystem activateSystem)
+            {
+                activateSystem.OnActivated(Contexts[context]);
+            }
+
             if (system is IStartupSystem startupSystem)
             {
                 _cachedStartupSystems.Add(id, (startupSystem, context));
@@ -756,6 +762,14 @@ namespace Bang
             // We do not remove it from the list of startup systems, since it was already initialized.
 
             ISystem system = IdToSystem[id];
+
+            // Let the system know that it has been deactivated.
+            if (system is IActivateAndDeactivateListenerSystem deactivateSystem)
+            {
+                int context = _systems[id].ContextId;
+                deactivateSystem.OnActivated(Contexts[context]);
+            }
+
             if (system is IStartupSystem) _cachedStartupSystems.Remove(id);
             if (system is IUpdateSystem) _cachedExecuteSystems.Remove(id);
             if (system is IFixedUpdateSystem) _cachedFixedExecuteSystems.Remove(id);
