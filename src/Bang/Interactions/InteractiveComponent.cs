@@ -20,6 +20,8 @@ namespace Bang.Interactions
         /// </summary>
         public InteractiveComponent(T interaction) => _interaction = interaction;
 
+        public T FetchInteraction() => _interaction;
+
         /// <summary>
         /// Calls the inner interaction component.
         /// </summary>
