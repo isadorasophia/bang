@@ -107,8 +107,7 @@ namespace Bang.Contexts
         {
             get
             {
-                Debug.Assert(_entities.Count == 1, "Getting an entity for a non-unique context?");
-
+                Debug.Assert(_entities.Count != 0, "Getting an entity without one available. This will crash!");
                 return _entities.First().Value;
             }
         }
@@ -186,8 +185,6 @@ namespace Bang.Contexts
 
         private ImmutableArray<(FilterAttribute, ImmutableArray<int>)> CreateFilterList(ISystem system)
         {
-            var lookup = (Type t) => Lookup.Id(t);
-
             var builder = ImmutableArray.CreateBuilder<(FilterAttribute, ImmutableArray<int>)>();
 
             // First, grab all the filters of the system.
@@ -197,7 +194,7 @@ namespace Bang.Contexts
             // Now, for each filter, populate our set of files.
             foreach (var filter in filters)
             {
-                builder.Add((filter, filter.Types.Select(t => lookup(t)).ToImmutableArray()));
+                builder.Add((filter, filter.Types.Select(Lookup.Id).ToImmutableArray()));
             }
 
             return builder.ToImmutableArray();
@@ -481,6 +478,12 @@ namespace Bang.Contexts
             {
                 // Notify immediately of the new added component.
                 OnComponentAddedForEntityInContext?.Invoke(e, index);
+
+                // This checks whether we are adding a component on an unique component.
+                if (World.DIAGNOSTICS_MODE && World.IsUniqueContext(Id))
+                {
+                    Debug.WriteLineIf(_entities.Count != 0, $"Adding unique component of id {index} twice.");
+                }
 
                 _entities.Add(e.EntityId, e);
                 _cachedEntities = null;

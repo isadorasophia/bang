@@ -1,149 +1,158 @@
 ﻿using Bang.Components;
+using Bang.Contexts;
 using Bang.Diagnostics;
 using Bang.Systems;
 using System.Diagnostics;
 
-namespace Bang
+namespace Bang;
+
+// This file contains the code responsible for debug information used when creating a world.
+public partial class World
 {
-    // This file contains the code responsible for debug information used when creating a world.
-    public partial class World
+    private bool _initializedDiagnostics = false;
+
+    /// <summary>
+    /// This is the stopwatch used per systems when monitoring performance. Only used if <see cref="DIAGNOSTICS_MODE"/> is set.
+    /// </summary>
+    protected readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+
+    /// <summary>
+    /// This is the stopwatch used on all systems when monitoring performance. Only used if <see cref="DIAGNOSTICS_MODE"/> is set.
+    /// </summary>
+    protected readonly Stopwatch _overallStopwatch = Stopwatch.StartNew();
+
+    /// <summary>
+    /// This has the duration of each start system (id) to its corresponding time (in ms).
+    /// See <see cref="IdToSystem"/> on how to fetch the actual system.
+    /// </summary>
+    public readonly Dictionary<int, SmoothCounter> StartCounters = new();
+
+    /// <summary>
+    /// This has the duration of each update system (id) to its corresponding time (in ms).
+    /// See <see cref="IdToSystem"/> on how to fetch the actual system.
+    /// </summary>
+    public readonly Dictionary<int, SmoothCounter> UpdateCounters = new();
+
+    /// <summary>
+    /// This has the duration of each fixed update system (id) to its corresponding time (in ms).
+    /// See <see cref="IdToSystem"/> on how to fetch the actual system.
+    /// </summary>
+    public readonly Dictionary<int, SmoothCounter> FixedUpdateCounters = new();
+
+    /// <summary>
+    /// This has the duration of each reactive system (id) to its corresponding time (in ms).
+    /// See <see cref="IdToSystem"/> on how to fetch the actual system.
+    /// </summary>
+    public readonly Dictionary<int, SmoothCounter> ReactiveCounters = new();
+
+    /// <summary>
+    /// Initialize the performance counters according to the systems present in the world.
+    /// </summary>
+    protected void InitializeDiagnosticsCounters()
     {
-        private bool _initializedDiagnostics = false;
+        Debug.Assert(DIAGNOSTICS_MODE,
+            "Why are we initializing diagnostics out of diagnostic mode?");
 
-        /// <summary>
-        /// This is the stopwatch used per systems when monitoring performance. Only used if <see cref="DIAGNOSTICS_MODE"/> is set.
-        /// </summary>
-        protected readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-
-        /// <summary>
-        /// This is the stopwatch used on all systems when monitoring performance. Only used if <see cref="DIAGNOSTICS_MODE"/> is set.
-        /// </summary>
-        protected readonly Stopwatch _overallStopwatch = Stopwatch.StartNew();
-
-        /// <summary>
-        /// This has the duration of each start system (id) to its corresponding time (in ms).
-        /// See <see cref="IdToSystem"/> on how to fetch the actual system.
-        /// </summary>
-        public readonly Dictionary<int, SmoothCounter> StartCounters = new();
-
-        /// <summary>
-        /// This has the duration of each update system (id) to its corresponding time (in ms).
-        /// See <see cref="IdToSystem"/> on how to fetch the actual system.
-        /// </summary>
-        public readonly Dictionary<int, SmoothCounter> UpdateCounters = new();
-
-        /// <summary>
-        /// This has the duration of each fixed update system (id) to its corresponding time (in ms).
-        /// See <see cref="IdToSystem"/> on how to fetch the actual system.
-        /// </summary>
-        public readonly Dictionary<int, SmoothCounter> FixedUpdateCounters = new();
-
-        /// <summary>
-        /// This has the duration of each reactive system (id) to its corresponding time (in ms).
-        /// See <see cref="IdToSystem"/> on how to fetch the actual system.
-        /// </summary>
-        public readonly Dictionary<int, SmoothCounter> ReactiveCounters = new();
-
-        /// <summary>
-        /// Initialize the performance counters according to the systems present in the world.
-        /// </summary>
-        protected void InitializeDiagnosticsCounters()
+        if (_initializedDiagnostics)
         {
-            Debug.Assert(DIAGNOSTICS_MODE,
-                "Why are we initializing diagnostics out of diagnostic mode?");
-
-            if (_initializedDiagnostics)
-            {
-                // Already initialized.
-                return;
-            }
-
-            _initializedDiagnostics = true;
-
-            foreach (var (systemId, system) in IdToSystem)
-            {
-                if (system is IStartupSystem)
-                {
-                    StartCounters[systemId] = new();
-                }
-
-                if (system is IUpdateSystem)
-                {
-                    UpdateCounters[systemId] = new();
-                }
-
-                if (system is IFixedUpdateSystem)
-                {
-                    FixedUpdateCounters[systemId] = new();
-                }
-
-                if (system is IReactiveSystem)
-                {
-                    ReactiveCounters[systemId] = new();
-                }
-
-                InitializeDiagnosticsForSystem(systemId, system);
-            }
+            // Already initialized.
+            return;
         }
 
-        private void UpdateDiagnosticsOnDeactivateSystem(int id)
+        _initializedDiagnostics = true;
+
+        foreach (var (systemId, system) in IdToSystem)
         {
-            if (StartCounters.TryGetValue(id, out var value)) value.Clear();
-            if (UpdateCounters.TryGetValue(id, out value)) value.Clear();
-            if (FixedUpdateCounters.TryGetValue(id, out value)) value.Clear();
-            if (ReactiveCounters.TryGetValue(id, out value)) value.Clear();
-
-            ClearDiagnosticsCountersForSystem(id);
-        }
-
-        /// <summary>
-        /// Implemented by custom world in order to clear diagnostic information about the world.
-        /// </summary>
-        /// <param name="systemId"></param>
-        protected virtual void ClearDiagnosticsCountersForSystem(int systemId) { }
-
-        /// <summary>
-        /// Implemented by custom world in order to express diagnostic information about the world.
-        /// </summary>
-        protected virtual void InitializeDiagnosticsForSystem(int systemId, ISystem system) { }
-
-        private static void CheckSystemsRequirements(IList<(ISystem system, bool isActive)> systems)
-        {
-            // First, list all the systems in the world according to their type, and map
-            // to the order in which they appear.
-            Dictionary<Type, int> systemTypes = new();
-            for (int i = 0; i < systems.Count; i++)
+            if (system is IStartupSystem)
             {
-                Type t = systems[i].system.GetType();
-
-                Assert.Verify(!systemTypes.ContainsKey(t),
-                    $"Why are we adding {t.Name} twice in the world!?");
-
-                systemTypes.Add(t, i);
+                StartCounters[systemId] = new();
             }
 
-            foreach (var (t, index) in systemTypes)
+            if (system is IUpdateSystem)
             {
-                if (Attribute.GetCustomAttribute(t, typeof(RequiresAttribute)) is RequiresAttribute requires)
+                UpdateCounters[systemId] = new();
+            }
+
+            if (system is IFixedUpdateSystem)
+            {
+                FixedUpdateCounters[systemId] = new();
+            }
+
+            if (system is IReactiveSystem)
+            {
+                ReactiveCounters[systemId] = new();
+            }
+
+            InitializeDiagnosticsForSystem(systemId, system);
+        }
+    }
+
+    private void UpdateDiagnosticsOnDeactivateSystem(int id)
+    {
+        if (StartCounters.TryGetValue(id, out var value)) value.Clear();
+        if (UpdateCounters.TryGetValue(id, out value)) value.Clear();
+        if (FixedUpdateCounters.TryGetValue(id, out value)) value.Clear();
+        if (ReactiveCounters.TryGetValue(id, out value)) value.Clear();
+
+        ClearDiagnosticsCountersForSystem(id);
+    }
+
+    /// <summary>
+    /// Implemented by custom world in order to clear diagnostic information about the world.
+    /// </summary>
+    /// <param name="systemId"></param>
+    protected virtual void ClearDiagnosticsCountersForSystem(int systemId) { }
+
+    /// <summary>
+    /// Implemented by custom world in order to express diagnostic information about the world.
+    /// </summary>
+    protected virtual void InitializeDiagnosticsForSystem(int systemId, ISystem system) { }
+
+    private static void CheckSystemsRequirements(IList<(ISystem system, bool isActive)> systems)
+    {
+        // First, list all the systems in the world according to their type, and map
+        // to the order in which they appear.
+        Dictionary<Type, int> systemTypes = new();
+        for (int i = 0; i < systems.Count; i++)
+        {
+            Type t = systems[i].system.GetType();
+
+            Assert.Verify(!systemTypes.ContainsKey(t),
+                $"Why are we adding {t.Name} twice in the world!?");
+
+            systemTypes.Add(t, i);
+        }
+
+        foreach (var (t, index) in systemTypes)
+        {
+            if (Attribute.GetCustomAttribute(t, typeof(RequiresAttribute)) is RequiresAttribute requires)
+            {
+                foreach (Type requiredSystem in requires.Types)
                 {
-                    foreach (Type requiredSystem in requires.Types)
+                    Assert.Verify(typeof(ISystem).IsAssignableFrom(requiredSystem),
+                        "Why does the system requires a type that is not a system?");
+
+                    if (systemTypes.TryGetValue(requiredSystem, out int order))
                     {
-                        Assert.Verify(typeof(ISystem).IsAssignableFrom(requiredSystem),
-                            "Why does the system requires a type that is not a system?");
-
-                        if (systemTypes.TryGetValue(requiredSystem, out int order))
-                        {
-                            Assert.Verify(index > order,
-                                $"Required system: {requiredSystem.Name} does not precede: {t.Name}.");
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException(
-                                $"Missing {requiredSystem.Name} required by {t.Name} in the world!");
-                        }
+                        Assert.Verify(index > order,
+                            $"Required system: {requiredSystem.Name} does not precede: {t.Name}.");
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(
+                            $"Missing {requiredSystem.Name} required by {t.Name} in the world!");
                     }
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Check whether a context is unique.
+    /// </summary>
+    /// <param name="id">Value of <see cref="Context.Id"/>.</param>
+    internal bool IsUniqueContext(int id)
+    {
+        return _cacheUniqueContexts.ContainsKey(id);
     }
 }
