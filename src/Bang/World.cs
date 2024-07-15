@@ -767,7 +767,7 @@ namespace Bang
             if (system is IActivateAndDeactivateListenerSystem deactivateSystem)
             {
                 int context = _systems[id].ContextId;
-                deactivateSystem.OnActivated(Contexts[context]);
+                deactivateSystem.OnDeactivated(Contexts[context]);
             }
 
             if (system is IStartupSystem) _cachedStartupSystems.Remove(id);
