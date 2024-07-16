@@ -490,7 +490,7 @@ namespace Bang.Contexts
             }
             else
             {
-                _deactivatedEntities.Add(index);
+                _deactivatedEntities.Add(e.EntityId);
             }
         }
 
