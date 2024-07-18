@@ -576,7 +576,7 @@ namespace Bang
         /// <returns>
         /// Whether the system is found and has been activated.
         /// </returns>
-        public bool ActivateSystem(Type t)
+        public bool ActivateSystem(Type t, bool immediately = false)
         {
             if (!_typeToSystems.TryGetValue(t, out int id))
             {
@@ -584,7 +584,7 @@ namespace Bang
                 return false;
             }
 
-            return ActivateSystem(id);
+            return ActivateSystem(id, immediately);
         }
 
         /// <summary>
