@@ -6,5 +6,19 @@
     /// </summary>
     public interface IComponent
     {
+        public static bool Equals(IComponent? a, IComponent? b)
+        {
+            if (a is null || b is null)
+            {
+                return a is null && b is null;
+            }
+
+            if (a is IEquatable<IComponent> iA)
+            {
+                return iA.Equals(b);
+            }
+
+            return a.Equals(b);
+        }
     }
 }
