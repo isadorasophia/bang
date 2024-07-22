@@ -579,9 +579,16 @@ namespace Bang.Entities
 
             OnComponentAdded?.Invoke(this, index);
 
-            if (_lookup.IsRelative(index))
+            if (_lookup.IsRelative(index) && _parent is not null)
             {
-                _parent?.TrackComponent(index, OnParentModified);
+                _parent.TrackComponent(index, OnParentModified);
+
+                if (c is IParentRelativeComponent relativeComponent &&
+                    _parent.TryGetComponent(index, out IComponent? parentComponent))
+                {
+                    // Immediately place the parent component reference.
+                    relativeComponent.OnParentModified(parentComponent, this);
+                }
             }
         }
 
