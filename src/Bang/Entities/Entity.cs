@@ -689,7 +689,7 @@ namespace Bang.Entities
                     if (Attribute.IsDefined(c.GetType(), typeof(KeepOnReplaceAttribute)))
                     {
                         continue;
-                    } 
+                    }
 
                     ReplaceComponent(c, index, forceReplace: true);
                 }
