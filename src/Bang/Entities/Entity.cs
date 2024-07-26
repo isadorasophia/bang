@@ -685,6 +685,12 @@ namespace Bang.Entities
 
                 if (HasComponent(index))
                 {
+                    // Skip components that must be kept.
+                    if (Attribute.IsDefined(c.GetType(), typeof(KeepOnReplaceAttribute)))
+                    {
+                        continue;
+                    } 
+
                     ReplaceComponent(c, index, forceReplace: true);
                 }
                 else
