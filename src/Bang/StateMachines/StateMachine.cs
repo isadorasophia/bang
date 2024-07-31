@@ -235,21 +235,29 @@ namespace Bang.StateMachines
                 _isFirstTick = false;
             }
 
-            // If there is a wait routine, go for that instead.
-            while (_routinesOnWait.Count != 0)
+            try
             {
-                if (_routinesOnWait.Peek().MoveNext())
+                // If there is a wait routine, go for that instead.
+                while (_routinesOnWait.Count != 0)
                 {
-                    return _routinesOnWait.Peek().Current ?? Wait.Stop;
+                    if (_routinesOnWait.Peek().MoveNext())
+                    {
+                        return _routinesOnWait.Peek().Current ?? Wait.Stop;
+                    }
+                    else
+                    {
+                        _routinesOnWait.Pop();
+                    }
                 }
-                else
+
+                if (!Routine.MoveNext())
                 {
-                    _routinesOnWait.Pop();
+                    return Wait.Stop;
                 }
             }
-
-            if (!Routine.MoveNext())
+            catch (InvalidStateMachineException)
             {
+                // Something unexpected occurred, immediately stop this state machine.
                 return Wait.Stop;
             }
 
