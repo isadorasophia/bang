@@ -175,7 +175,7 @@ namespace Bang.Entities
                 _childrenPerName ??= new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
                 Debug.Assert(!_childrenPerName.ContainsKey(name), "Duplicate child name!");
-                _childrenPerName.Add(name, id);
+                _childrenPerName[name] = id;
             }
 
             _cachedChildren = null;
