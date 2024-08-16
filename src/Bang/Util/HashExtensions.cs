@@ -1,43 +1,37 @@
-﻿namespace Bang.Util
+﻿using System;
+
+namespace Bang.Util
 {
     internal static class HashExtensions
     {
         /// <summary>
         /// Algorithm taken from: https://stackoverflow.com/a/3405330.
-        /// This is a reasonable algorithm for array of values between -1000 and 1000. We can replace this afterwards if there is a need.
         /// </summary>
         /// <param name="values">Values that will be applied the hash algorithm.</param>
-        public static int GetHashCodeImpl(this IEnumerable<int> values)
+        public static int GetHashCodeImpl(this List<int> values)
         {
-            int result = 0;
-            int shift = 0;
-
-            foreach (int v in values)
+            int hc = values.Count;
+            foreach (int val in values)
             {
-                shift = (shift + 11) % 21;
-                result ^= (v + 1024) << shift;
+                hc = unchecked(hc * 314159 + val);
             }
 
-            return result;
+            return hc;
         }
 
         /// <summary>
         /// Algorithm taken from: https://stackoverflow.com/a/3405330.
-        /// This is a reasonable algorithm for array of values between -1000 and 1000. We can replace this afterwards if there is a need.
         /// </summary>
         /// <param name="values">Values that will be applied the hash algorithm.</param>
         public static int GetHashCodeImpl(this Span<int> values)
         {
-            int result = 0;
-            int shift = 0;
-
-            foreach (int v in values)
+            int hc = values.Length;
+            foreach (int val in values)
             {
-                shift = (shift + 11) % 21;
-                result ^= (v + 1024) << shift;
+                hc = unchecked(hc * 314159 + val);
             }
 
-            return result;
+            return hc;
         }
 
         public static int GetHashCode(int a, int b)

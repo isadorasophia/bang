@@ -17,6 +17,8 @@ namespace Bang.Contexts
         internal readonly int Id;
         private readonly ImmutableHashSet<int> _targetMessages;
 
+        private int _contextSubscribed = -1;
+
         /// <summary>
         /// A watcher will target a single component.
         /// </summary>
@@ -24,7 +26,7 @@ namespace Bang.Contexts
         {
             World = world;
 
-            var builder = ImmutableHashSet.CreateBuilder<int>();
+            List<int> builder = [];
             foreach (Type t in targetMessages)
             {
                 Debug.Assert(typeof(IMessage).IsAssignableFrom(t));
@@ -33,16 +35,19 @@ namespace Bang.Contexts
                 builder.Add(id);
             }
 
-            _targetMessages = builder.ToImmutableHashSet();
+            _targetMessages = [.. builder];
 
             // Calculate the hash based on the target messages and the context id.
-            int messagesHash = HashExtensions.GetHashCodeImpl(_targetMessages);
+            int messagesHash = HashExtensions.GetHashCodeImpl(builder);
             Id = HashExtensions.GetHashCode(contextId, messagesHash);
         }
 
         internal void SubscribeToContext(Context context)
         {
+            Debug.Assert(_contextSubscribed == -1);
+
             context.OnMessageSentForEntityInContext += OnMessageSent;
+            _contextSubscribed = context.Id;
         }
 
         private void OnMessageSent(Entity e, int index, IMessage message)
