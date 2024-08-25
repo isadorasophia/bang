@@ -13,6 +13,10 @@ namespace Bang.Systems
         /// components.
         /// This is not called if the entity died.
         /// </summary>
+        /// <remarks>
+        /// If a component was removed on another reactive system, the entity might *no longer*
+        /// have the component!
+        /// </remarks>
         public abstract void OnAdded(World world, ImmutableArray<Entity> entities);
 
         /// <summary>
