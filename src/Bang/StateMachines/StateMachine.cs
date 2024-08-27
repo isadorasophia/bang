@@ -93,6 +93,11 @@ namespace Bang.StateMachines
         private bool _isFirstTick = true;
 
         /// <summary>
+        /// Whether this was the first time a tick was executed on the current routine.
+        /// </summary>
+        private bool _isFirstTickForCurrentRoutine = true;
+
+        /// <summary>
         /// Whether the state machine active state should be persisted on serialization.
         /// </summary>
         protected virtual bool PersistStateOnSave => true;
@@ -250,9 +255,23 @@ namespace Bang.StateMachines
                     }
                 }
 
+                _isFirstTickForCurrentRoutine = false;
+
                 if (!Routine.MoveNext())
                 {
                     return Wait.Stop;
+                }
+
+                // We *might* have switched states while executing.
+                // In this case, we want to tick it before drawing any conclusions.
+                while (_isFirstTickForCurrentRoutine)
+                {
+                    _isFirstTickForCurrentRoutine = false;
+
+                    if (!Routine.MoveNext())
+                    {
+                        return Wait.Stop;
+                    }
                 }
             }
             catch (InvalidStateMachineException)
@@ -364,6 +383,8 @@ namespace Bang.StateMachines
             _cachedPersistedState = Name;
 
             OnModified?.Invoke();
+
+            _isFirstTickForCurrentRoutine = true;
         }
 
         private void OnMessageSent(Entity e, int index, IMessage message)
