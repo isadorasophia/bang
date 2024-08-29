@@ -544,6 +544,12 @@ namespace Bang
         }
 
         /// <summary>
+        /// This should be used very cautiously! I hope you know what you are doing.
+        /// It fetches all the deactivated entities within the world and return them.
+        /// </summary>
+        public ImmutableArray<Entity> GetAllDeactivatedEntities() => [.. _deactivatedEntities.Values];
+
+        /// <summary>
         /// Total of entities in the world. This is useful for displaying debug information.
         /// </summary>
         public int EntityCount => _entities.Count;
