@@ -132,6 +132,15 @@ namespace Bang.StateMachines
         protected virtual void OnStart() { }
 
         /// <summary>
+        /// Initialize the state machine prior to any ticks.
+        /// </summary>
+        internal void Start()
+        {
+            OnStart();
+            _isFirstTick = false;
+        }
+
+        /// <summary>
         /// Tick an update.
         /// Should only be called by the state machine component, see <see cref="StateMachineComponent{T}"/>.
         /// </summary>
@@ -236,8 +245,7 @@ namespace Bang.StateMachines
 
             if (_isFirstTick)
             {
-                OnStart();
-                _isFirstTick = false;
+                Start();
             }
 
             try

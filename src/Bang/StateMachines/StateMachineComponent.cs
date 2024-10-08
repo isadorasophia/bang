@@ -34,6 +34,11 @@ namespace Bang.StateMachines
         public void Initialize(World world, Entity e) => _routine.Initialize(world, e);
 
         /// <summary>
+        /// Initialize the state machine prior to any ticks.
+        /// </summary>
+        public void Start() => _routine.Start();
+
+        /// <summary>
         /// Tick a yield operation in the state machine. The next tick will be called according to the returned <see cref="WaitKind"/>.
         /// </summary>
         public bool Tick(float seconds) => _routine.Tick(seconds * 1000);
