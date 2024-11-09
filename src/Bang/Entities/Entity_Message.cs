@@ -76,7 +76,7 @@ namespace Bang.Entities
         {
             // We no longer send notification to systems upon clearing messages.
             // Filters should NOT track messages, this just has too much overhead.
-            _ = _messages.ToImmutableArray();
+            // _ = _messages.ToImmutableArray();
             _messages.Clear();
         }
 
