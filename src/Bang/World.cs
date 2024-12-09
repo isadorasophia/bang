@@ -941,8 +941,7 @@ namespace Bang
                 }
             }
 
-            Entity? e = context.Entities.FirstOrDefault(e => !e.IsDestroyed);
-            return e is null || e.IsDestroyed ? null : e;
+            return context.Entities.FirstOrDefault(e => !e.IsDestroyed);
         }
 
         /// <summary>
