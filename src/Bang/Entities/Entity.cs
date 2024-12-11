@@ -208,6 +208,17 @@ namespace Bang.Entities
         public bool HasComponent(Type t) => HasComponent(GetComponentIndex(t));
 
         /// <summary>
+        /// Method used by editor to retrieve specific components defined in runtime.
+        /// </summary>
+        /// <param name="t">Type that inherits <see cref="IComponent"/>.</param>
+        /// <param name="component">Result component.</param>
+        /// <remarks>
+        /// DO NOT use this in game.
+        /// </remarks>
+        public bool TryGetComponent(Type t, [NotNullWhen(true)] out IComponent? component) =>
+            TryGetComponent(GetComponentIndex(t), out component);
+
+        /// <summary>
         /// Try to get a component of type T. If none, returns false and null.
         /// </summary>
         /// <typeparam name="T">Type that inherits <see cref="IComponent"/>.</typeparam>
