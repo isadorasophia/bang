@@ -39,7 +39,7 @@ namespace Bang.Contexts
 
             // Calculate the hash based on the target messages and the context id.
             int messagesHash = HashExtensions.GetHashCodeImpl(builder);
-            Id = HashExtensions.GetHashCode(contextId, messagesHash);
+            Id = HashCode.Combine(contextId, messagesHash);
         }
 
         internal void SubscribeToContext(Context context)

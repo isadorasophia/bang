@@ -33,15 +33,5 @@ namespace Bang.Util
 
             return hc;
         }
-
-        public static int GetHashCode(int a, int b)
-        {
-            int hash = 23;
-
-            hash = hash * 31 + a;
-            hash = hash * 31 + b;
-
-            return hash;
-        }
     }
 }

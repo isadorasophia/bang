@@ -86,7 +86,7 @@ namespace Bang.Contexts
             World = world;
 
             _targetComponent = world.ComponentsLookup.Id(targetComponent);
-            Id = HashExtensions.GetHashCode(contextId, _targetComponent);
+            Id = HashCode.Combine(contextId, _targetComponent);
         }
 
         internal void SubscribeToContext(Context context)
