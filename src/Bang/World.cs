@@ -645,6 +645,12 @@ namespace Bang
         /// </summary>
         public virtual void Resume()
         {
+            if (!IsPaused)
+            {
+                // already resumed.
+                return;
+            }
+
             IsPaused = false;
 
             foreach (int id in _systemsToResume)
