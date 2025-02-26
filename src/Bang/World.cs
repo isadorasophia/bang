@@ -1049,6 +1049,13 @@ namespace Bang
                     _stopwatch.Start();
                 }
 
+                if (_systemsInitialized.Contains(systemId))
+                {
+                    // sometimes it has already been initialized when activating a system prior to
+                    // the first start() call
+                    continue;
+                }
+
                 system.Start(Contexts[contextId]);
 
                 // Track that this system has been started (only once).
