@@ -57,12 +57,12 @@ jobs:
         run: dotnet build --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --no-restore --logger "trx;LogFileName=test_results.trx"
+        run: dotnet test --no-restore --logger "trx;LogFileName=test_results_${{ matrix.kind }}.trx"
 
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test_results
+          name: test_results_${{ matrix.kind }}
           path: |
-            **/test_results.trx
+            **/test_results_${{ matrix.kind }}.trx
