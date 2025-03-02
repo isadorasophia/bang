@@ -86,9 +86,9 @@ namespace Bang.Entities
         /// </summary>
         public bool RemoveMessage(int index)
         {
-            bool removed = _messages.Remove(index);
-            OnComponentRemoved?.Invoke(this, index, false /* causedByDestroy */);
+            // We no longer send notification to systems upon removing messages.
 
+            bool removed = _messages.Remove(index);
             return removed;
         }
     }
