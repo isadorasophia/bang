@@ -188,6 +188,32 @@ namespace Bang.Entities
         }
 
         /// <summary>
+        /// Rename an existing child.
+        /// </summary>
+        /// <param name="previousName">Previous child name.</param>
+        /// <param name="newName">New child name.</param>
+        /// <returns>
+        /// Whether it succeeded (e.g. <paramref name="previousName"/> exists).
+        /// </returns>
+        public bool RenameChild(string previousName, string newName)
+        {
+            if (_childrenPerName is null)
+            {
+                return false;
+            }
+
+            if (_childrenPerName.TryGetValue(previousName, out int child))
+            {
+                _childrenPerName.Remove(previousName);
+                _childrenPerName[newName] = child;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Try to fetch a child with a <paramref name="name"/> identifier
         /// </summary>
         /// <param name="name">The name of the child.</param>
