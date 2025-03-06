@@ -197,7 +197,7 @@ namespace Bang.Entities
         /// </returns>
         public bool RenameChild(string previousName, string newName)
         {
-            if (_childrenPerName is null)
+            if (_childrenPerName is null || _children is null)
             {
                 return false;
             }
@@ -206,6 +206,7 @@ namespace Bang.Entities
             {
                 _childrenPerName.Remove(previousName);
                 _childrenPerName[newName] = child;
+                _children[child] = newName;
 
                 return true;
             }
