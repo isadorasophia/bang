@@ -54,9 +54,19 @@ namespace Bang.StateMachines
         public static Wait ForMessage<T>() where T : IMessage => new(typeof(T));
 
         /// <summary>
+        /// Wait until message of type <typeparamref name="T"/> is fired no more than <paramref name="maxWait"/> seconds.
+        /// </summary>
+        public static Wait ForMessage<T>(float maxWait) where T : IMessage => new(typeof(T), maximumWaitMs: (int)(maxWait * 1000));
+
+        /// <summary>
         /// Wait until message of type <typeparamref name="T"/> is fired from <paramref name="target"/>.
         /// </summary>
         public static Wait ForMessage<T>(Entity target) where T : IMessage => new(typeof(T), target);
+
+        /// <summary>
+        /// Wait until message of type <typeparamref name="T"/> is fired from <paramref name="target"/> no more than <paramref name="maxWait"/> seconds.
+        /// </summary>
+        public static Wait ForMessage<T>(Entity target, float maxWait) where T : IMessage => new(typeof(T), target, maximumWaitMs: (int)(maxWait * 1000));
 
         /// <summary>
         /// Wait until <paramref name="frames"/> have occurred.
@@ -76,7 +86,9 @@ namespace Bang.StateMachines
         private Wait() => Kind = WaitKind.Stop;
         private Wait(WaitKind kind, int value) => (Kind, Value) = (kind, value);
         private Wait(Type messageType) => (Kind, Component) = (WaitKind.Message, messageType);
+        private Wait(Type messageType, int maximumWaitMs) => (Kind, Component, Value) = (WaitKind.Message, messageType, maximumWaitMs);
         private Wait(Type messageType, Entity target) => (Kind, Component, Target) = (WaitKind.Message, messageType, target);
+        private Wait(Type messageType, Entity target, int maximumWaitMs) => (Kind, Component, Target, Value) = (WaitKind.Message, messageType, target, maximumWaitMs);
         private Wait(IEnumerator<Wait> routine) => (Kind, Routine) = (WaitKind.Routine, routine);
     }
 }

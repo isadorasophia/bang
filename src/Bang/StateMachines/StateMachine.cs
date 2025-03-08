@@ -148,6 +148,16 @@ namespace Bang.StateMachines
         {
             Debug.Assert(World is not null && Entity is not null, "Why are we ticking before starting first?");
 
+            if (_waitForMessage is not null)
+            {
+                if (!_isMessageReceived)
+                {
+                    return true;
+                }
+
+                ResetWaitTimeAndMessage();
+            }
+
             if (_waitTime is not null)
             {
                 _waitTime -= dt;
@@ -157,7 +167,7 @@ namespace Bang.StateMachines
                     return true;
                 }
 
-                _waitTime = null;
+                ResetWaitTimeAndMessage();
             }
 
             if (_waitFrames is not null)
@@ -170,17 +180,6 @@ namespace Bang.StateMachines
                 _waitFrames = null;
             }
 
-            if (_waitForMessage is not null)
-            {
-                if (!_isMessageReceived)
-                {
-                    return true;
-                }
-
-                _waitForMessage = null;
-                _isMessageReceived = false;
-            }
-
             Wait r = Tick();
             switch (r.Kind)
             {
@@ -188,12 +187,12 @@ namespace Bang.StateMachines
                     Finish();
                     return false;
 
-                case WaitKind.Ms:
-                    _waitTime = r.Value!.Value;
-                    return true;
-
                 case WaitKind.Frames:
                     _waitFrames = r.Value!.Value;
+                    return true;
+
+                case WaitKind.Ms:
+                    _waitTime = r.Value!.Value;
                     return true;
 
                 case WaitKind.Message:
@@ -219,6 +218,15 @@ namespace Bang.StateMachines
                     else
                     {
                         _waitForMessageTarget = null;
+                    }
+
+                    if (r.Value is not null)
+                    {
+                        _waitTime = r.Value;
+                    }
+                    else
+                    {
+                        _waitTime = null;
                     }
 
                     return true;
@@ -414,6 +422,23 @@ namespace Bang.StateMachines
             }
 
             _isMessageReceived = true;
+
+            if (_waitForMessageTarget is not null)
+            {
+                _waitForMessageTarget.OnMessage -= OnMessageSent;
+                _waitForMessageTarget = null;
+            }
+        }
+
+        /// <summary>
+        /// Reset all the wait counters.
+        /// </summary>
+        private void ResetWaitTimeAndMessage()
+        {
+            _waitTime = null;
+            _waitForMessage = null;
+
+            _isMessageReceived = false;
 
             if (_waitForMessageTarget is not null)
             {
