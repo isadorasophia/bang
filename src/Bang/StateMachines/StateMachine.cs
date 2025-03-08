@@ -148,9 +148,11 @@ namespace Bang.StateMachines
         {
             Debug.Assert(World is not null && Entity is not null, "Why are we ticking before starting first?");
 
-            if (_waitForMessage is not null)
+            if (_waitTime is not null)
             {
-                if (!_isMessageReceived)
+                _waitTime -= dt;
+
+                if (_waitTime > 0)
                 {
                     return true;
                 }
@@ -158,11 +160,9 @@ namespace Bang.StateMachines
                 ResetWaitTimeAndMessage();
             }
 
-            if (_waitTime is not null)
+            if (_waitForMessage is not null)
             {
-                _waitTime -= dt;
-
-                if (_waitTime > 0)
+                if (!_isMessageReceived)
                 {
                     return true;
                 }
