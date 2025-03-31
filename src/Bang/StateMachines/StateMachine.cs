@@ -421,6 +421,7 @@ namespace Bang.StateMachines
                 return;
             }
 
+            _waitTime = null;
             _isMessageReceived = true;
 
             if (_waitForMessageTarget is not null)
