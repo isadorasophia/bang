@@ -663,6 +663,12 @@ namespace Bang.Entities
         /// </summary>
         public void Destroy()
         {
+            if (IsDestroyed)
+            {
+                // already gone.
+                return;
+            }
+
             foreach (int index in _components.Keys)
             {
                 NotifyRemovalOnDestroy(index);

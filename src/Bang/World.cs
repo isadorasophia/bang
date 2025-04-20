@@ -1457,6 +1457,7 @@ namespace Bang
 
             foreach (Entity e in _entities.Values)
             {
+                e.Destroy(); // sanity check to propagate to all those who must be notified.
                 e.Dispose();
             }
 
