@@ -943,7 +943,7 @@ namespace Bang
                 if (context.Entities.Length > 1)
                 {
                     nonDestroyedCount = context.Entities.Where(e => !e.IsDestroyed).Count();
-                    Debug.Assert(nonDestroyedCount == 1, "Why are there more than one entity with an unique component?");
+                    Debug.Assert(nonDestroyedCount <= 1, "Why are there more than one entity with an unique component?");
                 }
             }
 
