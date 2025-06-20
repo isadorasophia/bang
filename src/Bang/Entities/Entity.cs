@@ -508,7 +508,7 @@ namespace Bang.Entities
                 return false;
             }
 
-            if (!forceReplace && c.Equals(_components[index]))
+            if (!forceReplace && c is not IDoNotCheckOnReplaceTag && c.Equals(_components[index]))
             {
                 // Don't bother replacing if both components have the same value.
                 return false;
