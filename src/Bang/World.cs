@@ -67,7 +67,7 @@ namespace Bang
         /// <summary>
         /// Tracks down all the watchers id that require a notification operation.
         /// </summary>
-        private HashSet<int>? _watchersTriggered = null;
+        private readonly HashSet<int> _watchersTriggered = [];
 
         /// <summary>
         /// Whether there are any pending watchers.
@@ -78,7 +78,7 @@ namespace Bang
             {
                 lock (_notificationLock)
                 {
-                    return _watchersTriggered is not null;
+                    return _watchersTriggered.Count != 0;
                 }
             }
         }
@@ -86,7 +86,7 @@ namespace Bang
         /// <summary>
         /// Tracks down all the entities that received a message notification within the frame.
         /// </summary>
-        private HashSet<int>? _entitiesTriggeredByMessage = null;
+        private readonly HashSet<int> _entitiesTriggeredByMessage = [];
 
         /// <summary>
         /// Tracks all registered systems across the world, regardless if they are active or not.
@@ -1181,7 +1181,7 @@ namespace Bang
 
             lock (_notificationLock)
             {
-                if (_watchersTriggered is null)
+                if (_watchersTriggered.Count == 0)
                 {
                     if (DIAGNOSTICS_MODE)
                     {
@@ -1197,7 +1197,7 @@ namespace Bang
                 }
 
                 watchersTriggered = [.. _watchersTriggered];
-                _watchersTriggered = null;
+                _watchersTriggered.Clear();
             }
 
             _systemsToNotify.Clear();
@@ -1348,13 +1348,13 @@ namespace Bang
             ImmutableArray<int> entitiesTriggered;
             lock (_notificationLock)
             {
-                if (_entitiesTriggeredByMessage is null)
+                if (_entitiesTriggeredByMessage.Count == 0)
                 {
                     return;
                 }
 
-                entitiesTriggered = _entitiesTriggeredByMessage.ToImmutableArray();
-                _entitiesTriggeredByMessage = null;
+                entitiesTriggered = [.. _entitiesTriggeredByMessage];
+                _entitiesTriggeredByMessage.Clear();
             }
 
             foreach (int entityId in entitiesTriggered)
@@ -1371,7 +1371,6 @@ namespace Bang
         {
             lock (_notificationLock)
             {
-                _watchersTriggered ??= new();
                 _watchersTriggered.Add(watcherId);
             }
         }
@@ -1383,7 +1382,6 @@ namespace Bang
         {
             lock (_notificationLock)
             {
-                _entitiesTriggeredByMessage ??= new();
                 _entitiesTriggeredByMessage.Add(entity.EntityId);
             }
         }
