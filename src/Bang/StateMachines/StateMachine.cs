@@ -12,7 +12,6 @@ namespace Bang.StateMachines
     /// It is sort-of anti-pattern of ECS at this point. This is a trade-off
     /// between adding content and using ECS at the core of the game.
     /// </summary>
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)]
     public abstract class StateMachine
     {
         /// <summary>
