@@ -1,5 +1,7 @@
 ## Release 0.0.7
 
+### New Rules
+
 Rule ID | Category | Severity | Notes
 --------|----------|----------|--------------------
 BANG2004 | Usage    | Error    | UniqueAttribute can only be used in Components.
