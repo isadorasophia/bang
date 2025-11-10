@@ -386,6 +386,12 @@ namespace Bang
 
             if (id is null)
             {
+                // very unlikely, but WHO KNOWS... for now, I'll address it like this.
+                if (_nextEntityId >= int.MaxValue)
+                {
+                    _nextEntityId = 0;
+                }
+
                 // Look for the next id available.
                 id = _nextEntityId++;
                 while (_entities.ContainsKey(id.Value) || _deactivatedEntities.ContainsKey(id.Value))
