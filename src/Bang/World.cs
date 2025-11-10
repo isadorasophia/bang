@@ -180,6 +180,18 @@ namespace Bang
         private int _nextEntityId;
 
         /// <summary>
+        /// Expose the next eligible entity id.
+        /// </summary>
+        public int NextEligibleEntityId
+        {
+            get => _nextEntityId;
+            set 
+            {
+                _nextEntityId = Math.Max(_nextEntityId, value);
+            }
+        }
+
+        /// <summary>
         /// Whether the world has been queried to be on pause or not.
         /// See <see cref="Pause"/>.
         /// </summary>
