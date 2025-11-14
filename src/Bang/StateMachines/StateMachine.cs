@@ -263,7 +263,12 @@ namespace Bang.StateMachines
                 {
                     if (_routinesOnWait.Peek().MoveNext())
                     {
-                        return _routinesOnWait.Peek().Current ?? Wait.Stop;
+                        if (_routinesOnWait.TryPeek(out IEnumerator<Wait>? result))
+                        {
+                            return result.Current;
+                        }
+
+                        return Wait.Stop;
                     }
                     else
                     {
