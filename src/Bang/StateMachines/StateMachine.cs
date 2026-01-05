@@ -136,7 +136,15 @@ namespace Bang.StateMachines
         /// </summary>
         internal void Start()
         {
-            OnStart();
+            try
+            {
+                OnStart();
+            }
+            catch (InvalidStateMachineException)
+            {
+                // Something unexpected occurred, immediately stop this state machine.
+            }
+
             _isFirstTick = false;
         }
 
