@@ -333,6 +333,11 @@ namespace Bang.StateMachines
 
             Routine?.Dispose();
 
+            foreach (IEnumerator<Wait> r in _routinesOnWait)
+            {
+                r.Dispose();
+            }
+
             Routine = null;
             CurrentState = null;
             OnModified = null;
@@ -404,6 +409,11 @@ namespace Bang.StateMachines
         protected void State(Func<IEnumerator<Wait>> routine)
         {
             Routine?.Dispose();
+
+            foreach (IEnumerator<Wait> r in _routinesOnWait)
+            {
+                r.Dispose();
+            }
 
             CurrentState = routine;
             Routine = routine.Invoke();
