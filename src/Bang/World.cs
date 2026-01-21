@@ -1471,7 +1471,8 @@ namespace Bang
 
             Exit();
 
-            foreach (Entity e in _entities.Values)
+            ImmutableArray<Entity> entities = [.. _entities.Values];
+            foreach (Entity e in entities)
             {
                 e.Destroy(); // sanity check to propagate to all those who must be notified.
                 e.Dispose();
