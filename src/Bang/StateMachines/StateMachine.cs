@@ -40,12 +40,6 @@ namespace Bang.StateMachines
         public string Name { get; private set; } = string.Empty;
 
         /// <summary>
-        /// Called when the state changes.
-        /// Should only be called by the state machine component, see <see cref="StateMachineComponent{T}"/>.
-        /// </summary>
-        private event Action? OnModified;
-
-        /// <summary>
         /// Current state, represented by <see cref="Name"/>.
         /// Tracked if we ever need to reset to the start of the state.
         /// </summary>
@@ -286,7 +280,7 @@ namespace Bang.StateMachines
 
                 _isFirstTickForCurrentRoutine = false;
 
-                if (!Routine.MoveNext())
+                if (Routine is null || !Routine.MoveNext())
                 {
                     return Wait.Stop;
                 }
@@ -297,7 +291,7 @@ namespace Bang.StateMachines
                 {
                     _isFirstTickForCurrentRoutine = false;
 
-                    if (!Routine.MoveNext())
+                    if (Routine is null || !Routine.MoveNext())
                     {
                         return Wait.Stop;
                     }
@@ -340,20 +334,17 @@ namespace Bang.StateMachines
 
             Routine = null;
             CurrentState = null;
-            OnModified = null;
 
             Name = string.Empty;
         }
 
-        public void Subscribe(Action notification)
+        public void Subscribe()
         {
-            OnModified += notification;
             Entity.OnMessage += OnMessageSent;
         }
 
-        public void Unsubscribe(Action notification)
+        public void Unsubscribe()
         {
-            OnModified -= notification;
             Entity.OnMessage -= OnMessageSent;
         }
 
@@ -420,8 +411,6 @@ namespace Bang.StateMachines
 
             Name = routine.Method.Name;
             _cachedPersistedState = Name;
-
-            OnModified?.Invoke();
 
             _isFirstTickForCurrentRoutine = true;
         }

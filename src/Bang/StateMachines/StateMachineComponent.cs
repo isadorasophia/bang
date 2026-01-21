@@ -7,7 +7,7 @@ namespace Bang.StateMachines
     /// <summary>
     /// Implements a state machine component.
     /// </summary>
-    public struct StateMachineComponent<T> : IStateMachineComponent, IModifiableComponent where T : StateMachine, new()
+    public struct StateMachineComponent<T> : IStateMachineComponent, IModifiableComponent, IDisposable where T : StateMachine, new()
     {
         /// <summary>
         /// This will fire a notification whenever the state changes.
@@ -44,18 +44,18 @@ namespace Bang.StateMachines
         public bool Tick(float seconds) => _routine.Tick(seconds * 1000);
 
         /// <summary>
-        /// Called right before the component gets destroyed.
+        /// Called *before* this component gets replaced, removed or destroyed from the entity.
         /// </summary>
-        public void OnDestroyed() => _routine.OnDestroyed();
+        public void Dispose() => _routine.OnDestroyed();
 
         /// <summary>
         /// Subscribe for notifications on this component.
         /// </summary>
-        public void Subscribe(Action notification) => _routine.Subscribe(notification);
+        public void Subscribe(Action notification) => _routine.Subscribe();
 
         /// <summary>
         /// Stop listening to notifications on this component.
         /// </summary>
-        public void Unsubscribe(Action notification) => _routine.Unsubscribe(notification);
+        public void Unsubscribe(Action notification) => _routine.Unsubscribe();
     }
 }

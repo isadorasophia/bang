@@ -521,6 +521,11 @@ namespace Bang.Entities
                 modifiableComponent.Unsubscribe(action);
             }
 
+            if (_components[index] is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
             _components[index] = c;
 
             if (_parent is not null && c is IParentRelativeComponent relative && !relative.HasParent &&
@@ -552,6 +557,11 @@ namespace Bang.Entities
                 RemoveOnComponentModifiable(index) is Action action)
             {
                 modifiableComponent.Unsubscribe(action);
+            }
+
+            if (_components[index] is IDisposable disposable)
+            {
+                disposable.Dispose();
             }
 
             _components[index] = default!;
@@ -675,7 +685,6 @@ namespace Bang.Entities
             }
 
             IsDestroyed = true;
-
             OnEntityDestroyed?.Invoke(EntityId);
         }
 
