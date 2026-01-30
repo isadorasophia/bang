@@ -175,6 +175,11 @@ namespace Bang
         private readonly Dictionary<int, bool> _pendingActivateSystems = new();
 
         /// <summary>
+        /// Fired after an update.
+        /// </summary>
+        private event Action? OnAfterUpdate;
+
+        /// <summary>
         /// Entity count, used for generating the next id.
         /// </summary>
         private int _nextEntityId;
@@ -403,6 +408,28 @@ namespace Bang
             }
 
             return id.Value;
+        }
+
+        /// <summary>
+        /// Register that an entity must be removed in the end of the frame.
+        /// </summary>
+        internal void RegisterToNotifyAfterUpdate(Action onAfterUpdate)
+        {
+            OnAfterUpdate += onAfterUpdate;
+        }
+
+        /// <summary>
+        /// Notify all clients in <see cref="OnAfterUpdate"/> after an update.
+        /// </summary>
+        private void NotifyPendingAfterUpdate()
+        {
+            if (OnAfterUpdate is null)
+            {
+                return;
+            }
+
+            OnAfterUpdate?.Invoke();
+            OnAfterUpdate = null;
         }
 
         /// <summary>
@@ -1089,6 +1116,7 @@ namespace Bang
             }
 
             NotifyReactiveSystems();
+            NotifyPendingAfterUpdate();
             DestroyPendingEntities();
             ActivateOrDeactivatePendingSystems();
         }
@@ -1134,6 +1162,7 @@ namespace Bang
             }
 
             NotifyReactiveSystems();
+            NotifyPendingAfterUpdate();
             DestroyPendingEntities();
             ActivateOrDeactivatePendingSystems();
 
@@ -1469,6 +1498,7 @@ namespace Bang
 
             IsExiting = true;
 
+            NotifyPendingAfterUpdate();
             Exit();
 
             ImmutableArray<Entity> entities = [.. _entities.Values];

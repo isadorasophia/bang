@@ -7,7 +7,7 @@ namespace Bang.StateMachines
     /// <summary>
     /// Implements a state machine component.
     /// </summary>
-    public struct StateMachineComponent<T> : IStateMachineComponent, IModifiableComponent, IDisposable where T : StateMachine, new()
+    public struct StateMachineComponent<T> : IStateMachineComponent, IModifiableComponent, IDestroyableComponent where T : StateMachine, new()
     {
         /// <summary>
         /// This will fire a notification whenever the state changes.
@@ -46,7 +46,7 @@ namespace Bang.StateMachines
         /// <summary>
         /// Called *before* this component gets replaced, removed or destroyed from the entity.
         /// </summary>
-        public void Dispose() => _routine.OnDestroyed();
+        public void OnDestroyed() => _routine.OnDestroyed();
 
         /// <summary>
         /// Subscribe for notifications on this component.

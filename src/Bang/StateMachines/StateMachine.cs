@@ -87,6 +87,11 @@ namespace Bang.StateMachines
         private bool _isFirstTick = true;
 
         /// <summary>
+        /// Whether the state machine has been disposed.
+        /// </summary>
+        private bool _disposed = false;
+
+        /// <summary>
         /// Whether this was the first time a tick was executed on the current routine.
         /// </summary>
         private bool _isFirstTickForCurrentRoutine = true;
@@ -323,8 +328,12 @@ namespace Bang.StateMachines
         /// </summary>
         public virtual void OnDestroyed()
         {
-            Entity.OnMessage -= OnMessageSent;
+            if (_disposed)
+            {
+                return;
+            }
 
+            Entity.OnMessage -= OnMessageSent;
             Routine?.Dispose();
 
             foreach (IEnumerator<Wait> r in _routinesOnWait)
@@ -334,8 +343,9 @@ namespace Bang.StateMachines
 
             Routine = null;
             CurrentState = null;
-
             Name = string.Empty;
+
+            _disposed = true;
         }
 
         public void Subscribe()

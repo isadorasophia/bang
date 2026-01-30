@@ -521,9 +521,9 @@ namespace Bang.Entities
                 modifiableComponent.Unsubscribe(action);
             }
 
-            if (_components[index] is IDisposable disposable)
+            if (_components[index] is IDestroyableComponent destroyable)
             {
-                disposable.Dispose();
+                _world.RegisterToNotifyAfterUpdate(destroyable.OnDestroyed);
             }
 
             _components[index] = c;
@@ -559,9 +559,9 @@ namespace Bang.Entities
                 modifiableComponent.Unsubscribe(action);
             }
 
-            if (_components[index] is IDisposable disposable)
+            if (_components[index] is IDestroyableComponent destroyable)
             {
-                disposable.Dispose();
+                _world.RegisterToNotifyAfterUpdate(destroyable.OnDestroyed);
             }
 
             _components[index] = default!;
