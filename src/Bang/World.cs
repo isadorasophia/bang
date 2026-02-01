@@ -364,7 +364,9 @@ namespace Bang
         /// </summary>
         internal World AddEntity(Entity entity)
         {
-            _entities.Add(entity.EntityId, entity);
+            Debug.Assert(!_entities.ContainsKey(entity.EntityId), $"Adding an entity for the same id {entity.EntityId}?");
+            
+            _entities[entity.EntityId] = entity;
 
             // Track end of the entity lifetime.
             entity.OnEntityDestroyed += RegisterToRemove;
@@ -512,7 +514,9 @@ namespace Bang
         {
             if (_deactivatedEntities.TryGetValue(id, out Entity? e))
             {
-                _entities.Add(id, e);
+                Debug.Assert(!_entities.ContainsKey(id), $"Activating an entity already active at {id}?");
+
+                _entities[id] = e;
                 _deactivatedEntities.Remove(id);
 
                 Debug.Assert(!e.IsDeactivated, $"Entity {id} should have been activated when calling this.");
@@ -530,7 +534,9 @@ namespace Bang
         {
             if (_entities.TryGetValue(id, out Entity? e))
             {
-                _deactivatedEntities.Add(id, e);
+                Debug.Assert(!_deactivatedEntities.ContainsKey(id), $"Deactivating an entity already deactivated at {id}?");
+
+                _deactivatedEntities[id] = e;
                 _entities.Remove(id);
 
                 Debug.Assert(e.IsDeactivated, $"Entity {id} should have been deactivated when calling this.");
