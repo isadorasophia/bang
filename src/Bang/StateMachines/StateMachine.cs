@@ -120,7 +120,15 @@ namespace Bang.StateMachines
                                               .FirstOrDefault(m => m.Name == _cachedPersistedState);
                 if (method is not null)
                 {
-                    State((Func<IEnumerator<Wait>>)Delegate.CreateDelegate(typeof(Func<IEnumerator<Wait>>), this, method));
+                    try
+                    {
+                        State((Func<IEnumerator<Wait>>)Delegate.CreateDelegate(typeof(Func<IEnumerator<Wait>>), this, method));
+                    }
+                    catch (ArgumentException)
+                    {
+                        // wrong signature? was it renamed? either case, let's just skip...
+                        Debug.WriteLine($"Unable to initialize state machine at {_cachedPersistedState}.");
+                    }
                 }
             }
         }
