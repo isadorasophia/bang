@@ -385,7 +385,7 @@ namespace Bang.Entities
         {
             Debug.Assert(index == GetComponentIndex(c.GetType()));
 
-            IParentRelativeComponent? relativeComponent = _components[index] as IParentRelativeComponent;
+            IParentRelativeComponent? relativeComponent = GetComponentInternal(index) as IParentRelativeComponent;
 
             Debug.Assert(relativeComponent is not null, "How is one of the relative components null?");
             relativeComponent?.OnParentModified(c, this);

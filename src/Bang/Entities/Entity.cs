@@ -4,6 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Bang.Entities
 {
@@ -70,6 +71,12 @@ namespace Bang.Entities
         private readonly ComponentsLookup _lookup;
 
         /// <summary>
+        /// Since position is so heavily used, this is a performance optimization such that
+        /// each entity will have the position component cached here.
+        /// </summary>
+        private PositionComponent _position = default;
+
+        /// <summary>
         /// Whether this entity has been destroyed (and probably recycled) or not.
         /// </summary>
         public bool IsDestroyed { get; private set; }
@@ -103,12 +110,51 @@ namespace Bang.Entities
         /// This is used for editor and serialization.
         /// TODO: Optimize this. For now, this is okay since it's only used once the entity is serialized.
         /// </summary>
-        public ImmutableArray<IComponent> Components => _components
-            .Where(kv => _availableComponents[kv.Key]).Select(kv => kv.Value).ToImmutableArray();
+        public ImmutableArray<IComponent> Components
+        {
+            get
+            {
+                var builder = ImmutableArray.CreateBuilder<IComponent>();
+                foreach ((int index, IComponent c) in _components)
+                {
+                    if (!_availableComponents[index])
+                    {
+                        continue;
+                    }
+
+                    if (index == BangComponentTypes.Position)
+                    {
+                        builder.Add(_position);
+                    }
+                    else
+                    {
+                        builder.Add(c);
+                    }
+                }
+
+                return builder.ToImmutable();
+            }
+        }
 
         // TODO: Optimize this. For now, this is okay since it's only used once the entity is initialized.
-        internal ImmutableArray<int> ComponentsIndices => _components
-            .Where(kv => _availableComponents[kv.Key]).Select(kv => kv.Key).ToImmutableArray();
+        internal ImmutableArray<int> ComponentsIndices
+        {
+            get
+            {
+                var builder = ImmutableArray.CreateBuilder<int>();
+                foreach ((int index, IComponent c) in _components)
+                {
+                    if (!_availableComponents[index])
+                    {
+                        continue;
+                    }
+
+                    builder.Add(index);
+                }
+
+                return builder.ToImmutable();
+            }
+        }
 
         internal Entity(World world, int id, IComponent[] components)
         {
@@ -250,14 +296,14 @@ namespace Bang.Entities
 
         private bool TryGetComponent(int index, [NotNullWhen(true)] out IComponent? component)
         {
-            if (HasComponent(index))
+            if (!HasComponent(index))
             {
-                component = _components[index];
-                return true;
+                component = default;
+                return false;
             }
 
-            component = default;
-            return false;
+            component = GetComponentInternal(index);
+            return true;
         }
 
         /// <summary>
@@ -278,7 +324,20 @@ namespace Bang.Entities
         public T GetComponent<T>(int index) where T : IComponent
         {
             Debug.Assert(HasComponent(index), $"The entity doesn't have a component of type '{typeof(T).Name}', maybe you should 'TryGetComponent'?");
-            return (T)_components[index];
+            return (T)GetComponentInternal(index);
+        }
+
+        /// <summary>
+        /// Fetch a component of type T with <paramref name="index"/>.
+        /// If the entity does not have that component, this method will assert and fail.
+        /// Since we fetch position so often, this will bypass a boxing operation by asking for the position directly.
+        /// </summary>
+        public PositionComponent GetPosition()
+        {
+            Debug.Assert(HasComponent(BangComponentTypes.Position), 
+                $"The entity doesn't have a component of type '{nameof(PositionComponent)}', maybe you should 'TryGetComponent'?");
+            
+            return _position;
         }
 
         /// <summary>
@@ -462,8 +521,32 @@ namespace Bang.Entities
                 _availableComponents = newLookup;
             }
 
-            _components[index] = c;
             _availableComponents[index] = true;
+            SetComponentInternal(index, c);
+        }
+
+        private IComponent GetComponentInternal(int index)
+        {
+            if (index == BangComponentTypes.Position)
+            {
+                return _position;
+            }
+            else
+            {
+                return _components[index];
+            }
+        }
+
+        private void SetComponentInternal(int index, IComponent c)
+        {
+            if (index == BangComponentTypes.Position && c is PositionComponent p)
+            {
+                _position = p;
+            }
+            else
+            {
+                _components[index] = c;
+            }
         }
 
         /// <summary>
@@ -508,25 +591,26 @@ namespace Bang.Entities
                 return false;
             }
 
-            if (!forceReplace && c is not IDoNotCheckOnReplaceTag && c.Equals(_components[index]))
+            IComponent previousComponent = GetComponentInternal(index);
+            if (!forceReplace && c is not IDoNotCheckOnReplaceTag && c.Equals(previousComponent))
             {
                 // Don't bother replacing if both components have the same value.
                 return false;
             }
 
             // If this is a modifiable component, unsubscribe from it before actually replacing it.
-            if (_components[index] is IModifiableComponent modifiableComponent &&
+            if (previousComponent is IModifiableComponent modifiableComponent &&
                 RemoveOnComponentModifiable(index) is Action action)
             {
                 modifiableComponent.Unsubscribe(action);
             }
 
-            if (_components[index] is IDestroyableComponent destroyable)
+            if (previousComponent is IDestroyableComponent destroyable)
             {
                 _world.RegisterToNotifyAfterUpdate(destroyable.OnDestroyed);
             }
 
-            _components[index] = c;
+            SetComponentInternal(index, c);
 
             if (_parent is not null && c is IParentRelativeComponent relative && !relative.HasParent &&
                 _parent.TryGetComponent(index, out IComponent? parentComponent))
@@ -553,15 +637,21 @@ namespace Bang.Entities
                 return false;
             }
 
-            if (_components[index] is IModifiableComponent modifiableComponent &&
+            IComponent previousComponent = GetComponentInternal(index);
+            if (previousComponent is IModifiableComponent modifiableComponent &&
                 RemoveOnComponentModifiable(index) is Action action)
             {
                 modifiableComponent.Unsubscribe(action);
             }
 
-            if (_components[index] is IDestroyableComponent destroyable)
+            if (previousComponent is IDestroyableComponent destroyable)
             {
                 _world.RegisterToNotifyAfterUpdate(destroyable.OnDestroyed);
+            }
+
+            if (index == BangComponentTypes.Position)
+            {
+                _position = default;
             }
 
             _components[index] = default!;
@@ -743,7 +833,7 @@ namespace Bang.Entities
 
                     // TODO: Cache and optimize components that must be kept during r?
                     // As of today, a replace should happen so now and then that I will keep it like that for now.
-                    if (HasComponent(index) && _components[index] is IComponent c &&
+                    if (TryGetComponent(index, out IComponent? c) && 
                         Attribute.IsDefined(c.GetType(), typeof(KeepOnReplaceAttribute)))
                     {
                         continue;

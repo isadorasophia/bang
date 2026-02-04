@@ -31,7 +31,7 @@ public static partial class Templates
         public RelativeComponentSetSubstitution() : base("<relative_components_set>") { }
 
         protected override string? ProcessComponent(TypeMetadata.Component metadata)
-            => metadata is { IsParentRelativeComponent: true, IsMurderTransformComponent: false }
+            => metadata is { IsParentRelativeComponent: true }
             ? $"""
                            global::Bang.Entities.{ProjectPrefix}ComponentTypes.{metadata.FriendlyName},
 

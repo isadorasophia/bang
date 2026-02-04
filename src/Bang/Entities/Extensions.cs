@@ -1,6 +1,7 @@
 using Bang.Components;
 using Bang.Interactions;
 using Bang.StateMachines;
+using System.Numerics;
 
 namespace Bang.Entities
 {
@@ -10,45 +11,37 @@ namespace Bang.Entities
     public static class Extensions
     {
         /// <summary>
-        /// Gets a component of type <see cref="ITransformComponent"/>.
+        /// Checks whether this entity possesses a component of type <see cref="PositionComponent"/> or not.
         /// </summary>
-        public static ITransformComponent GetTransform(this Entity e)
-            => e.GetComponent<ITransformComponent>(BangComponentTypes.Transform);
+        public static bool HasPosition(this Entity e) => e.HasComponent(BangComponentTypes.Position);
 
         /// <summary>
-        /// Checks whether this entity possesses a component of type <see cref="ITransformComponent"/> or not.
+        /// Gets a <see cref="PositionComponent"/> if the entity has one, otherwise returns null.
         /// </summary>
-        public static bool HasTransform(this Entity e)
-            => e.HasComponent(BangComponentTypes.Transform);
+        public static PositionComponent? TryGetPosition(this Entity e) => e.HasPosition() ? e.GetPosition() : null;
 
         /// <summary>
-        /// Gets a <see cref="ITransformComponent"/> if the entity has one, otherwise returns null.
+        /// Adds or replaces the component of type <see cref="PositionComponent" />.
         /// </summary>
-        public static ITransformComponent? TryGetTransform(this Entity e)
-            => e.HasTransform() ? e.GetTransform() : null;
+        public static void SetPosition(this Entity e, PositionComponent component) => 
+            e.AddOrReplaceComponent(component, BangComponentTypes.Position);
 
         /// <summary>
-        /// Adds or replaces the component of type <see cref="ITransformComponent" />.
+        /// Adds or replaces the component of type <see cref="PositionComponent" />.
         /// </summary>
-        public static void SetTransform(this Entity e, ITransformComponent component)
-        {
-            e.AddOrReplaceComponent(component, BangComponentTypes.Transform);
-        }
+        public static void SetPosition(this Entity e, Vector2 position) =>
+            e.AddOrReplaceComponent(new PositionComponent(position), BangComponentTypes.Position);
 
         /// <summary>
-        /// Adds or replaces the component of type <see cref="ITransformComponent" />.
+        /// Adds or replaces the component of type <see cref="PositionComponent" />.
         /// </summary>
-        public static Entity WithTransform(this Entity e, ITransformComponent component)
-        {
-            e.AddOrReplaceComponent(component, BangComponentTypes.Transform);
-            return e;
-        }
+        public static void SetPosition(this Entity e, float x, float y) =>
+            e.AddOrReplaceComponent(new PositionComponent(x, y), BangComponentTypes.Position);
 
         /// <summary>
-        /// Removes the component of type <see cref="ITransformComponent" />.
+        /// Removes the component of type <see cref="PositionComponent" />.
         /// </summary>
-        public static bool RemoveTransform(this Entity e)
-            => e.RemoveComponent(BangComponentTypes.Transform);
+        public static bool RemovePosition(this Entity e) => e.RemoveComponent(BangComponentTypes.Position);
 
         /// <summary>
         /// Gets a component of type <see cref="IStateMachineComponent"/>.

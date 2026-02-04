@@ -65,7 +65,6 @@ public sealed class MetadataFetcher
                 FullyQualifiedName: component.FullyQualifiedName(),
                 IsInternal: component.DeclaredAccessibility == Accessibility.Internal,
                 IsTransformComponent: component.ImplementsInterface(bangTypeSymbols.TransformInterface),
-                IsMurderTransformComponent: component.ImplementsInterface(bangTypeSymbols.MurderTransformInterface),
                 IsParentRelativeComponent: component.ImplementsInterface(bangTypeSymbols.ParentRelativeComponentInterface),
                 IsUniqueComponent: component.HasAttribute(bangTypeSymbols.UniqueAttribute),
                 Constructors: component.Constructors

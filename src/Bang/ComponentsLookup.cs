@@ -24,7 +24,7 @@ namespace Bang
         {
             { typeof(IStateMachineComponent), BangComponentTypes.StateMachine },
             { typeof(IInteractiveComponent), BangComponentTypes.Interactive },
-            { typeof(ITransformComponent), BangComponentTypes.Transform }
+            { typeof(PositionComponent), BangComponentTypes.Position }
         }.ToImmutableDictionary();
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Bang
         /// List of all the unique id of the components that inherit from <see cref="IParentRelativeComponent"/>.
         /// </summary>
         public ImmutableHashSet<int> RelativeComponents { get; protected init; } =
-            ImmutableHashSet.Create(BangComponentTypes.Transform);
+            ImmutableHashSet.Create(BangComponentTypes.Position);
 
         /// <summary>
         /// Tracks components and messages without a generator. This query will have a lower performance.

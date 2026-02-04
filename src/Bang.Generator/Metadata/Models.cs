@@ -12,7 +12,6 @@ public sealed class BangTypeSymbols
     public INamedTypeSymbol InteractionInterface { get; }
     public INamedTypeSymbol ComponentsLookupClass { get; }
     public INamedTypeSymbol TransformInterface { get; }
-    public INamedTypeSymbol? MurderTransformInterface { get; }
     public INamedTypeSymbol UniqueAttribute { get; }
 
     private BangTypeSymbols(INamedTypeSymbol componentInterface,
@@ -22,7 +21,6 @@ public sealed class BangTypeSymbols
         INamedTypeSymbol interactionInterface,
         INamedTypeSymbol componentsLookupClass,
         INamedTypeSymbol transformInterface,
-        INamedTypeSymbol? murderTransformInterface,
         INamedTypeSymbol uniqueAttribute)
     {
         MessageInterface = messageInterface;
@@ -31,7 +29,6 @@ public sealed class BangTypeSymbols
         TransformInterface = transformInterface;
         InteractionInterface = interactionInterface;
         ComponentsLookupClass = componentsLookupClass;
-        MurderTransformInterface = murderTransformInterface;
         ParentRelativeComponentInterface = parentRelativeComponentInterface;
         UniqueAttribute = uniqueAttribute;
     }
@@ -68,8 +65,8 @@ public sealed class BangTypeSymbols
         if (componentsLookupClass is null)
             return null;
 
-        // Bail if ITransformComponent is not resolvable.
-        var transformComponentInterface = compilation.GetTypeByMetadataName("Bang.Components.ITransformComponent");
+        // Bail if PositionComponent is not resolvable.
+        var transformComponentInterface = compilation.GetTypeByMetadataName("Bang.Components.PositionComponent");
         if (transformComponentInterface is null)
             return null;
 
@@ -89,7 +86,6 @@ public sealed class BangTypeSymbols
             interactionInterface,
             componentsLookupClass,
             transformComponentInterface,
-            murderTransformComponentInterface,
             uniqueAttribute
         );
     }
@@ -119,7 +115,6 @@ public abstract record TypeMetadata
         string FullyQualifiedName,
         bool IsTransformComponent,
         bool IsParentRelativeComponent,
-        bool IsMurderTransformComponent,
         bool IsUniqueComponent,
         ImmutableArray<ConstructorMetadata> Constructors
     ) : TypeMetadata;
