@@ -630,6 +630,12 @@ namespace Bang.Entities
             (c as IStateMachineComponent)?.Initialize(_world, this);
             (c as IModifiableComponent)?.Subscribe(GetModifiableComponentCallback(index));
 
+            // skip any further notifications if this tag is in place.
+            if (c is IDoNotCheckOnReplaceTag)
+            {
+                return;
+            }
+
             // Now, notify all contexts that are observing this change.
             OnComponentModified?.Invoke(this, index);
 
