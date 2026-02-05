@@ -672,6 +672,7 @@ namespace Bang
         public virtual void Pause()
         {
             IsPaused = true;
+            PerfSmoothCounter.PAUSED = true;
 
             // Start by activating all systems that wait for a pause.
             foreach (int id in _playOnPauseSystems)
@@ -703,6 +704,7 @@ namespace Bang
             }
 
             IsPaused = false;
+            PerfSmoothCounter.PAUSED = false;
 
             foreach (int id in _systemsToResume)
             {
@@ -1239,7 +1241,7 @@ namespace Bang
                     if (DIAGNOSTICS_MODE)
                     {
                         // Make sure we update each reactive system with our nothing-ness.
-                        foreach ((int systemId, SmoothCounter counter) in ReactiveCounters)
+                        foreach ((int systemId, PerfSmoothCounter counter) in ReactiveCounters)
                         {
                             ReactiveCounters[systemId].Update(0, 0);
                         }
@@ -1377,7 +1379,7 @@ namespace Bang
 
             if (DIAGNOSTICS_MODE)
             {
-                foreach ((int systemId, SmoothCounter counter) in ReactiveCounters)
+                foreach ((int systemId, PerfSmoothCounter counter) in ReactiveCounters)
                 {
                     if (!_reactiveTriggeredSystems.Contains(systemId))
                     {

@@ -3,8 +3,10 @@
     /// <summary>
     /// Class used to smooth the counter of performance ticks.
     /// </summary>
-    public class SmoothCounter
+    public class PerfSmoothCounter
     {
+        public static bool PAUSED = false;
+
         private int _index = 0;
 
         private double _totalDeltaTime = 0;
@@ -39,16 +41,21 @@
         public int CurrentIndex => _index;
 
         /// <summary>
-        /// Creates a new <see cref="SmoothCounter"/>.
+        /// Creates a new <see cref="PerfSmoothCounter"/>.
         /// </summary>
         /// <param name="size">Default batch size when averaging the last frames for the FPS.</param>
-        public SmoothCounter(int size = 500) => (_sampleSize, _previousTime, _previousEntityCount) = (size, new double[size], new int[size]);
+        public PerfSmoothCounter(int size = 500) => (_sampleSize, _previousTime, _previousEntityCount) = (size, new double[size], new int[size]);
 
         /// <summary>
         /// Clear the counter track.
         /// </summary>
         public void Clear()
         {
+            if (PAUSED)
+            {
+                return;
+            }
+
             _index = 0;
 
             _totalDeltaTime = 0;
@@ -67,6 +74,11 @@
         /// <param name="totalEntities">Total of entities pulled for this system.</param>
         public void Update(double ms, int totalEntities)
         {
+            if (PAUSED)
+            {
+                return;
+            }
+
             _index++;
 
             if (_index == _sampleSize)

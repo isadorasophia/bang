@@ -25,25 +25,25 @@ public partial class World
     /// This has the duration of each start system (id) to its corresponding time (in ms).
     /// See <see cref="IdToSystem"/> on how to fetch the actual system.
     /// </summary>
-    public readonly Dictionary<int, SmoothCounter> StartCounters = new();
+    public readonly Dictionary<int, PerfSmoothCounter> StartCounters = new();
 
     /// <summary>
     /// This has the duration of each update system (id) to its corresponding time (in ms).
     /// See <see cref="IdToSystem"/> on how to fetch the actual system.
     /// </summary>
-    public readonly Dictionary<int, SmoothCounter> UpdateCounters = new();
+    public readonly Dictionary<int, PerfSmoothCounter> UpdateCounters = new();
 
     /// <summary>
     /// This has the duration of each fixed update system (id) to its corresponding time (in ms).
     /// See <see cref="IdToSystem"/> on how to fetch the actual system.
     /// </summary>
-    public readonly Dictionary<int, SmoothCounter> FixedUpdateCounters = new();
+    public readonly Dictionary<int, PerfSmoothCounter> FixedUpdateCounters = new();
 
     /// <summary>
     /// This has the duration of each reactive system (id) to its corresponding time (in ms).
     /// See <see cref="IdToSystem"/> on how to fetch the actual system.
     /// </summary>
-    public readonly Dictionary<int, SmoothCounter> ReactiveCounters = new();
+    public readonly Dictionary<int, PerfSmoothCounter> ReactiveCounters = new();
 
     /// <summary>
     /// Initialize the performance counters according to the systems present in the world.
