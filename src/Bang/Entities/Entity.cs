@@ -328,7 +328,7 @@ namespace Bang.Entities
         }
 
         /// <summary>
-        /// Fetch a component of type T with <paramref name="index"/>.
+        /// Fetch the position component directly.
         /// If the entity does not have that component, this method will assert and fail.
         /// Since we fetch position so often, this will bypass a boxing operation by asking for the position directly.
         /// </summary>
