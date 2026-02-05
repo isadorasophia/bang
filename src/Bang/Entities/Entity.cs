@@ -522,7 +522,14 @@ namespace Bang.Entities
             }
 
             _availableComponents[index] = true;
-            SetComponentInternal(index, c);
+
+            if (index == BangComponentTypes.Position && c is PositionComponent p)
+            {
+                _position = p;
+            }
+
+            // make sure position is added here, at least initially.
+            _components[index] = c;
         }
 
         private IComponent GetComponentInternal(int index)
