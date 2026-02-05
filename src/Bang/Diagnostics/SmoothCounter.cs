@@ -33,6 +33,12 @@
         public double MaximumTime => _longestTime;
 
         /// <summary>
+        /// The most recent time value.
+        /// </summary>
+        public double CurrentTime => _previousTime[_index];
+        public int CurrentIndex => _index;
+
+        /// <summary>
         /// Creates a new <see cref="SmoothCounter"/>.
         /// </summary>
         /// <param name="size">Default batch size when averaging the last frames for the FPS.</param>
