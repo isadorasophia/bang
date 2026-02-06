@@ -30,6 +30,11 @@
         public int AverageEntities => (int)MathF.Round(_totalEntitiesCount / (float)_sampleSize);
 
         /// <summary>
+        /// The most recent entity count.
+        /// </summary>
+        public int CurrentEntities => _previousEntityCount.Length > 0 ? _previousEntityCount[_index] : 0;
+
+        /// <summary>
         /// Maximum value over the sample size.
         /// </summary>
         public double MaximumTime => _longestTime;
