@@ -4,8 +4,10 @@ using Bang.Diagnostics;
 using Bang.Entities;
 using Bang.Systems;
 using Bang.Util;
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bang
 {
@@ -1016,14 +1018,53 @@ namespace Bang
         /// </summary>
         public ImmutableArray<Entity> GetEntitiesWith(ContextAccessorFilter filter, params Type[] components)
         {
+            int id = GetOrCreateContextIdFrom(filter, components);
+            return Contexts[id].Entities;
+        }
+
+        /// <summary>
+        /// Retrieve a context ID for the specified filter and components.
+        /// </summary>
+        public int GetOrCreateContextIdFrom(ContextAccessorFilter filter, params Type[] components)
+        {
             Span<int> componentsIndices = stackalloc int[components.Length];
             for (int i = 0; i < components.Length; ++i)
             {
                 componentsIndices[i] = ComponentsLookup.Id(components[i]);
             }
 
-            int id = GetOrCreateContext(filter, componentsIndices);
-            return Contexts[id].Entities;
+            return GetOrCreateContext(filter, componentsIndices);
+        }
+
+        /// <summary>
+        /// Retrieve a context for the specified filter and components.
+        /// </summary>
+        public ImmutableArray<Entity> GetEntitiesFrom(int contextId)
+        {
+            if (!TryGetEntitiesFrom(contextId, out ImmutableArray<Entity>? entities))
+            {
+                Debug.Fail($"Tried to access invalid context {contextId}.");
+                return [];
+            }
+
+            return entities.Value;
+        }
+
+        /// <summary>
+        /// Retrieve a context for the specified filter and components.
+        /// </summary>
+        public bool TryGetEntitiesFrom(int contextId, [NotNullWhen(true)] out ImmutableArray<Entity>? entities)
+        {
+            if (!Contexts.TryGetValue(contextId, out Context? context))
+            {
+                entities = [];
+
+                // Context does not exist.
+                return false;
+            }
+
+            entities = context.Entities;
+            return true;
         }
 
         /// <summary>
