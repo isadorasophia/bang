@@ -42,7 +42,8 @@ namespace Bang.Contexts
                         kv => kv.Key,
                         kv => kv.Value
                             .Select(indexAndEntity => indexAndEntity.Value)
-                            .Where(e => !e.IsDestroyed || kv.Key == WatcherNotificationKind.Removed)
+                            .Where(e => 
+                                e.IsActive || kv.Key == WatcherNotificationKind.Removed || kv.Key == WatcherNotificationKind.Disabled)
                             .ToDictionary(e => e.EntityId, e => e));
 
                     _entitiesToNotify = null;
@@ -106,6 +107,11 @@ namespace Bang.Contexts
                 return;
             }
 
+            if (!e.IsActive)
+            {
+                return;
+            }
+
             QueueEntityNotification(WatcherNotificationKind.Added, e);
         }
 
@@ -119,6 +125,11 @@ namespace Bang.Contexts
             if (e.IsDestroyed)
             {
                 // entity has already been notified prior to this call.
+                return;
+            }
+
+            if (!e.IsActive)
+            {
                 return;
             }
 
@@ -137,6 +148,11 @@ namespace Bang.Contexts
         private void OnEntityComponentReplaced(Entity e, int index)
         {
             if (index != _targetComponent)
+            {
+                return;
+            }
+
+            if (!e.IsActive)
             {
                 return;
             }
