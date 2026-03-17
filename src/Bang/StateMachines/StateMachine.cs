@@ -97,6 +97,11 @@ namespace Bang.StateMachines
         private bool _isFirstTickForCurrentRoutine = true;
 
         /// <summary>
+        /// Track the content of the last message we waited for.
+        /// </summary>
+        private IMessage? _lastMessageWaited = null;
+
+        /// <summary>
         /// Whether the state machine active state should be persisted on serialization.
         /// </summary>
         protected virtual bool PersistStateOnSave => true;
@@ -433,6 +438,11 @@ namespace Bang.StateMachines
             _isFirstTickForCurrentRoutine = true;
         }
 
+        /// <summary>
+        /// Fetch the last message that was waited for.
+        /// </summary>
+        protected IMessage? LastMessage => _lastMessageWaited;
+
         private void OnMessageSent(Entity e, int index, IMessage message)
         {
             if (e.EntityId == Entity.EntityId)
@@ -453,6 +463,8 @@ namespace Bang.StateMachines
 
             _waitTime = null;
             _isMessageReceived = true;
+
+            _lastMessageWaited = message;
 
             if (_waitForMessageTarget is not null)
             {
