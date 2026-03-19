@@ -1,5 +1,6 @@
 ﻿using Bang.Components;
 using Bang.Entities;
+using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -121,21 +122,34 @@ namespace Bang.StateMachines
             // If the default state is not the same as the one we persisted, track it again, if we can!
             if (_cachedPersistedState is not null && Name != _cachedPersistedState && PersistStateOnSave)
             {
-                MethodInfo? method = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
-                                              .FirstOrDefault(m => m.Name == _cachedPersistedState);
-                if (method is not null)
+                Func<IEnumerator<Wait>>? @delegate = TryFetchDelegateForPersistedState(_cachedPersistedState);
+                if (@delegate is not null)
                 {
-                    try
-                    {
-                        State((Func<IEnumerator<Wait>>)Delegate.CreateDelegate(typeof(Func<IEnumerator<Wait>>), this, method));
-                    }
-                    catch (ArgumentException)
-                    {
-                        // wrong signature? was it renamed? either case, let's just skip...
-                        Debug.WriteLine($"Unable to initialize state machine at {_cachedPersistedState}.");
-                    }
+                    State(@delegate);
                 }
             }
+        }
+
+        private Func<IEnumerator<Wait>>? TryFetchDelegateForPersistedState(string state)
+        {
+            MethodInfo? method = GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                                              .FirstOrDefault(m => m.Name == state);
+
+            Func<IEnumerator<Wait>>? @delegate = null;
+            if (method is not null)
+            {
+                try
+                {
+                    @delegate = (Func<IEnumerator<Wait>>)Delegate.CreateDelegate(typeof(Func<IEnumerator<Wait>>), this, method);
+                }
+                catch (ArgumentException)
+                {
+                    // wrong signature? was it renamed? either case, let's just skip...
+                    Debug.WriteLine($"Unable to initialize state machine at {state}.");
+                }
+            }
+
+            return @delegate;
         }
 
         /// <summary>
@@ -374,9 +388,15 @@ namespace Bang.StateMachines
         /// <summary>
         /// This resets the current state of the state machine back to the beginning of that same state.
         /// </summary>
-        protected void Reset()
+        public void ResetCurrentState()
         {
-            Routine = CurrentState?.Invoke();
+            string state = _cachedPersistedState ?? Name;
+
+            Func<IEnumerator<Wait>>? @delegate = TryFetchDelegateForPersistedState(state);
+            if (@delegate is not null)
+            {
+                State(@delegate);
+            }
         }
 
         /// <summary>

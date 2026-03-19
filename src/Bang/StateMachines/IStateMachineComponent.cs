@@ -27,5 +27,10 @@ namespace Bang.StateMachines
         /// Tick a yield operation in the state machine. The next tick will be called according to the returned <see cref="WaitKind"/>.
         /// </summary>
         public bool Tick(float dt);
+
+        /// <summary>
+        /// Reset the state machine back to the current state.
+        /// </summary>
+        public void Reset();
     }
 }

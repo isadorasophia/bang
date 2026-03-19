@@ -44,6 +44,11 @@ namespace Bang.StateMachines
         public bool Tick(float seconds) => _routine.Tick(seconds * 1000);
 
         /// <summary>
+        /// Clean up and reset the state machine.
+        /// </summary>
+        public void Reset() => _routine.ResetCurrentState();
+
+        /// <summary>
         /// Called *before* this component gets replaced, removed or destroyed from the entity.
         /// </summary>
         public void OnDestroyed() => _routine.OnDestroyed();
