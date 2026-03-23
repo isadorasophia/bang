@@ -395,7 +395,7 @@ namespace Bang.StateMachines
             Func<IEnumerator<Wait>>? @delegate = TryFetchDelegateForPersistedState(state);
             if (@delegate is not null)
             {
-                State(@delegate);
+                SwitchState(@delegate);
             }
         }
 
@@ -430,10 +430,7 @@ namespace Bang.StateMachines
             // Also resets any pending wait state.
             // This is important if this happened to be called while interrupting an
             // ongoing state machine.
-            _waitTime = null;
-            _waitFrames = null;
-            _waitForMessage = null;
-
+            ResetWaitTimeAndMessage();
             State(routine);
         }
 
@@ -499,8 +496,9 @@ namespace Bang.StateMachines
         private void ResetWaitTimeAndMessage()
         {
             _waitTime = null;
-            _waitForMessage = null;
+            _waitFrames = null;
 
+            _waitForMessage = null;
             _isMessageReceived = false;
 
             if (_waitForMessageTarget is not null)
