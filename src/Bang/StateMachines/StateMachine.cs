@@ -306,7 +306,7 @@ namespace Bang.StateMachines
                     }
                     else
                     {
-                        _routinesOnWait.Pop();
+                        _routinesOnWait.TryPop(out _);
                     }
                 }
 
@@ -368,6 +368,8 @@ namespace Bang.StateMachines
                 r.Dispose();
             }
 
+            _routinesOnWait.Clear();
+
             Routine = null;
             CurrentState = null;
             Name = string.Empty;
@@ -406,7 +408,6 @@ namespace Bang.StateMachines
         protected virtual Wait GoTo(Func<IEnumerator<Wait>> routine)
         {
             SwitchState(routine);
-
             return Tick();
         }
 
@@ -445,6 +446,8 @@ namespace Bang.StateMachines
             {
                 r.Dispose();
             }
+
+            _routinesOnWait.Clear();
 
             CurrentState = routine;
             Routine = routine.Invoke();
