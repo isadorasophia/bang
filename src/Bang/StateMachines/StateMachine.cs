@@ -437,6 +437,17 @@ namespace Bang.StateMachines
             return Tick();
         }
 
+        protected virtual void TransitionAndTick(Func<IEnumerator<Wait>> routine)
+        {
+            Transition(routine);
+
+            if (!_isTicking)
+            {
+                // only do the tick if we're not already ticking, or things may go bad.
+                Tick();
+            }
+        }
+
         /// <summary>
         /// Redirects the state machine to a new <paramref name="routine"/> without doing
         /// a tick.
