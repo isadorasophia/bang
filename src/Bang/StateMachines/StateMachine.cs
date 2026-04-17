@@ -47,6 +47,11 @@ namespace Bang.StateMachines
         private Func<IEnumerator<Wait>>? CurrentState { get; set; }
 
         /// <summary>
+        /// Next state that will be switched as soon as the tick is done.
+        /// </summary>
+        private Func<IEnumerator<Wait>>? _queuedNextState = null;
+
+        /// <summary>
         /// The routine the entity is currently executing.
         /// </summary>
         private IEnumerator<Wait>? Routine { get; set; }
@@ -86,6 +91,12 @@ namespace Bang.StateMachines
         /// Used to call <see cref="OnStart"/>.
         /// </summary>
         private bool _isFirstTick = true;
+
+        /// <summary>
+        /// Whether the state machine is running a tick.
+        /// NEVER changes the state while a tick is operating.
+        /// </summary>
+        private bool _isTicking = false;
 
         /// <summary>
         /// Whether the state machine has been disposed.
@@ -290,6 +301,21 @@ namespace Bang.StateMachines
                 Start();
             }
 
+            _isTicking = true;
+            Wait result = TickImpl();
+            _isTicking = false;
+
+            if (_queuedNextState is not null)
+            {
+                // do the pending transition when we are no longer on the tick.
+                Transition(_queuedNextState);
+            }
+
+            return result;
+        }
+
+        private Wait TickImpl()
+        {
             try
             {
                 // If there is a wait routine, go for that instead.
@@ -418,6 +444,14 @@ namespace Bang.StateMachines
         /// <param name="routine">Target routine (new state).</param>
         protected virtual void Transition(Func<IEnumerator<Wait>> routine)
         {
+            if (_isTicking)
+            {
+                // we are busy, wait for this tick to be done!
+                // we DO not want to operate in a disposed state.
+                _queuedNextState = routine;
+                return;
+            }
+
             SwitchState(routine);
         }
 
@@ -426,7 +460,7 @@ namespace Bang.StateMachines
         /// a tick.
         /// </summary>
         /// <param name="routine">Target routine (new state).</param>
-        protected void SwitchState(Func<IEnumerator<Wait>> routine)
+        private void SwitchState(Func<IEnumerator<Wait>> routine)
         {
             // Also resets any pending wait state.
             // This is important if this happened to be called while interrupting an
@@ -456,6 +490,7 @@ namespace Bang.StateMachines
             _cachedPersistedState = Name;
 
             _isFirstTickForCurrentRoutine = true;
+            _queuedNextState = null;
         }
 
         /// <summary>
