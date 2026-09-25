@@ -22,23 +22,30 @@ Check out our [wiki](https://github.com/isadorasophia/bang/wiki) for more detail
 We are on nuget! So you can either use this repository as a submodule or simply add:
 
 ```csproj
+<BangVersion>0.0.6.230-dev</BangVersion>
+
 <!-- Main Package. -->
-<PackageReference Include="Murder.Bang" Version="0.0.2-alpha" />
+<PackageReference Include="Murder.Bang" Version="$(BangVersion)" />
 
 <!-- Generator package. Mandatory, include it so Bang can generate lookup classes and extensions for your Components. -->
-<PackageReference Include="Murder.Bang.Generator" Version="0.0.4">
+<PackageReference Include="Murder.Bang.Generator" Version="$(BangVersion)">
     <PrivateAssets>all</PrivateAssets>
     <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 </PackageReference>
 
 <!-- Optional Package with analyzers and code fixes. -->
-<PackageReference Include="Murder.Bang.Analyzers" Version="0.0.3">
+<PackageReference Include="Murder.Bang.Analyzers" Version="$(BangVersion)">
     <PrivateAssets>all</PrivateAssets>
     <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 </PackageReference>
 ```
 
 Whatever makes you happier. The nuget package should have symbols and source embedded available with Source Link.
+
+### Contributing
+Feel free to contact me or [saint11](http://saint11.org/) if you have any suggestions. I am very interested in people trying it out and any feedback you may have!
+
+Pull requests, bug reports and other contributions made with LLM or any generative AI technology will NOT be accepted. I am not in the slight interested in reviewing any non-human code.
 
 ### Real-life examples
 [Neo City Express](https://github.com/isadorasophia/neocityexpress) was a Ludum Dare game (made in 72h ⏰) built on top of **Murder** and **Bang**. I highly recommend checking it out, especially if you're good with learning from examples.
