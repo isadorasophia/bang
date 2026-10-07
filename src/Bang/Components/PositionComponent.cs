@@ -14,29 +14,23 @@ namespace Bang.Components;
 [DebuggerDisplay("X: {X}, Y: {Y}")]
 public readonly struct PositionComponent : IParentRelativeComponent, IEquatable<PositionComponent>
 {
-    private readonly Vector2? _globalPosition;
-
-    [Serialize]
-    private readonly float _x;
-
-    [Serialize]
-    private readonly float _y;
-
     /// <summary>
     /// Relative X position of the component.
     /// </summary>
-    public float X => _x;
+    public readonly float X;
 
     /// <summary>
     /// Relative Y position of the component.
     /// </summary>
-    public float Y => _y;
+    public readonly float Y;
+
+    private readonly Vector2? _globalPosition;
 
     public float Angle => 0;
 
     public Vector2 Scale => Vector2.One;
 
-    public Vector2 Vector2 => new(_x, _y);
+    public Vector2 Vector2 => new(X, Y);
 
     /// <summary>
     /// Return the global position of the component within the world.
@@ -72,7 +66,7 @@ public readonly struct PositionComponent : IParentRelativeComponent, IEquatable<
 
     public PositionComponent(float x, float y, Vector2? globalPosition)
     {
-        (_x, _y) = (x, y);
+        (X, Y) = (x, y);
         _globalPosition = globalPosition;
     }
 
