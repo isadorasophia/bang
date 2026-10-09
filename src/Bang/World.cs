@@ -1460,6 +1460,11 @@ namespace Bang
                     // This will make sure that the entity has not been deleted.
                     e.ClearMessages();
                 }
+                else if (_deactivatedEntities.TryGetValue(entityId, out e))
+                {
+                    // make sure we also clean from entities which were deactivated!
+                    e.ClearMessages();
+                }
             }
         }
 
