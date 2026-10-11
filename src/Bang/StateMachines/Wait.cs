@@ -83,7 +83,7 @@ namespace Bang.StateMachines
         /// </summary>
         public static Wait ForRoutine(IEnumerator<Wait> routine) => new(routine);
 
-        public Wait() : this(WaitKind.Frames, 0) { }
+        public Wait() : this(WaitKind.Stop, 0) { }
         private Wait(WaitKind kind, int value) => (Kind, Value) = (kind, value);
         private Wait(Type messageType) => (Kind, Component) = (WaitKind.Message, messageType);
         private Wait(Type messageType, int maximumWaitMs) => (Kind, Component, Value) = (WaitKind.Message, messageType, maximumWaitMs);
