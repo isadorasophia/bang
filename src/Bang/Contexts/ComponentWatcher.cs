@@ -1,6 +1,8 @@
 ﻿using Bang.Entities;
 using Bang.Util;
 using System;
+using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace Bang.Contexts
 {
@@ -24,34 +26,46 @@ namespace Bang.Contexts
         /// Maps:
         ///  [Notification kind -> [Entity id, Entity]]
         /// </summary>
-        private Dictionary<WatcherNotificationKind, Dictionary<int, Entity>>? _entitiesToNotify;
+        private readonly Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> _entitiesToNotify = [];
 
         /// <summary>
         /// Get the entities that will be notified.
         /// This will immediately clear the notification list.
         /// </summary>
-        public Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> PopNotifications()
+        public Dictionary<WatcherNotificationKind, ImmutableArray<Entity>> PopNotifications()
         {
             lock (_lock)
             {
-                if (_entitiesToNotify is not null)
+                if (_entitiesToNotify.Count != 0)
                 {
                     // We will only filter entities that have not been destroyed or are being passed over to a 
                     // remove watch system.
-                    var result = _entitiesToNotify.ToDictionary(
-                        kv => kv.Key,
-                        kv => kv.Value
-                            .Select(indexAndEntity => indexAndEntity.Value)
-                            .Where(e => 
-                                e.IsActive || kv.Key == WatcherNotificationKind.Removed || kv.Key == WatcherNotificationKind.Disabled)
-                            .ToDictionary(e => e.EntityId, e => e));
+                    Dictionary<WatcherNotificationKind, ImmutableArray<Entity>> result = [];
+                    foreach ((WatcherNotificationKind kind, Dictionary<int, Entity> affectedEntities) in _entitiesToNotify)
+                    {
+                        var builder = ImmutableArray.CreateBuilder<Entity>();
+                        foreach ((int entityId, Entity e) in affectedEntities)
+                        {
+                            if (e.IsActive || kind == WatcherNotificationKind.Removed || kind == WatcherNotificationKind.Disabled)
+                            {
+                                builder.Add(e);
+                            }
+                        }
 
-                    _entitiesToNotify = null;
+                        if (affectedEntities.Count == 0)
+                        {
+                            continue;
+                        }
 
+                        result[kind] = builder.ToImmutable();
+                    }
+
+                    _entitiesToNotify.Clear();
                     return result;
                 }
 
-                throw new InvalidOperationException("Why are we getting the entities for an empty notification?");
+                Debug.Fail($"Why are we getting the entities for watcher {Id} without any notification?");
+                return [];
             }
         }
 
@@ -59,23 +73,15 @@ namespace Bang.Contexts
         {
             lock (_lock)
             {
-                if (_entitiesToNotify is null)
+                if (!_entitiesToNotify.TryGetValue(kind, out Dictionary<int, Entity>? affectedEntities))
                 {
-                    _entitiesToNotify = new();
-                }
-
-                if (!_entitiesToNotify.ContainsKey(kind))
-                {
-                    _entitiesToNotify.Add(kind, new());
+                    affectedEntities = [];
+                    _entitiesToNotify.Add(kind, affectedEntities);
 
                     World.QueueWatcherNotification(Id);
                 }
 
-                // Only add each entity once to our notification list.
-                if (!_entitiesToNotify[kind].ContainsKey(entity.EntityId))
-                {
-                    _entitiesToNotify[kind].Add(entity.EntityId, entity);
-                }
+                affectedEntities[entity.EntityId] = entity;
             }
         }
 
@@ -133,8 +139,7 @@ namespace Bang.Contexts
                 return;
             }
 
-            if (_entitiesToNotify is not null &&
-                _entitiesToNotify.TryGetValue(WatcherNotificationKind.Added, out var notificationOnAdded) &&
+            if (_entitiesToNotify.TryGetValue(WatcherNotificationKind.Added, out var notificationOnAdded) &&
                 notificationOnAdded.ContainsKey(e.EntityId))
             {
                 // This was previously added. But now it's removed! So let's clean up this list.
@@ -167,8 +172,7 @@ namespace Bang.Contexts
 
         private void OnEntityDeactivated(Entity e)
         {
-            if (_entitiesToNotify is not null &&
-                _entitiesToNotify.TryGetValue(WatcherNotificationKind.Added, out var notificationOnAdded) &&
+            if (_entitiesToNotify.TryGetValue(WatcherNotificationKind.Added, out var notificationOnAdded) &&
                 notificationOnAdded.ContainsKey(e.EntityId))
             {
                 // This entity was literally just added this frame. For such scenario, don't trigger Added *or* Deactivated.
@@ -184,7 +188,7 @@ namespace Bang.Contexts
         {
             lock (_lock)
             {
-                _entitiesToNotify = null;
+                _entitiesToNotify.Clear();
             }
         }
     }

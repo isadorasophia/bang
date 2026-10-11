@@ -6,32 +6,32 @@ namespace Bang.StateMachines
     /// <summary>
     /// A message fired to communicate the current state of the state machine.
     /// </summary>
-    public record Wait
+    public readonly struct Wait
     {
         /// <summary>
         /// When should the state machine be called again.
         /// </summary>
-        public readonly WaitKind Kind;
+        public readonly WaitKind Kind = WaitKind.Stop;
 
         /// <summary>
         /// Integer value, if kind is <see cref="WaitKind.Ms"/> or <see cref="WaitKind.Frames"/>.
         /// </summary>
-        public int? Value;
+        public readonly int? Value = null;
 
         /// <summary>
         /// Used for <see cref="WaitKind.Message"/>.
         /// </summary>
-        public Type? Component;
+        public readonly Type? Component = null;
 
         /// <summary>
         /// Used for <see cref="WaitKind.Message"/> when waiting on another entity that is not the owner of the state machine.
         /// </summary>
-        public Entity? Target;
+        public readonly Entity? Target = null;
 
         /// <summary>
         /// Used for <see cref="WaitKind.Routine"/>.
         /// </summary>
-        public IEnumerator<Wait>? Routine;
+        public readonly IEnumerator<Wait>? Routine = null;
 
         /// <summary>
         /// No longer execute the state machine.
@@ -83,7 +83,7 @@ namespace Bang.StateMachines
         /// </summary>
         public static Wait ForRoutine(IEnumerator<Wait> routine) => new(routine);
 
-        private Wait() => Kind = WaitKind.Stop;
+        public Wait() : this(WaitKind.Frames, 0) { }
         private Wait(WaitKind kind, int value) => (Kind, Value) = (kind, value);
         private Wait(Type messageType) => (Kind, Component) = (WaitKind.Message, messageType);
         private Wait(Type messageType, int maximumWaitMs) => (Kind, Component, Value) = (WaitKind.Message, messageType, maximumWaitMs);
