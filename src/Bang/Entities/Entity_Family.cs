@@ -1,6 +1,7 @@
 ﻿using Bang.Components;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bang.Entities
 {
@@ -28,6 +29,12 @@ namespace Bang.Entities
         /// Null if none (no parent).
         /// </summary>
         public int? Parent => _parent?.EntityId;
+
+        // [Perf] Family operations cache.
+        private Action<Entity>? _activateFromParentCache;
+        private Action<Entity>? _deactivateFromParentCache;
+        private Action<int>? _destroyCache;
+        private Action<int, IComponent>? _onParentModifiedCache;
 
         private ImmutableArray<int>? _cachedChildren = null;
 
@@ -183,7 +190,6 @@ namespace Bang.Entities
             Entity child = _world.GetEntity(id);
 
             // child calls Unparent() once its destroyed.
-            // child.OnEntityDestroyed += RemoveChild;
             child.Reparent(this);
         }
 
@@ -308,6 +314,7 @@ namespace Bang.Entities
         public void Reparent(Entity parent)
         {
             Debug.Assert(_lookup is not null);
+            InitializeFamilyDelegates();
 
             if (parent == _parent)
             {
@@ -336,7 +343,7 @@ namespace Bang.Entities
             {
                 if (HasComponent(index))
                 {
-                    _parent.TrackComponent(index, OnParentModified);
+                    _parent.TrackComponent(index, _onParentModifiedCache);
 
                     if (_parent.TryGetComponent(index, out IComponent? parentComponent))
                     {
@@ -345,10 +352,10 @@ namespace Bang.Entities
                 }
             }
 
-            _parent.OnEntityDestroyed += Destroy;
+            _parent.OnEntityDestroyed += _destroyCache;
 
-            _parent.OnEntityActivated += ActivateFromParent;
-            _parent.OnEntityDeactivated += DeactivateFromParent;
+            _parent.OnEntityActivated += _activateFromParentCache;
+            _parent.OnEntityDeactivated += _deactivateFromParentCache;
 
             _parent.AddChild(EntityId);
         }
@@ -360,6 +367,7 @@ namespace Bang.Entities
         public void Unparent()
         {
             Debug.Assert(_lookup is not null);
+            InitializeFamilyDelegates();
 
             if (_parent is null) return;
 
@@ -367,11 +375,11 @@ namespace Bang.Entities
             {
                 if (_parent._trackedComponentsModified.ContainsKey(index))
                 {
-                    _parent._trackedComponentsModified[index] -= OnParentModified;
+                    _parent._trackedComponentsModified[index] -= _onParentModifiedCache;
                 }
             }
 
-            _parent.OnEntityDestroyed -= Destroy;
+            _parent.OnEntityDestroyed -= _destroyCache;
 
             _parent.OnEntityActivated -= OnEntityActivated;
             _parent.OnEntityDeactivated -= OnEntityDeactivated;
@@ -389,6 +397,16 @@ namespace Bang.Entities
 
             Debug.Assert(relativeComponent is not null, "How is one of the relative components null?");
             relativeComponent?.OnParentModified(c, this);
+        }
+
+        [MemberNotNull(nameof(_activateFromParentCache), nameof(_deactivateFromParentCache),
+            nameof(_destroyCache), nameof(_onParentModifiedCache))]
+        private void InitializeFamilyDelegates()
+        {
+            _activateFromParentCache = ActivateFromParent;
+            _deactivateFromParentCache = DeactivateFromParent;
+            _destroyCache = Destroy;
+            _onParentModifiedCache = OnParentModified;
         }
     }
 }

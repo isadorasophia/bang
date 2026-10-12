@@ -28,6 +28,13 @@ namespace Bang.Contexts
         /// </summary>
         private readonly Dictionary<WatcherNotificationKind, Dictionary<int, Entity>> _entitiesToNotify = [];
 
+        // [Perf]
+        private readonly Action<Entity, int> _onEntityComponentAddedCache;
+        private readonly Action<Entity, int, bool> _onEntityComponentRemovedCache;
+        private readonly Action<Entity, int> _onEntityComponentReplacedCache;
+        private readonly Action<Entity> _onEntityActivatedCache;
+        private readonly Action<Entity> _onEntityDeactivatedCache;
+
         /// <summary>
         /// Get the entities that will be notified.
         /// This will immediately clear the notification list.
@@ -94,16 +101,23 @@ namespace Bang.Contexts
 
             _targetComponent = world.ComponentsLookup.Id(targetComponent);
             Id = HashCode.Combine(contextId, _targetComponent);
+
+            // Initialize and cache delegators for performance improvement.
+            _onEntityComponentAddedCache = OnEntityComponentAdded;
+            _onEntityComponentRemovedCache = OnEntityComponentRemoved;
+            _onEntityComponentReplacedCache = OnEntityComponentReplaced;
+            _onEntityActivatedCache = OnEntityActivated;
+            _onEntityDeactivatedCache = OnEntityDeactivated;
         }
 
         internal void SubscribeToContext(Context context)
         {
-            context.OnComponentAddedForEntityInContext += OnEntityComponentAdded;
-            context.OnComponentRemovedForEntityInContext += OnEntityComponentRemoved;
-            context.OnComponentModifiedForEntityInContext += OnEntityComponentReplaced;
+            context.OnComponentAddedForEntityInContext += _onEntityComponentAddedCache;
+            context.OnComponentRemovedForEntityInContext += _onEntityComponentRemovedCache;
+            context.OnComponentModifiedForEntityInContext += _onEntityComponentReplacedCache;
 
-            context.OnActivateEntityInContext += OnEntityActivated;
-            context.OnDeactivateEntityInContext += OnEntityDeactivated;
+            context.OnActivateEntityInContext += _onEntityActivatedCache;
+            context.OnDeactivateEntityInContext += _onEntityDeactivatedCache;
         }
 
         private void OnEntityComponentAdded(Entity e, int index)

@@ -214,6 +214,9 @@ namespace Bang
         /// </summary>
         internal readonly ComponentsLookup ComponentsLookup;
 
+        // [Perf] Called when an entity is destroyed.
+        private readonly Action<int> _registerToRemoveCache;
+
         /// <summary>
         /// Initialize the world!
         /// </summary>
@@ -333,6 +336,8 @@ namespace Bang
                 CheckSystemsRequirements(systems);
                 InitializeDiagnosticsCounters();
             }
+
+            _registerToRemoveCache = RegisterToRemove;
         }
 
         /// <summary>
@@ -371,7 +376,7 @@ namespace Bang
             _entities[entity.EntityId] = entity;
 
             // Track end of the entity lifetime.
-            entity.OnEntityDestroyed += RegisterToRemove;
+            entity.OnEntityDestroyed += _registerToRemoveCache;
 
             // Filter the entity across all active contexts.
             foreach (var (_, context) in Contexts)

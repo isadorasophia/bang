@@ -117,6 +117,11 @@ namespace Bang.Contexts
         /// </summary>
         public bool HasAnyEntity => _entities.Count > 0;
 
+        private Action<Entity, int>? _onEntityComponentAddedCache;
+        private Action<Entity, int, bool>? _onEntityComponentRemovedCache;
+        private Action<Entity>? _onEntityActivatedCache;
+        private Action<Entity>? _onEntityDeactivatedCache;
+
         internal Context(World world, ISystem system) : base(world)
         {
             var filters = CreateFilterList(system);
@@ -124,6 +129,7 @@ namespace Bang.Contexts
             _componentsOperationKind = CreateAccessorKindComponents(filters);
 
             _id = CalculateId();
+            InitializeDelegators();
         }
 
         /// <summary>
@@ -136,6 +142,18 @@ namespace Bang.Contexts
             _componentsOperationKind = ImmutableDictionary<ContextAccessorKind, ImmutableHashSet<int>>.Empty;
 
             _id = CalculateId();
+            InitializeDelegators();
+        }
+
+        /// <summary>
+        /// Initialize and cache delegators for performance improvement.
+        /// </summary>
+        private void InitializeDelegators()
+        {
+            _onEntityComponentAddedCache = OnEntityComponentAdded;
+            _onEntityComponentRemovedCache = OnEntityComponentRemoved;
+            _onEntityActivatedCache = OnEntityActivated;
+            _onEntityDeactivatedCache = OnEntityDeactivated;
         }
 
         /// <summary>
@@ -291,8 +309,8 @@ namespace Bang.Contexts
                 return;
             }
 
-            entity.OnComponentAdded += OnEntityComponentAdded;
-            entity.OnComponentRemoved += OnEntityComponentRemoved;
+            entity.OnComponentAdded += _onEntityComponentAddedCache;
+            entity.OnComponentRemoved += _onEntityComponentRemovedCache;
 
             if (DoesEntityMatch(entity))
             {
@@ -301,8 +319,8 @@ namespace Bang.Contexts
 
                 entity.OnMessage += OnMessageSentForEntityInContext;
 
-                entity.OnEntityActivated += OnEntityActivated;
-                entity.OnEntityDeactivated += OnEntityDeactivated;
+                entity.OnEntityActivated += _onEntityActivatedCache;
+                entity.OnEntityDeactivated += _onEntityDeactivatedCache;
 
                 if (OnComponentAddedForEntityInContext is not null)
                 {
@@ -471,8 +489,8 @@ namespace Bang.Contexts
 
             e.OnMessage += OnMessageSentForEntityInContext;
 
-            e.OnEntityActivated += OnEntityActivated;
-            e.OnEntityDeactivated += OnEntityDeactivated;
+            e.OnEntityActivated += _onEntityActivatedCache;
+            e.OnEntityDeactivated += _onEntityDeactivatedCache;
 
             if (!e.IsDeactivated)
             {
@@ -503,8 +521,8 @@ namespace Bang.Contexts
 
             e.OnMessage -= OnMessageSentForEntityInContext;
 
-            e.OnEntityActivated -= OnEntityActivated;
-            e.OnEntityDeactivated -= OnEntityDeactivated;
+            e.OnEntityActivated -= _onEntityActivatedCache;
+            e.OnEntityDeactivated -= _onEntityDeactivatedCache;
 
             if (!e.IsDeactivated)
             {

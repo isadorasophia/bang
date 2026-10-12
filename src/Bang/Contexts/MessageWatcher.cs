@@ -19,6 +19,9 @@ namespace Bang.Contexts
 
         private int _contextSubscribed = -1;
 
+        // [Perf]
+        private readonly Action<Entity, int, IMessage> _onMessageSentCache;
+
         /// <summary>
         /// A watcher will target a single component.
         /// </summary>
@@ -40,13 +43,15 @@ namespace Bang.Contexts
             // Calculate the hash based on the target messages and the context id.
             int messagesHash = HashExtensions.GetHashCodeImpl(builder);
             Id = HashCode.Combine(contextId, messagesHash);
+
+            _onMessageSentCache = OnMessageSent;
         }
 
         internal void SubscribeToContext(Context context)
         {
             Debug.Assert(_contextSubscribed == -1);
 
-            context.OnMessageSentForEntityInContext += OnMessageSent;
+            context.OnMessageSentForEntityInContext += _onMessageSentCache;
             _contextSubscribed = context.Id;
         }
 
