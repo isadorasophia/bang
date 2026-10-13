@@ -112,43 +112,44 @@ public sealed class AttributeAnalyzer : DiagnosticAnalyzer
         if (diagnosticInfo is null)
             return;
 
-        var (interfaceThatMustBeImplemented, diagnosticDescriptor) = diagnosticInfo.Value;
+        var (interfaceThatMustBeImplemented, interfaceMustBeImplementedDescriptor) = diagnosticInfo.Value;
 
-        INamedTypeSymbol? cannotImplementInterface = null;
-        DiagnosticDescriptor? cannotImplementInterfaceDescriptor = null;
+        // optional
+        var (cannotImplementInterface, cannotImplementInterfaceDescriptor) = GetInterfaceThatMustNotBeImplemented(context, attributeClass);
 
-        (cannotImplementInterface, cannotImplementInterfaceDescriptor) = GetInterfaceThatMustNotBeImplemented(context, attributeClass);
-
-        var offendingArguments = argumentList.Arguments.Where(argument =>
+        foreach (AttributeArgumentSyntax argument in argumentList.Arguments)
         {
             // If the argument is not a type of expression we don't need to check it.
             if (argument.Expression is not TypeOfExpressionSyntax typeOfExpression)
             {
-                return false;
+                continue;
             }
 
             if (context.SemanticModel.GetSymbolInfo(typeOfExpression.Type).Symbol is not ITypeSymbol typeSymbol)
             {
-                return false;
+                continue;
             }
 
-            if (cannotImplementInterface is not null && typeSymbol.ImplementsInterface(cannotImplementInterface))
+            if (cannotImplementInterfaceDescriptor is not null && cannotImplementInterface is not null && 
+                typeSymbol.ImplementsInterface(cannotImplementInterface))
             {
-                return true;
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        cannotImplementInterfaceDescriptor,
+                        argument.GetLocation()
+                    )
+                );
             }
 
-            // If the type passed does not implement the relevant interface it's a violation.
-            return !typeSymbol.ImplementsInterface(interfaceThatMustBeImplemented);
-        });
-
-        foreach (AttributeArgumentSyntax offense in offendingArguments)
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    diagnosticDescriptor,
-                    offense.GetLocation()
-                )
-            );
+            if (!typeSymbol.ImplementsInterface(interfaceThatMustBeImplemented))
+            {
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        interfaceMustBeImplementedDescriptor,
+                        argument.GetLocation()
+                    )
+                );
+            }
         }
     }
 

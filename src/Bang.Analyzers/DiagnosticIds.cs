@@ -91,16 +91,15 @@ public static class Diagnostics
         public static class NonCompliantComponentsOnFilterAttribute
         {
             public const string Id = "BANG2005";
-            public const string Message = "Filter attribute expects components that can be filtered";
+            public const string Message = "Filter attribute expects components which can be tracked";
         }
 
 
         public static class NonCompliantComponentsOnWatchAttribute
         {
             public const string Id = "BANG2006";
-            public const string Message = "Watch attribute expects components that can be watched";
+            public const string Message = "Watch attribute expects components which can be tracked";
         }
-
     }
 
     public static class Messages
