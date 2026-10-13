@@ -6,8 +6,4 @@
 /// </summary>
 public interface IDoNotCheckOnReplaceTag
 {
-    /// <summary>
-    /// Whether this should also ignore any notifications on component added, modified or removed.
-    /// </summary>
-    public bool SkipNotificationsOnComponent { get; }
 }

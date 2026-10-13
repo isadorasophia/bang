@@ -727,7 +727,7 @@ namespace Bang.Entities
             (c as IStateMachineComponent)?.Initialize(_world, this);
             (c as IModifiableComponent)?.Subscribe(GetModifiableComponentCallback(index));
 
-            if (c is IDoNotCheckOnReplaceTag doNotReplaceTag && doNotReplaceTag.SkipNotificationsOnComponent)
+            if (c is IDoNotTrackMeTag)
             {
                 return;
             }

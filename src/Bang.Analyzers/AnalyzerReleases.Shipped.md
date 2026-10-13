@@ -1,3 +1,12 @@
+## Release 0.0.8
+
+### New Rules
+
+Rule ID | Category | Severity | Notes
+--------|----------|----------|--------------------
+BANG2005 | Usage    | Error    | Filter attribute expects components which can be tracked.
+BANG2006 | Usage    | Error    | Watch attribute expects components which can be tracked.
+
 ## Release 0.0.7
 
 ### New Rules

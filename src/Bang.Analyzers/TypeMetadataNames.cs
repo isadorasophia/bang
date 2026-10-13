@@ -6,6 +6,8 @@ public static class TypeMetadataNames
     public const string SystemInterface = "Bang.Systems.ISystem";
     public const string FilterAttribute = "Bang.Systems.FilterAttribute";
 
+    public const string DoNotTrackMeTagInterface = "Bang.Components.IDoNotTrackMeTag";
+
     public const string ReactiveSystemInterface = "Bang.Systems.IReactiveSystem";
     public const string WatchAttribute = "Bang.Systems.WatchAttribute";
 
