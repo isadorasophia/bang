@@ -393,7 +393,7 @@ namespace Bang
         /// </summary>
         internal int CheckEntityId(int? id = default)
         {
-            if (id is not null && _entities.ContainsKey(id.Value))
+            if (id is not null && (_entities.ContainsKey(id.Value) || _deactivatedEntities.ContainsKey(id.Value)))
             {
                 id = default;
             }
