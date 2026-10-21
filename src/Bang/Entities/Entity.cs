@@ -866,6 +866,9 @@ namespace Bang.Entities
             {
                 AddChild(id, name);
             }
+
+            // no longer persist messages either.
+            ClearMessages();
         }
 
         /// <summary>
