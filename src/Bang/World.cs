@@ -675,6 +675,8 @@ namespace Bang
         /// <summary>
         /// Pause all the set of systems that qualify in <see cref="IsPauseSystem"/>.
         /// A paused system will no longer be called on any <see cref="Update"/> calls.
+        /// YOU SHOULD BE VERY CAREFUL WHEN CALLING THIS. I assume you know what you're doing.
+        /// Ideally, you should have a context-aware wrapper that cleans this up on descrution.
         /// </summary>
         public virtual void Pause()
         {
