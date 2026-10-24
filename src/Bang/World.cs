@@ -635,6 +635,30 @@ namespace Bang
         }
 
         /// <summary>
+        /// Activate a system whenever a pause operation resumes.
+        /// If world is not paused, same as <see cref="ActivateSystem{T}()"/>.
+        /// </summary>
+        public bool QueueActivateAfterResume<T>()
+        {
+            if (!_typeToSystems.TryGetValue(typeof(T), out int id))
+            {
+                // Most likely the system is simply not available.
+                return false;
+            }
+
+            if (IsPaused)
+            {
+                _systemsToResume.Add(id);
+
+                return true;
+            }
+            else
+            {
+                return ActivateSystem(id);
+            }
+        }
+
+        /// <summary>
         /// Activate a system of type <paramref name="t"/> within our world.
         /// </summary>
         /// <returns>
