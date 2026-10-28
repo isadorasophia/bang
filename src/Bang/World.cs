@@ -502,7 +502,7 @@ namespace Bang
             if (_deactivatedEntities.ContainsKey(id))
             {
                 _deactivatedEntities[id]?.Dispose();
-                _entities.Remove(id);
+                _deactivatedEntities.Remove(id);
 
                 return;
             }
