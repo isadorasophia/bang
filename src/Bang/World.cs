@@ -224,11 +224,6 @@ namespace Bang
         /// <exception cref="ArgumentException">If no systems are passed to the world.</exception>
         public World(IList<(ISystem system, bool isActive)> systems)
         {
-            if (systems.Count == 0)
-            {
-                throw new ArgumentException("Cannot create a world without any systems.");
-            }
-
             ComponentsLookup = FindLookupImplementation();
 
             var watchBuilder = ImmutableDictionary.CreateBuilder<int, (ComponentWatcher Watcher, SortedList<int, IReactiveSystem> Systems)>();
